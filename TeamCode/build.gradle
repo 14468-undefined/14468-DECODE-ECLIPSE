@@ -15,6 +15,21 @@
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'//sloth updates
+
+buildscript {//sloth 11/10/25
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://repo.dairy.foundation/releases"
+
+        }
+    }
+    dependencies {
+        classpath "dev.frozenmilk:Load:0.2.4"
+    }
+}//end sloth
+
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
@@ -27,10 +42,31 @@ repositories {
     maven {
         url = 'https://maven.brott.dev/'
     }
+    maven {
+        url = "https://repo.dairy.foundation/releases"//sloth added 11/9/25
+    }
+    maven {
+        url = "https://repo.dairy.foundation/snapshots"//sloth added 11/9/25
+    }
+    maven {
+        url = "https://mymaven.bylazar.com/releases" //PEDRO 12/9/25
+    }
 }
 
 dependencies {
+
+    implementation 'dev.nextftc:ftc:1.0.1'//next ftc 12/10/25
+    implementation 'dev.nextftc:hardware:1.0.1' // If you would like to use the hardware module //12/10/25
+    implementation 'dev.nextftc:bindings:1.0.1'//next ftc 12/10/25
+
+
     implementation project(':FtcRobotController')
+
+    implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17")//sloth added 11/9/25 this is the FTC dash update
+    implementation("dev.frozenmilk.sinister:Sloth:0.2.4")//sloth added 11/9/25
+    //implementation("dev.frozenmilk.dairy:Core:2.2.4")//sloth added 11/9/25 //DONT ADD DAIRY CORE
+
+
 
     implementation "com.acmerobotics.roadrunner:ftc:0.1.25"
     implementation "com.acmerobotics.roadrunner:core:1.0.1"
