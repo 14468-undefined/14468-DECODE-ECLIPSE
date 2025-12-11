@@ -1,26 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
-
-
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import dev.nextftc.core.commands.Command;
-import dev.nextftc.core.commands.utility.LambdaCommand;
+
 import dev.nextftc.core.subsystems.Subsystem;
-import dev.nextftc.hardware.impl.Direction;
-import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.positionable.SetPosition;
-import dev.nextftc.hardware.powerable.SetPower;
+import dev.nextftc.core.subsystems.SubsystemGroup;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
-import org.firstinspires.ftc.teamcode.util.Constants;
 
+@Config
 public class ShooterSubsystem implements Subsystem {
-
     // --- Hardware ---
-    private MotorEx shooterLeft;
-    private MotorEx shooterRight;
+    private DcMotorEx shooterLeft;
+    private DcMotorEx shooterRight;
 
     // --- Dashboard & Telemetry ---
     private FtcDashboard dash;
@@ -58,7 +55,6 @@ public class ShooterSubsystem implements Subsystem {
      * @param defaultTicks Sets the default ticks of the motor
      *                    Set to the encoder ticks of your motor
      */
-
     public ShooterSubsystem(HardwareMap hardwareMap, double defaultTargetRPM,
                             double defaultMotorRPM, double defaultGearRatio, double defaultTicks) {
         // Initializes dashboard telemetry
@@ -66,25 +62,22 @@ public class ShooterSubsystem implements Subsystem {
         //telemetry = new MultipleTelemetry(telemetry, dash.getTelemetry());
 
 
-        shooterRight = new MotorEx("shooterRight");
-        shooterLeft = new MotorEx("shooterLeft");
+        shooterRight = hardwareMap.get(DcMotorEx.class, "shooterRight");
+        shooterLeft = hardwareMap.get(DcMotorEx.class, "shooterLeft");
+        shooterLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        shooterRight.setDirection(DcMotorEx.Direction.FORWARD);
 
-        //shooterLeft.reverse();
-        //shooterRight.reverse();
-
-        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
         shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Configs defaults
         setTargetRPM(defaultTargetRPM);
@@ -107,10 +100,6 @@ public class ShooterSubsystem implements Subsystem {
         else if(getShooterVelocity() < 5){
             active = false;
         }
-    }
-    @Override
-    public void initialize() {
-        // initialization logic (runs on init)
     }
 
     /// Only use if the constants in this file are correct
@@ -141,7 +130,6 @@ public class ShooterSubsystem implements Subsystem {
     public void applyPIDF() {
         shooterLeft.setVelocityPIDFCoefficients(kP, kI, kD, kF);
         shooterRight.setVelocityPIDFCoefficients(kP, kI, kD, kF);
-
     }
 
     // --- Constants Control ---
@@ -249,17 +237,15 @@ public class ShooterSubsystem implements Subsystem {
         return currShooterRPM;
     }
 
-    /*
     /**
      * Gets shooter motor current velocity
      * @return Returns motor voltage
-
+     */
     public double getMotorVoltage() {
         double leftAmps = shooterLeft.getCurrent(CurrentUnit.AMPS);
         double rightAmps = shooterRight.getCurrent(CurrentUnit.AMPS);
         return (leftAmps + rightAmps)/2.0;
     }
-    */
 
     public boolean isActive() {
         return active;
@@ -267,19 +253,5 @@ public class ShooterSubsystem implements Subsystem {
 
     public boolean isAtTargetSpeed() {
         return ((getShooterVelocity() > (getTargetRPM() - 0)) && (getShooterVelocity() < (getTargetRPM() + 350)) && getShooterVelocity() != 0);
-    }
-
-
-
-
-
-
-    public void printTelemetry(ColorfulTelemetry t){
-        t.addLine("hi");
-        t.update();
-    }
-    @Override
-    public void periodic() {
-        // periodic logic (runs every loop)
     }
 }
