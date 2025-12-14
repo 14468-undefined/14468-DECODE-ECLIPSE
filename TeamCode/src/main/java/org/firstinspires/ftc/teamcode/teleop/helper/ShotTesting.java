@@ -13,14 +13,16 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystem.LimelightSubsystem;
+import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 import static dev.nextftc.bindings.Bindings.*;
 
 
-@TeleOp(name = "Test_Teleop" , group = "AA - COMP")
+@TeleOp(name = "ShotTesting" , group = "AA - COMP")
 
-public class TestTeleop extends NextFTCOpMode {
+public class ShotTesting extends NextFTCOpMode {
 
+    ColorfulTelemetry cTelemetry;
     MecanumDrive drive;
     BaseRobot robot;
     {
@@ -28,7 +30,8 @@ public class TestTeleop extends NextFTCOpMode {
     }
 
     double distance = 0;
-
+    double hoodAngle = 30;
+    int shooterRPM = 3000;
 
     @Override public void onInit() {
 
@@ -42,20 +45,39 @@ public class TestTeleop extends NextFTCOpMode {
     }
     @Override public void onStartButtonPressed() {
 
-        Button gamepad1a = button(() -> gamepad1.a);
+
+
         //.whenTrue: every loop when the button is true.
         //.whenFalse: every loop when the button is false.
         //.whenBecomesTrue: the first loop when the button is true, a.k.a. the rising edge.
         //.whenBecomesFalse: the first loop when the button is false, a.k.a. the falling edge.
 
         //button(() -> gamepad1.a)
-                //.whenBecomesTrue(() -> runSomeCode())
-                //.whenBecomesFalse(() -> runSomeMoreCode());
+        //.whenBecomesTrue(() -> runSomeCode())
+        //.whenBecomesFalse(() -> runSomeMoreCode());
 
         //Button andButton = button1.and(button2); // true when both buttons are true
         //Button orButton = button1.or(button2); // true when at least one button is true
         //Button xorButton = button1.xor(button2); // true when exactly one button is true
         //Button notButton = button1.not(); // true when button1 is false
+
+        Button gamepad1y = button(() -> gamepad1.y);
+        gamepad1y.whenBecomesTrue(() -> {
+            hoodAngle += 1;
+        });
+        Button gamepad1a = button(() -> gamepad1.a);
+        gamepad1a.whenBecomesTrue(() -> {
+            hoodAngle -= 1;
+        });
+
+        Button gamepad1x = button(() -> gamepad1.x);
+        gamepad1x.whenBecomesTrue(() -> {
+            shooterRPM -= 50;
+        });
+        Button gamepad1b = button(() -> gamepad1.b);
+        gamepad1b.whenBecomesTrue(() -> {
+            shooterRPM += 5;
+        });
 
 
 
@@ -63,8 +85,14 @@ public class TestTeleop extends NextFTCOpMode {
     }
     @Override public void onUpdate() {
 
+        robot.shooter.setTargetRPM(shooterRPM);
+        robot.hood.setHoodAngle(hoodAngle);
 
+        distance = robot.limelight.getDistance();
+        cTelemetry.addData("Distance", distance);
 
+        cTelemetry.addData("hood angle", hoodAngle);
+        cTelemetry.addData("Shooter RPM", shooterRPM);
 
         BindingManager.update();
     }

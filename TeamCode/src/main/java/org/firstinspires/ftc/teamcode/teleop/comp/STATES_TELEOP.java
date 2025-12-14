@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop.helper;
+package org.firstinspires.ftc.teamcode.teleop.comp;
 
 import android.renderscript.ScriptGroup;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -12,14 +12,13 @@ import dev.nextftc.bindings.Button;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
-import org.firstinspires.ftc.teamcode.subsystem.LimelightSubsystem;
 
 import static dev.nextftc.bindings.Bindings.*;
 
 
-@TeleOp(name = "Test_Teleop" , group = "AA - COMP")
+@TeleOp(name = "STATES_TELEOP" , group = "AA - COMP")
 
-public class TestTeleop extends NextFTCOpMode {
+public class STATES_TELEOP extends NextFTCOpMode {
 
     MecanumDrive drive;
     BaseRobot robot;
@@ -27,7 +26,6 @@ public class TestTeleop extends NextFTCOpMode {
         addComponents(/* vararg components */);
     }
 
-    double distance = 0;
 
 
     @Override public void onInit() {
@@ -42,15 +40,18 @@ public class TestTeleop extends NextFTCOpMode {
     }
     @Override public void onStartButtonPressed() {
 
+
         Button gamepad1a = button(() -> gamepad1.a);
+
+
         //.whenTrue: every loop when the button is true.
         //.whenFalse: every loop when the button is false.
         //.whenBecomesTrue: the first loop when the button is true, a.k.a. the rising edge.
         //.whenBecomesFalse: the first loop when the button is false, a.k.a. the falling edge.
 
         //button(() -> gamepad1.a)
-                //.whenBecomesTrue(() -> runSomeCode())
-                //.whenBecomesFalse(() -> runSomeMoreCode());
+        //.whenBecomesTrue(() -> runSomeCode())
+        //.whenBecomesFalse(() -> runSomeMoreCode());
 
         //Button andButton = button1.and(button2); // true when both buttons are true
         //Button orButton = button1.or(button2); // true when at least one button is true
@@ -62,7 +63,6 @@ public class TestTeleop extends NextFTCOpMode {
         /// READ THIS ABOUT LAYERS IN TELEOP https://nextftc.dev/bindings/buttons //i.e. endgame layer
     }
     @Override public void onUpdate() {
-
 
 
 

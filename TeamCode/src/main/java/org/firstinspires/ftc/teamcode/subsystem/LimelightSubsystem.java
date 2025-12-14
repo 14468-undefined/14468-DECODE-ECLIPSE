@@ -80,6 +80,19 @@ public class LimelightSubsystem implements Subsystem {
     }
 
 
+    public double getDistance(){
+
+        if(!limelight.isRunning()){
+            limelight.start();
+        }
+
+        LLResult llResult = limelight.getLatestResult();//pulls data from limelight
+        Pose3D botPose = llResult.getBotpose();
+
+        double distance = llResult.getTy();
+        return distance;
+    }
+
     public double getTx(){
 
         if(!limelight.isRunning()){

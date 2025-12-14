@@ -30,6 +30,7 @@ public class GateSubsystem implements Subsystem {
 
         gateLeft = hardwareMap.get(ServoEx.class, "gateLeft");
         gateRight = hardwareMap.get(ServoEx.class, "gateRight");
+
     }
     @Override
     public void initialize() {

@@ -21,6 +21,14 @@ public class BaseRobot extends SubsystemGroup {
 
     public DriveSubsystem drive;
     public IntakeSubsystem intake;
+
+    public GateSubsystem gate;
+    public LimelightSubsystem limelight;
+    public ShooterSubsystem shooter;
+    public TurretSubsystem turret;
+    public HoodSubsystem hood;
+
+
     public ColorfulTelemetry cTelemetry;
 
 
@@ -31,9 +39,15 @@ public class BaseRobot extends SubsystemGroup {
     public BaseRobot(HardwareMap hwMap, Pose2d startPos){
 
         drive = new DriveSubsystem(hwMap, startPos);
-        intake = new IntakeSubsystem(hwMap, cTelemetry);
+
         autoGenerator = new AutoUtil(drive);
 
+        intake = new IntakeSubsystem(hwMap, cTelemetry);
+        turret = new TurretSubsystem(hwMap, cTelemetry);
+        shooter = new ShooterSubsystem(hwMap);
+        limelight = new LimelightSubsystem(hwMap, cTelemetry);
+        gate = new GateSubsystem(hwMap, cTelemetry);
+        hood = new HoodSubsystem(hwMap, cTelemetry);
 
 
     }
@@ -49,7 +63,7 @@ public class BaseRobot extends SubsystemGroup {
     }
 
 
-    @Override
+
     public void printTelemetry(ColorfulTelemetry t) {
         drive.printTelemetry(t);
         //intake.printTelemetry(t);
@@ -63,9 +77,15 @@ public class BaseRobot extends SubsystemGroup {
 
     @Override
     public void periodic() {
-        intake.periodic();
+
         drive.periodic();
 
+        intake.periodic();
+        turret.periodic();
+        shooter.periodic();
+        limelight.periodic();
+        gate.periodic();
+        hood.periodic();
 
     }
 
