@@ -7,9 +7,13 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.robocol.Command;
+
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
 import dev.nextftc.ftc.NextFTCOpMode;
+
+import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 
@@ -26,6 +30,9 @@ public class STATES_TELEOP extends NextFTCOpMode {
         addComponents(/* vararg components */);
     }
 
+    double Tx;//x error of april tag (rotation for turret)
+    double Ty;//angle of tag (basically used as distance here)
+    AutoAimCommand AutoAimCommand = new AutoAimCommand(Ty, Tx);
 
 
     @Override public void onInit() {
@@ -64,7 +71,10 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
     @Override public void onUpdate() {
 
+        Tx = robot.limelight.getTx();
+        Ty = robot.limelight.getDistance();
 
+        AutoAimCommand.schedule();
 
         BindingManager.update();
     }

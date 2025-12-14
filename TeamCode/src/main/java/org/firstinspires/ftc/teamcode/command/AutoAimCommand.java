@@ -14,10 +14,16 @@ public class AutoAimCommand extends Command {
     HardwareMap hwMap;
     ColorfulTelemetry cTelemetry;
     BaseRobot robot;
-    public AutoAimCommand(double camAngle) {
+
+    ShotInterpolator shooterInterpolator = new ShotInterpolator();
+
+    double Tx;
+
+    public AutoAimCommand(double camAngle, double Tx) {
 
         requires(robot.hood, robot.shooter, robot.limelight, robot.turret);
         setInterruptible(true);
+        this.Tx = Tx;
     }
 
     @Override
@@ -28,19 +34,35 @@ public class AutoAimCommand extends Command {
     @Override
     public void start() {
 
-        ShotPoint shot = shooterInterpolator.interpolate(camAngle);
 
-        robot.hood.setHoodAngle(shot.hoodDeg);
-        robot.shooter.setTargetRPM(shot.rpm);
+
+
+
+
     }
 
     @Override
     public void update() {
-        // executed on every update of the command
+        /*
+        this is the interpolation for both hood angle and RPM of the shooter
+         */
+        double camAngle = robot.limelight.getDistance();//in angle (Ty)
+        ShotPoint shot = shooterInterpolator.interpolate(camAngle);
+
+        robot.hood.setHoodAngle(shot.hoodDeg);
+        robot.shooter.setTargetRPM(shot.rpm);
+
+
+        /*
+        this is the turret auto-aim logic
+         */
+
+        robot.turret.setTurretPower(robot.turret.turretPID(Tx));
     }
 
     @Override
     public void stop(boolean interrupted) {
         // executed when the command ends
+        robot.shooter.eStop();
     }
 }
