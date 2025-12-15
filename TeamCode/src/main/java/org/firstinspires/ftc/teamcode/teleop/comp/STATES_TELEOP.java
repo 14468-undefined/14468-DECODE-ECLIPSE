@@ -51,6 +51,16 @@ public class STATES_TELEOP extends NextFTCOpMode {
         Button gamepad1a = button(() -> gamepad1.a);
 
 
+        Button g1RB = button(() -> gamepad1.right_bumper)
+                .whenBecomesTrue(robot.turret.runToAngle(0));
+        //TODO: this needs to be a new state that overrides all the other turret movements. it also needs to have rpm and hood
+
+        Button g2x = button(() -> gamepad2.x)
+                .whenBecomesTrue(robot.intake.intake())
+                .whenBecomesFalse(robot.intake.stop());
+
+
+
         //.whenTrue: every loop when the button is true.
         //.whenFalse: every loop when the button is false.
         //.whenBecomesTrue: the first loop when the button is true, a.k.a. the rising edge.
@@ -77,6 +87,10 @@ public class STATES_TELEOP extends NextFTCOpMode {
         AutoAimCommand.schedule();
 
         BindingManager.update();
+
+        if(gamepad1.right_trigger>.1){
+            //TODO - set shooter rpm
+        }
     }
     @Override public void onStop() {
         BindingManager.reset();

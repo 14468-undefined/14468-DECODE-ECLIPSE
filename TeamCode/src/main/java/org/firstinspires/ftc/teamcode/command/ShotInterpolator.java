@@ -18,7 +18,7 @@ public class ShotInterpolator {
         if (camAngle <= LUT[LUT.length - 1].camAngle)
             return LUT[LUT.length - 1];
 
-        // Find bracket and interpolate
+
         for (int i = 0; i < LUT.length - 1; i++) {
             ShotPoint a = LUT[i];
             ShotPoint b = LUT[i + 1];
