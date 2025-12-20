@@ -36,6 +36,7 @@ public class LimelightSubsystem implements Subsystem {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(8);//PICK WHICH PIPELINE  (theres a coach pratt vid)
 
+
         /*IMU imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(
@@ -86,6 +87,7 @@ public class LimelightSubsystem implements Subsystem {
             limelight.start();
         }
 
+        //if result isnt null and if its valid? TODO
         LLResult llResult = limelight.getLatestResult();//pulls data from limelight
         Pose3D botPose = llResult.getBotpose();
 
