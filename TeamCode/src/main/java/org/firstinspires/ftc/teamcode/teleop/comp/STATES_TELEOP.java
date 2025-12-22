@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 
 import static dev.nextftc.bindings.Bindings.*;
 
+import java.util.function.DoubleSupplier;
+
 
 @TeleOp(name = "STATES_TELEOP" , group = "AA - COMP")
 
@@ -30,9 +32,8 @@ public class STATES_TELEOP extends NextFTCOpMode {
         addComponents(/* vararg components */);
     }
 
-    double Tx;//x error of april tag (rotation for turret)
-    double Ty;//angle of tag (basically used as distance here)
-    AutoAimCommand AutoAimCommand = new AutoAimCommand(Ty, Tx);
+
+
 
 
     @Override public void onInit() {
@@ -41,11 +42,22 @@ public class STATES_TELEOP extends NextFTCOpMode {
         robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(gamepad1.left_stick_y, -gamepad1.left_stick_x), -gamepad1.right_stick_x));
 
 
+
     }
     @Override public void onWaitForStart() {
 
     }
     @Override public void onStartButtonPressed() {
+
+        DoubleSupplier TxSupplier = () -> robot.limelight.getTx();
+        DoubleSupplier TySupplier = () -> robot.limelight.getDistance();
+
+
+        AutoAimCommand AutoAimCommand = new AutoAimCommand(robot, TySupplier, TxSupplier);
+
+        AutoAimCommand.schedule();
+
+
 
 
         Button gamepad1a = button(() -> gamepad1.a);
@@ -81,10 +93,9 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
     @Override public void onUpdate() {
 
-        Tx = robot.limelight.getTx();
-        Ty = robot.limelight.getDistance();
 
-        AutoAimCommand.schedule();
+
+        robot.periodic();
 
         BindingManager.update();
 

@@ -1,123 +1,114 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import java.util.function.DoubleSupplier;
+
+import dev.nextftc.control.ControlSystem;
+import dev.nextftc.control.KineticState;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
-import dev.nextftc.hardware.impl.Direction;
 import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.positionable.SetPosition;
-import dev.nextftc.hardware.powerable.SetPower;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
-import org.firstinspires.ftc.teamcode.util.Constants;
 
 public class TurretSubsystem implements Subsystem {
 
+    public enum TurretMode {
+        ANGLE,
+        VISION
+    }
 
-    //TODO: logic for teleop
-    /**
-     * get limelight tx in the loop
-     * get power through PID method in loop
-     * set power from that method in the loop
-     *
-     */
+    private TurretMode mode = TurretMode.ANGLE;
 
-    // PID gains
-    double kP = 0.02;
-    double kI = 0.0;
-    double kD = 0.001;
+    private MotorEx turretMotor;
+    private ColorfulTelemetry telemetry;
 
-    double integralSum = 0;
-    double lastError = 0;
-    double lastTime = System.nanoTime() / 1e9;
+    private ControlSystem angleController;
 
+    private static final int TICKS_TOLERANCE = 10;//TODO: EDIT
+    private static final double TICKS_PER_REV = 28;//TODO: EDIT
+    private static final double GEAR_RATIO = 1.0;//TODO: EDIT
 
-    MotorEx turretMotor;
-    ColorfulTelemetry cTelemetry;
-    private HardwareMap hardwareMap;
+    private DoubleSupplier txSupplier = () -> 0.0;
 
+    // Vision PID state
+    private double kP = 0.02;
+    private double kI = 0.0;
+    private double kD = 0.003;
 
-    private final double TICKS_PER_REV = 1;//TODO: Change //312 rPM?
-    private final double GEAR_RATIO = 5;//20:400
-
+    private double integralSum = 0;
+    private double lastError = 0;
+    private double lastTime = 0;
 
     public TurretSubsystem(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-
-        this.cTelemetry = telemetry;
+        this.telemetry = telemetry;
 
         turretMotor = new MotorEx("turret");
-
         turretMotor.brakeMode();
-        //turretMotor.reverse();
-
     }
+
     @Override
     public void initialize() {
-        // initialization logic (runs on init)
+        angleController = ControlSystem.builder()
+                .posPid(0.1, 0.0, 0.001)
+                .build();
     }
 
-
-    private double getTurretAngle() {
-        double ticks = turretMotor.getCurrentPosition();
-        return (ticks / (TICKS_PER_REV * GEAR_RATIO)) * 360.0;
+    public double angleToTicks(double degrees) {
+        return degrees / 360.0 * TICKS_PER_REV * GEAR_RATIO;
     }
 
-    public int angleToTicks(double angleDeg) {
-        double ticks = (angleDeg / 360.0) * (TICKS_PER_REV * GEAR_RATIO);
-        return (int) Math.round(ticks);
-    }
+    /* ---------------- Angle Control ---------------- */
 
-
-    public Command setTurretPower(double p) {
+    public Command runToAngle(double degrees) {
         return new LambdaCommand()
                 .setStart(() -> {
-                    turretMotor.setPower(p);
+                    mode = TurretMode.ANGLE;
+                    angleController.setGoal(
+                            new KineticState(angleToTicks(degrees))
+                    );
+                })
+                .setIsDone(() ->
+                        Math.abs(
+                                angleController.getGoal().getPosition()
+                                        - turretMotor.getCurrentPosition()
+                        ) < TICKS_TOLERANCE
+                )
+                .requires(this)
+                .named("TurretToAngle");
+    }
 
+    public Command homeTurret() {
+        return runToAngle(0).named("HomeTurret");
+    }
+
+    /* ---------------- Vision Control ---------------- */
+
+    public Command aimWithVision(DoubleSupplier txSupplier) {
+        return new LambdaCommand()
+                .setStart(() -> {
+                    mode = TurretMode.VISION;
+                    this.txSupplier = txSupplier;
+
+                    integralSum = 0;
+                    lastError = 0;
+                    lastTime = System.nanoTime() / 1e9;
                 })
                 .setIsDone(() -> false)
                 .requires(this)
-                .named("Set Turret Power");
-    }
-    public Command stop() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    turretMotor.setPower(0);
-                })
-                .setIsDone(() -> false)
-                .requires(this)
-                .named("Stop Turret");
+                .named("TurretVisionAim");
     }
 
-    public Command runToAngle(double angle) {
-        return new LambdaCommand()
-                .setStart(() -> {
-//TODO - make run to position method
-                    //run to this: angleToTicks(angle);
-
-                })
-
-                .setIsDone(() -> false)
-                .requires(this)
-                .named("Stop Turret");
-    }
-
-
-
-
-
-
-
-    public double turretPID(double error) {
+    private double turretPID(double error) {
         double currentTime = System.nanoTime() / 1e9;
         double dt = currentTime - lastTime;
-        if (dt <= 0) dt = 0.02; // guard
+        if (dt <= 0) dt = 0.02;
 
         double P = kP * error;
 
-        // Conditional integration (anti-windup)
         double potentialIntegral = integralSum + error * dt;
-        double maxIntegral = 10.0; // tune to avoid huge I term
-        if (Math.abs(potentialIntegral * kI) < 1.0) { // only integrate if not saturated
+        if (Math.abs(potentialIntegral * kI) < 1.0) {
             integralSum = potentialIntegral;
         }
         double I = kI * integralSum;
@@ -129,49 +120,32 @@ public class TurretSubsystem implements Subsystem {
         lastTime = currentTime;
 
         double output = P + I + D;
-
-        // Clip to motor input range -1..1
         output = Math.max(-1.0, Math.min(1.0, output));
 
-        // Optional deadband: if very small, treat as 0
         if (Math.abs(error) < 0.5) {
             output = 0;
-            integralSum = 0; // optional: reset integral when close
+            integralSum = 0;
         }
 
         return output;
     }
 
-    // In loop
+    /* ---------------- Periodic ---------------- */
 
-    //double tx = limelight.getTx();
-    //double power = turretPID(tx);
-    //turretMotor.setPower(power);
-
-
-    public double getTurretTicks(){
-        return turretMotor.getRawTicks();
-    }
-    public double getTurretRotation(){
-        double turretRotation = 0;
-        //positive = angles positive
-        //negative = angles negative
-        return turretRotation;
-    }
-
-
-
-
-
-
-
-    public void printTelemetry(ColorfulTelemetry t){
-        t.addData("Motor Power", turretMotor.getPower());
-
-        t.update();
-    }
     @Override
     public void periodic() {
-        // periodic logic (runs every loop)
+
+        if (mode == TurretMode.ANGLE) {
+            turretMotor.setPower(
+                    angleController.calculate(turretMotor.getState())
+            );
+        } else {
+            double tx = txSupplier.getAsDouble();
+            turretMotor.setPower(turretPID(tx));
+        }
+    }
+
+    public double getTurretPosition() {
+        return turretMotor.getCurrentPosition();
     }
 }

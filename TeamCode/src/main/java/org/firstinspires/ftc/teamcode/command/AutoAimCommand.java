@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.command;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystem.HoodSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LimelightSubsystem;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
+
+import java.util.function.DoubleSupplier;
 
 import dev.nextftc.core.commands.Command;
 
@@ -17,13 +21,17 @@ public class AutoAimCommand extends Command {
 
     ShotInterpolator shooterInterpolator = new ShotInterpolator();
 
-    double Tx;
+    private DoubleSupplier TxSupplier;
+    private DoubleSupplier camAngle;
 
-    public AutoAimCommand(double camAngle, double Tx) {
+    public AutoAimCommand(BaseRobot robot, DoubleSupplier camAngle, DoubleSupplier TxSupplier) {
 
+        this.robot = robot;
         requires(robot.hood, robot.shooter, robot.limelight, robot.turret);
         setInterruptible(true);
-        this.Tx = Tx;
+        this.TxSupplier = TxSupplier;
+        this.camAngle = camAngle;
+
     }
 
     @Override
@@ -35,10 +43,6 @@ public class AutoAimCommand extends Command {
     public void start() {
 
 
-
-
-
-
     }
 
     @Override
@@ -46,8 +50,8 @@ public class AutoAimCommand extends Command {
         /*
         this is the interpolation for both hood angle and RPM of the shooter
          */
-        double camAngle = robot.limelight.getDistance();//in angle (Ty)
-        ShotPoint shot = shooterInterpolator.interpolate(camAngle);
+
+        ShotPoint shot = shooterInterpolator.interpolate(camAngle.getAsDouble());
 
         robot.hood.setHoodAngle(shot.hoodDeg);
         robot.shooter.setTargetRPM(shot.rpm);
@@ -57,7 +61,7 @@ public class AutoAimCommand extends Command {
         this is the turret auto-aim logic
          */
 
-        robot.turret.setTurretPower(robot.turret.turretPID(Tx));
+        robot.turret.aimWithVision(() -> TxSupplier.getAsDouble());
     }
 
     @Override
