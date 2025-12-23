@@ -30,6 +30,9 @@ public class TurretSubsystem implements Subsystem {
     private static final double TICKS_PER_REV = 28;//TODO: EDIT
     private static final double GEAR_RATIO = 1.0;//TODO: EDIT
 
+    private static final double MAX_TICKS_RIGHT = 0;//TODO: Edit
+    private static final double MAX_TICKS_LEFT = 0;//TODO: Edit
+
     private DoubleSupplier txSupplier = () -> 0.0;
 
     // Vision PID state

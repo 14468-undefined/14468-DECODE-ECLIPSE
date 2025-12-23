@@ -6,21 +6,22 @@ import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
 import dev.nextftc.hardware.impl.ServoEx;
+import dev.nextftc.hardware.positionable.SetPosition;
 
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 
 public class GateSubsystem implements Subsystem {
 
-    ServoEx gateLeft;
-    ServoEx gateRight;
+    ServoEx gate;
+    //ServoEx gateRight;
     ColorfulTelemetry cTelemetry;
     private HardwareMap hardwareMap;
 
-    private final double LEFT_GATE_OPEN = 0;
-    private final double LEFT_GATE_CLOSED = 0;
-    private final double RIGHT_GATE_OPEN = 0;
-    private final double RIGHT_GATE_CLOSED = 0;
+    private final double GATE_OPEN = 0;
+    private final double GATE_CLOSED = 0;
+    //private final double RIGHT_GATE_OPEN = 0;
+    //private final double RIGHT_GATE_CLOSED = 0;
 
 
 
@@ -28,8 +29,8 @@ public class GateSubsystem implements Subsystem {
 
         this.cTelemetry = telemetry;
 
-        gateLeft = hardwareMap.get(ServoEx.class, "gateLeft");
-        gateRight = hardwareMap.get(ServoEx.class, "gateRight");
+        gate = hardwareMap.get(ServoEx.class, "gate");
+        //gateRight = hardwareMap.get(ServoEx.class, "gateRight");
 
     }
     @Override
@@ -39,36 +40,14 @@ public class GateSubsystem implements Subsystem {
 
 
 
-    public Command closeGates() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    gateLeft.setPosition(LEFT_GATE_CLOSED);
-                    gateRight.setPosition(RIGHT_GATE_CLOSED);
 
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Close Gates");
-    }
-    public Command openGates() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    gateLeft.setPosition(LEFT_GATE_OPEN);
-                    gateRight.setPosition(RIGHT_GATE_OPEN);
+    public Command closeGate = new SetPosition(gate, GATE_CLOSED).requires(this);
+    public Command openGate = new SetPosition(gate, GATE_OPEN).requires(this);
 
-                })
-                .setIsDone(() -> true)
-                .requires(this);
+    public double getGatePose(){
+        return gate.getPosition();
     }
 
-
-
-    public double getLeftGatePose(){
-        return gateLeft.getPosition();
-    }
-    public double getRightGatePose(){
-        return gateRight.getPosition();
-    }
 
 
 

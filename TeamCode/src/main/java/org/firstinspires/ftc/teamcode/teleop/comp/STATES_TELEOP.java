@@ -11,6 +11,9 @@ import com.qualcomm.robotcore.robocol.Command;
 
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
+import dev.nextftc.ftc.Gamepads;
+import dev.nextftc.core.components.Component;
+import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
@@ -29,7 +32,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
     MecanumDrive drive;
     BaseRobot robot;
     {
-        addComponents(/* vararg components */);
+        addComponents(/* vararg components */new SubsystemComponent( robot));
     }
 
 
@@ -57,6 +60,9 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
         AutoAimCommand.schedule();
 
+
+        //TRIGGER EX
+        // Gamepads.gamepad1().leftTrigger().atLeast(.1).whenBecomesTrue()
 
 
 
