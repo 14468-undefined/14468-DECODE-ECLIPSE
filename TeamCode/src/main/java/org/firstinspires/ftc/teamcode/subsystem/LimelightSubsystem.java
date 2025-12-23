@@ -18,51 +18,22 @@ import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 public class LimelightSubsystem implements Subsystem {
 
-    public Limelight3A limelight;
+    public static final LimelightSubsystem INSTANCE = new LimelightSubsystem();
+    private LimelightSubsystem() {}
 
-    ColorfulTelemetry cTelemetry;
-    private HardwareMap hardwareMap;
+    private Limelight3A limelight;
 
-    public IMU imu;
+    //constants
+    private static final double ROT_TOLERANCE = 2;
 
-    DriveSubsystem drive;
-    private static double ROT_TOLERANCE = 2;//in degrees
-
-
-    public LimelightSubsystem(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-
-        this.cTelemetry = telemetry;
-
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(8);//PICK WHICH PIPELINE  (theres a coach pratt vid)
-
-
-        /*IMU imu = hardwareMap.get(IMU.class, "imu");
-
-        RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-        );
-
-        imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
-
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();//gets heading from imu
-        limelight.updateRobotOrientation(orientation.getYaw());//tells limelight orientation
-        LLResult llResult = limelight.getLatestResult();//pulls data from limelight
-
-       /* if(llResult != null && llResult.isValid()){
-            Pose3D botPose = llResult.getBotpose_MT2();//llResult.getBotpose (without IMU)
-            telemetry.addData("Tx", llResult.getTx());
-            telemetry.addData("Ty", llResult.getTy());
-            telemetry.addData("Ta", llResult.getTa());
-
+    //TODO: gotta initialize hardware in the opmode init
+    public void initHardware(HardwareMap hardwareMap) {
+        if (limelight == null) {
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+            limelight.pipelineSwitch(8);
         }
-
-        */
-
-
-
     }
+
 
     public Command initializeLimelight() {
         return new LambdaCommand()
@@ -80,51 +51,30 @@ public class LimelightSubsystem implements Subsystem {
                 .named("Stop Limelight");
     }
 
-
-    public double getDistance(){
-
-        if(!limelight.isRunning()){
-            limelight.start();
-        }
-
-        //if result isnt null and if its valid? TODO
-        LLResult llResult = limelight.getLatestResult();//pulls data from limelight
-        Pose3D botPose = llResult.getBotpose();
-
-        double distance = llResult.getTy();
-        return distance;
+    //methods
+    public double getDistance() {
+        if (!limelight.isRunning()) limelight.start();
+        LLResult llResult = limelight.getLatestResult();
+        return (llResult != null && llResult.isValid()) ? llResult.getTy() : Double.NaN;
     }
 
-    public double getTx(){
+    public double getTx() {
+        if (!limelight.isRunning()) limelight.start();
+        LLResult llResult = limelight.getLatestResult();
+        return (llResult != null && llResult.isValid()) ? llResult.getTx() : Double.NaN;
+    }
 
-        if(!limelight.isRunning()){
-            limelight.start();
-        }
-
-        LLResult llResult = limelight.getLatestResult();//pulls data from limelight
-        Pose3D botPose = llResult.getBotpose();
-
-        double Tx = llResult.getTx();
-        return Tx;
-
+    //teleem
+    public void printTelemetry(ColorfulTelemetry t) {
+        t.addLine();
+        t.update();
     }
 
     @Override
     public void initialize() {
-        limelight.start();//TODO: should this go here?
-
+        if (limelight != null) limelight.start();
     }
 
-
-
-
-
-    public void printTelemetry(ColorfulTelemetry t){
-      t.addLine();
-      t.update();
-    }
     @Override
-    public void periodic() {
-        // periodic logic (runs every loop)
-    }
+    public void periodic() {}
 }

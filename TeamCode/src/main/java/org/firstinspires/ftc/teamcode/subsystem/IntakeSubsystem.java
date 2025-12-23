@@ -11,28 +11,15 @@ import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 public class IntakeSubsystem implements Subsystem {
 
-    MotorEx intakeMotor;
-    ColorfulTelemetry cTelemetry;
-    private HardwareMap hardwareMap;
+    public static final IntakeSubsystem INSTANCE = new IntakeSubsystem();
+    private IntakeSubsystem() {}
+
+    private final MotorEx intakeMotor = new MotorEx("intake");
+
     private double intakePower = 1;
-    private double reverseIntakePower = .5;
+    private double reverseIntakePower = 0.5;
 
-
-    public IntakeSubsystem(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-
-        this.cTelemetry = telemetry;
-
-        intakeMotor = new MotorEx("intake");
-
-        intakeMotor.floatMode();
-        intakeMotor.reverse();
-    }
-    @Override
-    public void initialize() {
-        // initialization logic (runs on init)
-    }
-
-
+    // --- Commands ---
 
     public Command setIntakePower(double power) {
         return new LambdaCommand()
@@ -41,12 +28,13 @@ public class IntakeSubsystem implements Subsystem {
                 .requires(this)
                 .named("Set Intake Power");
     }
+
     public Command setReverseIntakePower(double power) {
         return new LambdaCommand()
                 .setStart(() -> reverseIntakePower = power)
                 .setIsDone(() -> true)
                 .requires(this)
-                .named("Set Intake Power");
+                .named("Set Reverse Intake Power");
     }
 
     public Command intake() {
@@ -54,7 +42,7 @@ public class IntakeSubsystem implements Subsystem {
                 .setStart(() -> intakeMotor.setPower(intakePower))
                 .setIsDone(() -> true)
                 .requires(this)
-                .named("Set Intake Power");
+                .named("Intake Forward");
     }
 
     public Command intakeReverse() {
@@ -73,24 +61,28 @@ public class IntakeSubsystem implements Subsystem {
                 .named("Stop Intake");
     }
 
+    // --- Getters ---
 
-    public double getIntakePower(){
+    public double getIntakePower() {
         return intakePower;
     }
-    public double getReverseIntakePower(){
+
+    public double getReverseIntakePower() {
         return reverseIntakePower;
     }
 
+    // --- Telemetry ---
 
-
-    public void printTelemetry(ColorfulTelemetry t){
+    public void printTelemetry(ColorfulTelemetry t) {
         t.addData("Motor Power", intakeMotor.getPower());
         t.addData("Intake Power Setting", intakePower);
         t.addData("Outtake Power Setting", reverseIntakePower);
         t.update();
     }
+
     @Override
     public void periodic() {
-        // periodic logic (runs every loop)
+        // Nothing needed unless you add automated behavior
+        // e.g., closed-loop speed control
     }
 }

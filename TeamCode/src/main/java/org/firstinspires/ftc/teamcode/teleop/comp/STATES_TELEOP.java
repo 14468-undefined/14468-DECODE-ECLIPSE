@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.robocol.Command;
 
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
+import dev.nextftc.core.subsystems.SubsystemGroup;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.core.components.Component;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -30,30 +31,36 @@ import java.util.function.DoubleSupplier;
 public class STATES_TELEOP extends NextFTCOpMode {
 
     MecanumDrive drive;
-    BaseRobot robot;
+
+    private final BaseRobot robot = BaseRobot.INSTANCE;
+
     {
-        addComponents(/* vararg components */new SubsystemComponent( robot));
+        addComponents(
+                new SubsystemComponent(robot)
+        );
     }
 
 
 
 
 
-    @Override public void onInit() {
 
-        robot = new BaseRobot(hardwareMap, new Pose2d(0,0,0));
-        robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(gamepad1.left_stick_y, -gamepad1.left_stick_x), -gamepad1.right_stick_x));
 
+    @Override
+    public void onInit() {
+        robot.initialize();
 
 
     }
+
     @Override public void onWaitForStart() {
 
     }
     @Override public void onStartButtonPressed() {
 
-        DoubleSupplier TxSupplier = () -> robot.limelight.getTx();
-        DoubleSupplier TySupplier = () -> robot.limelight.getDistance();
+
+        DoubleSupplier TxSupplier = robot.limelight::getTx;
+        DoubleSupplier TySupplier = robot.limelight::getDistance;
 
 
         AutoAimCommand AutoAimCommand = new AutoAimCommand(robot, TySupplier, TxSupplier);
@@ -97,17 +104,11 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
         /// READ THIS ABOUT LAYERS IN TELEOP https://nextftc.dev/bindings/buttons //i.e. endgame layer
     }
-    @Override public void onUpdate() {
+    @Override
+    public void onUpdate() {
+        BaseRobot.INSTANCE.periodic(); // update all subsystems
+        BindingManager.update(); // update button states
 
-
-
-        robot.periodic();
-
-        BindingManager.update();
-
-        if(gamepad1.right_trigger>.1){
-            //TODO - set shooter rpm
-        }
     }
     @Override public void onStop() {
         BindingManager.reset();

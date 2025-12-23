@@ -14,6 +14,9 @@ import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 public class TurretSubsystem implements Subsystem {
 
+    public static final TurretSubsystem INSTANCE = new TurretSubsystem();
+    private TurretSubsystem() {}
+
     public enum TurretMode {
         ANGLE,
         VISION
@@ -26,12 +29,12 @@ public class TurretSubsystem implements Subsystem {
 
     private ControlSystem angleController;
 
-    private static final int TICKS_TOLERANCE = 10;//TODO: EDIT
-    private static final double TICKS_PER_REV = 28;//TODO: EDIT
-    private static final double GEAR_RATIO = 1.0;//TODO: EDIT
+    private static final int TICKS_TOLERANCE = 10;
+    private static final double TICKS_PER_REV = 28;
+    private static final double GEAR_RATIO = 1.0;
 
-    private static final double MAX_TICKS_RIGHT = 0;//TODO: Edit
-    private static final double MAX_TICKS_LEFT = 0;//TODO: Edit
+    private static final double MAX_TICKS_RIGHT = 0;
+    private static final double MAX_TICKS_LEFT = 0;
 
     private DoubleSupplier txSupplier = () -> 0.0;
 
@@ -44,25 +47,27 @@ public class TurretSubsystem implements Subsystem {
     private double lastError = 0;
     private double lastTime = 0;
 
-    public TurretSubsystem(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-        this.telemetry = telemetry;
+    private boolean initialized = false;
 
+    // ---------------- Initialization ----------------
+    public void initHardware(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
+        if (initialized) return;
+
+        this.telemetry = telemetry;
         turretMotor = new MotorEx("turret");
         turretMotor.brakeMode();
-    }
 
-    @Override
-    public void initialize() {
         angleController = ControlSystem.builder()
                 .posPid(0.1, 0.0, 0.001)
                 .build();
+
+        initialized = true;
     }
 
+    // ---------------- Angle Control ----------------
     public double angleToTicks(double degrees) {
         return degrees / 360.0 * TICKS_PER_REV * GEAR_RATIO;
     }
-
-    /* ---------------- Angle Control ---------------- */
 
     public Command runToAngle(double degrees) {
         return new LambdaCommand()
@@ -86,8 +91,7 @@ public class TurretSubsystem implements Subsystem {
         return runToAngle(0).named("HomeTurret");
     }
 
-    /* ---------------- Vision Control ---------------- */
-
+    // ---------------- Vision Control ----------------
     public Command aimWithVision(DoubleSupplier txSupplier) {
         return new LambdaCommand()
                 .setStart(() -> {
@@ -133,10 +137,10 @@ public class TurretSubsystem implements Subsystem {
         return output;
     }
 
-    /* ---------------- Periodic ---------------- */
-
+    // ---------------- Periodic ----------------
     @Override
     public void periodic() {
+        if (!initialized) return;
 
         if (mode == TurretMode.ANGLE) {
             turretMotor.setPower(

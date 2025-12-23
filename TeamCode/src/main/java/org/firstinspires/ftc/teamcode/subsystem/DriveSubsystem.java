@@ -18,104 +18,105 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 import java.util.function.DoubleSupplier;
 
 public class DriveSubsystem implements Subsystem {
+
+    public static final DriveSubsystem INSTANCE = new DriveSubsystem();
+    private DriveSubsystem() {}
+
     public MecanumDrive drive;
+    private boolean initialized = false;
 
-    public DriveSubsystem(HardwareMap hwMap, Pose2d startPos){
+    // ---------------- Hardware Initialization ----------------
+    public void initHardware(HardwareMap hwMap, Pose2d startPos) {
+        if (initialized) return;
 
-        this.drive = new MecanumDrive(hwMap,startPos);
-
+        drive = new MecanumDrive(hwMap, startPos);
+        initialized = true;
     }
 
-
-    public double getHeading(){
+    //drive methods
+    public double getHeading() {
+        if (!initialized) return 0;
         return drive.lazyImu.get().getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
-    /**
-     *
-     * @param xPow- strafe/right and left movement of robot
-     * @param yPow - forward and backward movement o robot
-     * @param rotPow - rotational movement of robot
-     * @param speed - speed at  which tp run
-     */
-    public void driveFieldcentric(double xPow, double yPow, double rotPow, double speed){
-        if(Math.abs(xPow)<.05 && Math.abs(yPow)<.05) {drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0,0),rotPow*speed)); return;}
+    public void driveFieldcentric(double xPow, double yPow, double rotPow, double speed) {
+        if (!initialized) return;
+
+        if (Math.abs(xPow) < 0.05 && Math.abs(yPow) < 0.05) {
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), rotPow * speed));
+            return;
+        }
 
         double targetTheta = Math.atan2(Math.toRadians(yPow), Math.toRadians(xPow));
         double robotTheta = getHeading();
-        double diffTheta = Math.toDegrees(targetTheta)- Math.toDegrees(robotTheta);
-        xPow = Math.cos(Math.toRadians(diffTheta))*speed;
-        yPow = Math.sin(Math.toRadians(diffTheta))*speed;
-        rotPow = rotPow*speed;
-        rotPow = rotPow*speed;
-
+        double diffTheta = Math.toDegrees(targetTheta) - Math.toDegrees(robotTheta);
+        xPow = Math.cos(Math.toRadians(diffTheta)) * speed;
+        yPow = Math.sin(Math.toRadians(diffTheta)) * speed;
+        rotPow = rotPow * speed;
 
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(xPow, yPow), rotPow));
     }
 
-    public void drive(double xPow, double yPow, double rotPow){
-        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(xPow, yPow),rotPow));
-    }
-    public void rest(){
-        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0,0),0));
+    public void drive(double xPow, double yPow, double rotPow) {
+        if (!initialized) return;
+        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(xPow, yPow), rotPow));
     }
 
-    public void printTelemetry(ColorfulTelemetry t) {
-        t.addLine("");
-        t.addLine("MOTOR POWERS");
-        t.addLine(String.format("     %1$s     %2$s", Constants.Util.round(drive.leftFront.getPower(),2), Constants.Util.round(drive.rightFront.getPower(),2)));
-        t.addLine(String.format("     %1$s     %2$s", Constants.Util.round(drive.leftBack.getPower(),2), Constants.Util.round(drive.rightBack.getPower(),2)));
-        t.addLine();
-        t.addLine("IMU STUFF");
-        t.addLine("IMU (RAW) " + drive.lazyImu.get().getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-        t.addLine("IMU (Modified) " + Math.toDegrees(drive.getHeading()));//modified with intial heading and
-        t.addLine("Initial Heading" + drive.initialHeading);
-        t.addLine();
-        t.addLine("ODO");
-        //t.addLine("position x" + drivepose.position.x);
-        //t.addLine("position y" + drive.pose.position.y);
-        //t.addLine("odo heading" + Math.toDegrees(drive.pose.heading.log()));
-        t.addLine();
-
-        t.addLine("EXTRA");
-
-        t.addLine("IMU PITCH: " + drive.lazyImu.get().getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
-        t.addLine("IMU Roll: " + drive.lazyImu.get().getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
-
+    public void rest() {
+        if (!initialized) return;
+        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
     }
 
-    public Command getDriveCommand(DoubleSupplier xPow,DoubleSupplier yPow, DoubleSupplier rotPower){
-        return this.runEnd(()->{drive(xPow.getAsDouble(),yPow.getAsDouble(), rotPower.getAsDouble());}, ()->{
-            rest();
-
-        });
+    // ---------------- Commands ----------------
+    /*public Command getDriveCommand(DoubleSupplier xPow, DoubleSupplier yPow, DoubleSupplier rotPower) {
+        return this.runEnd(() -> drive(xPow.getAsDouble(), yPow.getAsDouble(), rotPower.getAsDouble()),
+                this::rest);
     }
 
-
-    public Command getDriveFieldcentric(DoubleSupplier xPow, DoubleSupplier yPow, DoubleSupplier rotPower, double speed){
-        return this.runEnd(()->{driveFieldcentric(xPow.getAsDouble(),yPow.getAsDouble(), rotPower.getAsDouble(),speed);}, ()->{
-            rest();
-        });
+    public Command getDriveFieldcentric(DoubleSupplier xPow, DoubleSupplier yPow, DoubleSupplier rotPower, double speed) {
+        return this.runEnd(() -> driveFieldcentric(xPow.getAsDouble(), yPow.getAsDouble(), rotPower.getAsDouble(), speed),
+                this::rest);
     }
 
+     */
 
 
-    //Methods that pass through Mecanum drive class
     public TrajectoryActionBuilder actionBuilder(Pose2d startPose) {
+        if (!initialized) return null;
         return drive.actionBuilder(startPose);
     }
+
     public void updatePoseEstimate() {
+        if (!initialized) return;
         drive.updatePoseEstimate();
     }
+
     public Pose2d getPose() {
+        if (!initialized) return null;
         return drive.localizer.getPose();
     }
 
+    // ---------------- Telemetry ----------------
+    public void printTelemetry(ColorfulTelemetry t) {
+        if (!initialized) return;
+
+        t.addLine("");
+        t.addLine("MOTOR POWERS");
+        t.addLine(String.format("     %1$s     %2$s",
+                Constants.Util.round(drive.leftFront.getPower(), 2),
+                Constants.Util.round(drive.rightFront.getPower(), 2)));
+        t.addLine(String.format("     %1$s     %2$s",
+                Constants.Util.round(drive.leftBack.getPower(), 2),
+                Constants.Util.round(drive.rightBack.getPower(), 2)));
+        t.addLine();
+        t.addLine("IMU STUFF");
+        t.addLine("IMU (RAW) " + drive.lazyImu.get().getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        t.addLine("IMU (Modified) " + Math.toDegrees(drive.getHeading()));
+        t.addLine("Initial Heading " + drive.initialHeading);
+    }
 
     @Override
     public void periodic() {
-
+        //pdate pose estimate, loggingg
     }
-
-
 }

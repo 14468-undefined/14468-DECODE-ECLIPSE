@@ -9,65 +9,36 @@ import dev.nextftc.hardware.impl.ServoEx;
 
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
-
 public class HoodSubsystem implements Subsystem {
 
-    ServoEx hood;
-    ColorfulTelemetry cTelemetry;
-    private HardwareMap hardwareMap;
+    public static final HoodSubsystem INSTANCE = new HoodSubsystem();
+    private HoodSubsystem() {}
 
-    //TODO: change these
-    private static double MIN_ANGLE = 30;
-    private static double MAX_ANGLE = 50;
+    private final ServoEx hood = new ServoEx("hood");
 
-
-
-
-
-    public HoodSubsystem(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-
-        this.cTelemetry = telemetry;
-
-        hood = hardwareMap.get(ServoEx.class, "hood");
-
-    }
-    @Override
-    public void initialize() {
-        // initialization logic (runs on init)
-    }
+    // TODO: tune these
+    private static final double MIN_ANGLE = 30;
+    private static final double MAX_ANGLE = 50;
 
     public double angleToPose(double angle) {
         angle = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, angle));
-        double pose = (angle - MIN_ANGLE) / (MAX_ANGLE - MIN_ANGLE);
-        return pose;
+        return (angle - MIN_ANGLE) / (MAX_ANGLE - MIN_ANGLE);
     }
 
     public Command setHoodAngle(double degrees) {
         return new LambdaCommand()
-                .setStart(() -> {
-                    hood.setPosition(angleToPose(degrees));
-
-                })
+                .setStart(() -> hood.setPosition(angleToPose(degrees)))
                 .setIsDone(() -> true)
                 .requires(this)
                 .named("Set Hood Angle");
     }
 
-
-
-
-    public double getHoodPose(){
+    public double getHoodPose() {
         return hood.getPosition();
     }
 
-
-
-    public void printTelemetry(ColorfulTelemetry t){
-
-        t.update();
-    }
     @Override
     public void periodic() {
-        // periodic logic (runs every loop)
+        // nothing needed unless you add closed-loop control
     }
 }

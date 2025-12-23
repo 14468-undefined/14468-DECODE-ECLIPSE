@@ -13,10 +13,10 @@ import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 public class GateSubsystem implements Subsystem {
 
-    ServoEx gate;
+
     //ServoEx gateRight;
     ColorfulTelemetry cTelemetry;
-    private HardwareMap hardwareMap;
+
 
     private final double GATE_OPEN = 0;
     private final double GATE_CLOSED = 0;
@@ -24,15 +24,16 @@ public class GateSubsystem implements Subsystem {
     //private final double RIGHT_GATE_CLOSED = 0;
 
 
+    public static final GateSubsystem INSTANCE = new GateSubsystem();
 
-    public GateSubsystem(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-
-        this.cTelemetry = telemetry;
-
-        gate = hardwareMap.get(ServoEx.class, "gate");
-        //gateRight = hardwareMap.get(ServoEx.class, "gateRight");
-
+    private GateSubsystem() {
     }
+
+
+    private ServoEx gate = new ServoEx("gate");
+    //gateRight = hardwareMap.get(ServoEx.class, "gateRight");
+
+
     @Override
     public void initialize() {
         // initialization logic (runs on init)
