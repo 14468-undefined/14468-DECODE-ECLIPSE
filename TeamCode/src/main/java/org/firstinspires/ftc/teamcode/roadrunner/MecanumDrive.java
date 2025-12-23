@@ -600,7 +600,7 @@ public final class MecanumDrive extends NextFTCMecanumDrive {
     @Override
     public void setDrivePowersFF(@NotNull PoseVelocity2dDual<Time> powers) {
         MecanumKinematics.WheelVelocities<Time> wheelVels =
-                kinematics.inverse(poseVelocity2dDual);
+                kinematics.inverse(powers);
 
         double voltage = voltageSensor.getVoltage();
 
