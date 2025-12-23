@@ -23,6 +23,8 @@ public class LimelightSubsystem implements Subsystem {
 
     private Limelight3A limelight;
 
+    public double Tx;
+
     //constants
     private static final double ROT_TOLERANCE = 2;
 
@@ -76,5 +78,7 @@ public class LimelightSubsystem implements Subsystem {
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+
+    }
 }

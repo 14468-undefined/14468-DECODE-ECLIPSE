@@ -13,21 +13,18 @@ import java.util.function.DoubleSupplier;
 
 import dev.nextftc.core.commands.Command;
 
-public class AutoAimCommand extends Command {
+public class Shoot3Command extends Command {
 
     HardwareMap hwMap;
     ColorfulTelemetry cTelemetry;
     BaseRobot robot;
 
-    ShotInterpolator shooterInterpolator = new ShotInterpolator();
 
-    private double Tx;
-    private double camAngle;
 
-    public AutoAimCommand(BaseRobot robot) {
+    public Shoot3Command(BaseRobot robot) {
 
         this.robot = robot;
-        requires(robot.hood, robot.shooter, robot.limelight, robot.turret);
+        requires(robot.gate, robot.shooter);
         setInterruptible(true);
 
 
@@ -35,7 +32,7 @@ public class AutoAimCommand extends Command {
 
     @Override
     public boolean isDone() {
-        return Tx < 1; // whether or not the command is done
+        return false;
     }
 
     @Override
@@ -52,20 +49,7 @@ public class AutoAimCommand extends Command {
          */
 
 
-        Tx = robot.limelight.getTx();
-        camAngle = robot.limelight.getDistance();
 
-        ShotPoint shot = shooterInterpolator.interpolate(camAngle);
-
-        robot.hood.setHoodAngle(shot.hoodDeg);
-        robot.shooter.setTargetRPM(shot.rpm);
-
-
-        /*
-        this is the turret auto-aim logic
-         */
-
-        robot.turret.aimWithVision(() -> Tx);
     }
 
     @Override
