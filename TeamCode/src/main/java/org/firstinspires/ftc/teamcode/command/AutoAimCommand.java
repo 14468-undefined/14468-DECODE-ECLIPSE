@@ -58,7 +58,7 @@ public class AutoAimCommand extends Command {
         ShotPoint shot = shooterInterpolator.interpolate(camAngle);
 
         robot.hood.setHoodAngle(shot.hoodDeg);
-        robot.shooter.setTargetRPM(shot.rpm);
+        robot.shooter.spin(shot.rpm);
 
 
         /*
@@ -71,6 +71,6 @@ public class AutoAimCommand extends Command {
     @Override
     public void stop(boolean interrupted) {
         // executed when the command ends
-        robot.shooter.eStop();
+        robot.shooter.stop();
     }
 }

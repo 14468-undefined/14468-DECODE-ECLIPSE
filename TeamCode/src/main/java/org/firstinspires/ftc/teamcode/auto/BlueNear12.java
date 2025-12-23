@@ -43,7 +43,7 @@ public class BlueNear12 extends NextFTCOpMode {
                 robot.gate.openGate,
                 new ParallelGroup(
                         //TODO: aim with vision with updating Tx
-                        new InstantCommand(robot.shooter::spin)
+                        //new InstantCommand(robot.shooter::spin)
                 ),
                 new Delay(0.5),
                 new ParallelGroup(

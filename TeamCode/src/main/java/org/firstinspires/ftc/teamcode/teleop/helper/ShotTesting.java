@@ -35,7 +35,7 @@ public class ShotTesting extends NextFTCOpMode {
 
     @Override public void onInit() {
 
-        robot = new BaseRobot(hardwareMap, new Pose2d(0,0,0));
+        //robot = new BaseRobot(hardwareMap, new Pose2d(0,0,0));
         robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(gamepad1.left_stick_y, -gamepad1.left_stick_x), -gamepad1.right_stick_x));
 
 
@@ -85,7 +85,7 @@ public class ShotTesting extends NextFTCOpMode {
     }
     @Override public void onUpdate() {
 
-        robot.shooter.setTargetRPM(shooterRPM);
+        robot.shooter.spin(shooterRPM);
         robot.hood.setHoodAngle(hoodAngle);
 
         distance = robot.limelight.getDistance();

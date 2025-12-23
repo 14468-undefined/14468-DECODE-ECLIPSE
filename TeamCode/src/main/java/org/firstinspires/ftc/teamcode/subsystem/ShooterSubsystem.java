@@ -13,7 +13,7 @@ import dev.nextftc.hardware.impl.MotorEx;
 @Config
 public class ShooterSubsystem implements Subsystem {
 
-    public static int TARGET_RPM = 3500.0;
+    public static double TARGET_RPM = 3500.0;
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
 
@@ -63,7 +63,7 @@ public class ShooterSubsystem implements Subsystem {
                 .named("Set Shooter PIDF");
     }
 
-    public Command spin(int targetRPM) {
+    public Command spin(double targetRPM) {
         return new LambdaCommand()
                 .setStart(() -> controller.setGoal(new KineticState(0, RPMtoTPS(targetRPM))))
                 .setIsDone(() -> true)
@@ -82,7 +82,7 @@ public class ShooterSubsystem implements Subsystem {
                 .named("Stop Shooter");
     }
 
-    public double RPMtoTPS(int rpm) {
+    public double RPMtoTPS(double rpm) {
         TARGET_RPM = rpm;
         return ((TARGET_RPM / GEAR_RATIO) * TICKS_PER_REV) / 60.0;
     }

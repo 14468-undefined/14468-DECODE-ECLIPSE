@@ -32,7 +32,7 @@ public class TestTeleop extends NextFTCOpMode {
 
     @Override public void onInit() {
 
-        robot = new BaseRobot(hardwareMap, new Pose2d(0,0,0));
+        //robot = new BaseRobot(hardwareMap, new Pose2d(0,0,0));
         robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(gamepad1.left_stick_y, -gamepad1.left_stick_x), -gamepad1.right_stick_x));
 
 

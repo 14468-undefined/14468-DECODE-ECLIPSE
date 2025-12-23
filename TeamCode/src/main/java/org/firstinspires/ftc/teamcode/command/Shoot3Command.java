@@ -55,6 +55,6 @@ public class Shoot3Command extends Command {
     @Override
     public void stop(boolean interrupted) {
         // executed when the command ends
-        robot.shooter.eStop();
+        robot.shooter.stop();
     }
 }

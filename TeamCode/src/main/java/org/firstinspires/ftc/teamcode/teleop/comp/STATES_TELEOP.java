@@ -63,7 +63,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
         DoubleSupplier TySupplier = robot.limelight::getDistance;
 
 
-        AutoAimCommand AutoAimCommand = new AutoAimCommand(robot, TySupplier, TxSupplier);
+        AutoAimCommand AutoAimCommand = new AutoAimCommand(robot);
 
         AutoAimCommand.schedule();
 
