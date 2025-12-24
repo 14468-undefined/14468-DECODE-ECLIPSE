@@ -87,13 +87,13 @@ public class ShooterSubsystem implements Subsystem {
         return ((TARGET_RPM / GEAR_RATIO) * TICKS_PER_REV) / 60.0;
     }
 
-    public double getShooterVelocity() {
+    public double getRPM() {
         double avgTPS = (shooterLeft.getVelocity() + shooterRight.getVelocity()) / 2.0;
         return (avgTPS * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 
     public boolean isAtTargetSpeed() {
-        double vel = getShooterVelocity();
+        double vel = getRPM();
         return vel > (TARGET_RPM - 10) && vel < (TARGET_RPM + 350) && vel != 0;
     }
 

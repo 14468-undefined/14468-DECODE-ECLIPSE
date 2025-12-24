@@ -11,6 +11,9 @@ public final class Constants{
     @Config
     public static final class FieldConstants{
 
+        public static String FAR_ZONE = "FAR ZONE";
+        public static String MID_SHOT = "MID SHOT";//this would be in close zone but towards the back
+        public static String CLOSE_SHOT = "CLOSE SHOT";
     }
     @Config
     public static final class intakeConstants{
@@ -24,6 +27,8 @@ public final class Constants{
         public static int MID_SHOT_RPM = 2500;
         public static int CLOSE_SHOT_RPM= 2300;
     }
+
+
 
     @Config
     public static final class transferConstants{
