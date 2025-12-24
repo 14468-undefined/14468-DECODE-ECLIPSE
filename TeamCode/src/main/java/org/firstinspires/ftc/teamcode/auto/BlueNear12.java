@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
+import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 
@@ -16,6 +17,7 @@ import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
+import org.firstinspires.ftc.teamcode.util.Constants;
 
 @Autonomous(name = "BlueNear12")
 public class BlueNear12 extends NextFTCOpMode {
@@ -28,6 +30,8 @@ public class BlueNear12 extends NextFTCOpMode {
     Command driveCommand;
     Command autoCommand;
 
+    Shoot3Command shoot3Command;
+
     double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
     double RPM_CLOSE_ESTIMATE = 0;
     private final BaseRobot robot = BaseRobot.INSTANCE;
@@ -39,25 +43,14 @@ public class BlueNear12 extends NextFTCOpMode {
         );
     }
 
-    private Command shoot3() {
-        return new SequentialGroup(
-                robot.gate.openGate,
-                new ParallelGroup(
-                        //TODO: aim with vision with updating Tx
-                        //new InstantCommand(robot.shooter::spin)
-                ),
-                new Delay(0.5),
-                new ParallelGroup(
 
-                )
-        );
-    }
 
 
 
     @Override
     public void onInit(){
 
+        shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
         drive = new MecanumDrive(hwMap, startPose);
 
         autoCommand = drive.commandBuilder(startPose)
@@ -81,7 +74,7 @@ public class BlueNear12 extends NextFTCOpMode {
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
                 .afterTime(1.0, new AutoAimCommand(robot))
 
-                .stopAndAdd(shoot3())
+                .stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.shooter.stop())
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
@@ -100,7 +93,7 @@ public class BlueNear12 extends NextFTCOpMode {
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
                 .afterTime(1.0, new AutoAimCommand(robot))
 
-                .stopAndAdd(shoot3())
+                .stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.shooter.stop())
                 .build();
 

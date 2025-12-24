@@ -28,23 +28,24 @@ public class Shoot3Command extends Command {
     Command waitTil3Shot;//for close zone when rapid fire
     double rpm;
 
+    double camAngle;
+
     String shotZone = "";
 
     ShotInterpolator shooterInterpolator = new ShotInterpolator();
 
-    public Shoot3Command(BaseRobot robot, double camAngle, String zone, double shotTime) {
+    public Shoot3Command(BaseRobot robot, String zone, double shotTime) {
 
 
         shotZone = zone;
-        ShotPoint shot = shooterInterpolator.interpolate(camAngle);
         this.robot = robot;
         requires(robot.gate, robot.shooter, robot.intake);
         setInterruptible(true);
 
-        rpm = shot.rpm;
+
 
         waitTilAtTargetRPM = new WaitUntil(robot.shooter::isAtTargetSpeed);
-        waitTilRPMDrop = new WaitUntil(() -> !robot.shooter.isAtTargetSpeed());
+        waitTilRPMDrop = new WaitUntil(() -> !robot.shooter.isAtTargetSpeed());//TODO: since this is js once on init, will it mess up? do i need to make it RPM dropped instead of RPM less than target???
 
         waitTil3Shot = new Delay(shotTime);//only for close rapid fire
     }
@@ -99,6 +100,11 @@ public class Shoot3Command extends Command {
         this is the interpolation for both hood angle and RPM of the shooter
          */
 
+
+        camAngle = robot.limelight.getDistance();
+
+        ShotPoint shot = shooterInterpolator.interpolate(camAngle);
+        rpm = shot.rpm;
 
 
     }
