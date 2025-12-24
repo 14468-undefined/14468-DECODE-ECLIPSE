@@ -19,23 +19,24 @@ import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
-@Autonomous(name = "BlueNear12")
-public class BlueNear12 extends NextFTCOpMode {
+@Autonomous(name = "BF9ND")
+public class BF9ND extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(9.0, 111.0, Math.toRadians(-90.0));
-    private final Pose2d shotPoseOnLine = new Pose2d(0, 0, Math.toRadians(0));
+    private final Pose2d shotPose = new Pose2d(0, 0, Math.toRadians(0));
 
     HardwareMap hwMap;
     MecanumDrive drive;
-    Command driveCommand;
+
     Command autoCommand;
+    Command autoAimCommand;
 
     Shoot3Command shoot3Command;
 
     double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
     double RPM_CLOSE_ESTIMATE = 0;
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public BlueNear12() {
+    public BF9ND() {
 
 
         addComponents(
@@ -50,16 +51,19 @@ public class BlueNear12 extends NextFTCOpMode {
     @Override
     public void onInit(){
 
-        shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
+        shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.FAR_ZONE, 0);//shot time is irrelevant here bc its far zone
         drive = new MecanumDrive(hwMap, startPose);
+        autoAimCommand = new AutoAimCommand(robot);
 
         autoCommand = drive.commandBuilder(startPose)
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
-                .stopAndAdd(new AutoAimCommand(robot))
+                .strafeToLinearHeading(shotPose.position, shotPose.heading)
+                .stopAndAdd(autoAimCommand)//aim turret and set hood
+                .stopAndAdd(shoot3Command)//shoot 3
 
-                .stopAndAdd(robot.gate.closeGate)
+                .stopAndAdd(robot.gate.closeGate)//close gate
 
-                .fresh()//update pose estimate
+
+                //.fresh()//update pose estimate
 
                 //FIRST PILE----------------------------------------------
                 .strafeToLinearHeading(new Vector2d(0, 0), 0)//go to first pile
@@ -68,14 +72,14 @@ public class BlueNear12 extends NextFTCOpMode {
                 .strafeToConstantHeading(new Vector2d(0, 0))//back up
                 .stopAndAdd(robot.intake.stop())
 
-                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
-                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
+                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))//set hood angle to an estimate
+                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//set RPM to an estimate so it can start spinning up
 
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
-                .afterTime(1.0, new AutoAimCommand(robot))
+                .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
+                .afterTime(1.0, autoAimCommand)//start auto aiming after 1 second
 
-                .stopAndAdd(shoot3Command)
-                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(shoot3Command)//shoot 3
+                .stopAndAdd(robot.shooter.stop())//stop flywheel
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
@@ -90,8 +94,8 @@ public class BlueNear12 extends NextFTCOpMode {
                 .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
                 .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .afterTime(1.0, new AutoAimCommand(robot))
+                .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
+                .afterTime(4.0, autoAimCommand)//after 4 seconds start auto aiming
 
                 .stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.shooter.stop())
