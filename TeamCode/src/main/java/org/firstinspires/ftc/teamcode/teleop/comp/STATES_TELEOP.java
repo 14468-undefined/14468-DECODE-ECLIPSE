@@ -138,7 +138,9 @@ public class STATES_TELEOP extends NextFTCOpMode {
     @Override
     public void onUpdate() {
 
-        g1LeftX = Gamepads.gamepad1().leftTrigger().get();
+        g1LeftX = Gamepads.gamepad1().leftStickX().get();
+        g1LeftY = Gamepads.gamepad1().leftStickY().get();
+        g1RightX = Gamepads.gamepad1().rightStickX().get();
 
 
         BaseRobot.INSTANCE.periodic(); // update all subsystems
@@ -146,6 +148,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
         robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
 
+        robot.drive.driveFieldcentric(g1LeftY, g1LeftX, -g1RightX, 1);
 
     }
     @Override public void onStop() {
