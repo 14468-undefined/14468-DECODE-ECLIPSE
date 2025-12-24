@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -20,15 +21,15 @@ import dev.nextftc.ftc.NextFTCOpMode;
 public class BlueNear12 extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(9.0, 111.0, Math.toRadians(-90.0));
-    private final Pose2d scorePose = new Pose2d(16.0, 128.0, Math.toRadians(-45.0));
     private final Pose2d shotPoseOnLine = new Pose2d(0, 0, Math.toRadians(0));
-    private final Pose2d firstPileIntakeLineUp = new Pose2d(0, 0, 0);
-    private final Pose2d firstPileIntakeEnd = new Pose2d(0,0,0);
+
     HardwareMap hwMap;
     MecanumDrive drive;
     Command driveCommand;
-    Command shootFirst3;
-    Command intakeFirstPile;
+    Command autoCommand;
+
+    double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
+    double RPM_CLOSE_ESTIMATE = 0;
     private final BaseRobot robot = BaseRobot.INSTANCE;
     public BlueNear12() {
 
@@ -52,31 +53,62 @@ public class BlueNear12 extends NextFTCOpMode {
         );
     }
 
+
+
     @Override
     public void onInit(){
 
         drive = new MecanumDrive(hwMap, startPose);
 
-        shootFirst3 = drive.commandBuilder(startPose)
+        autoCommand = drive.commandBuilder(startPose)
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
                 .stopAndAdd(new AutoAimCommand(robot))
-                .build();
 
-        intakeFirstPile = drive.commandBuilder(robot.drive.getPose())//TODO - update this so it acc gets the last pose and not the init pose
                 .stopAndAdd(robot.gate.closeGate)
-                .strafeToLinearHeading(firstPileIntakeLineUp.position, firstPileIntakeLineUp.heading)
-                .stopAndAdd(robot.intake.intake())
-                .strafeToConstantHeading(firstPileIntakeEnd.position)
+
+                .fresh()//update pose estimate
+
+                //FIRST PILE----------------------------------------------
+                .strafeToLinearHeading(new Vector2d(0, 0), 0)//go to first pile
+                .stopAndAdd(robot.intake.intake())//start intaking
+                .strafeToConstantHeading(new Vector2d(0, 0))//intake
+                .strafeToConstantHeading(new Vector2d(0, 0))//back up
                 .stopAndAdd(robot.intake.stop())
-                //stopAndAdd(spinup shooter)
+
+                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
+                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
+
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
+                .afterTime(1.0, new AutoAimCommand(robot))
+
+                .stopAndAdd(shoot3())
+                .stopAndAdd(robot.shooter.stop())
+
+                .stopAndAdd(robot.gate.closeGate)//close gate
+
+                //SECOND PILE --------------------------------------
+                .strafeToLinearHeading(new Vector2d(0,0), 0)//go to second pile
+                .stopAndAdd(robot.intake.intake())//start intaking
+                .strafeToConstantHeading(new Vector2d(0,0))//intake pile
+                .strafeToConstantHeading(new Vector2d(0,0))//back up
+                .stopAndAdd(robot.intake.stop())
+
+                //set the hood and rpm to a estimated value in case the ll fails
+                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
+                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
+
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
+                .afterTime(1.0, new AutoAimCommand(robot))
+
+                .stopAndAdd(shoot3())
+                .stopAndAdd(robot.shooter.stop())
                 .build();
 
 
     }
     @Override
     public void onStartButtonPressed() {
-        shootFirst3.schedule();
-        intakeFirstPile.schedule();
+        autoCommand.schedule();
 
     }
 

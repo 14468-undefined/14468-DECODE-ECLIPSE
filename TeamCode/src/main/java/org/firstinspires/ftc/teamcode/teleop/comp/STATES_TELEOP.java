@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.robocol.Command;
 
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
+import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.subsystems.SubsystemGroup;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.core.components.Component;
@@ -41,9 +42,16 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
 
 
+    private double HOOD_ANGLE_FAR = 0;
+    double g1LeftX;
+    double g1LeftY;
+    double g1RightX;
 
 
 
+
+    String llWorking = "Limelight Working";
+    String llNotWorking = "Limelight Not Working";
 
 
     @Override
@@ -51,6 +59,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
         robot.initialize();
 
 
+        BindingManager.setLayer(llWorking);
     }
 
     @Override public void onWaitForStart() {
@@ -59,30 +68,52 @@ public class STATES_TELEOP extends NextFTCOpMode {
     @Override public void onStartButtonPressed() {
 
 
-        DoubleSupplier TxSupplier = robot.limelight::getTx;
-        DoubleSupplier TySupplier = robot.limelight::getDistance;
-
-
-        AutoAimCommand AutoAimCommand = new AutoAimCommand(robot);
-
-        AutoAimCommand.schedule();
-
-
-        //TRIGGER EX
-        // Gamepads.gamepad1().leftTrigger().atLeast(.1).whenBecomesTrue()
 
 
 
-        Button gamepad1a = button(() -> gamepad1.a);
+        AutoAimCommand autoAimCommand = new AutoAimCommand(robot);
 
 
-        Button g1RB = button(() -> gamepad1.right_bumper)
-                .whenBecomesTrue(robot.turret.runToAngle(0));
+
+
+
+        Button g1RB = button(() -> gamepad1.right_bumper).or(button(() -> gamepad1.left_bumper))
+                .whenBecomesTrue(() -> BindingManager.setLayer(llWorking))
+                .whenBecomesTrue(robot.turret.homeTurret())
+                .whenBecomesTrue(robot.hood.setHoodAngle(HOOD_ANGLE_FAR));
+
+
+        Button g1A = button(() -> gamepad1.right_bumper)
+                .inLayer(llNotWorking)
+                .whenBecomesTrue(() -> BindingManager.setLayer(llWorking))
+                .whenBecomesTrue(robot.turret.homeTurret())
+                .whenBecomesTrue(robot.hood.setHoodAngle(HOOD_ANGLE_FAR))
+                .global();
+
+
+
+
+        //TODO set rpm too
+        //TODO another layer???
         //TODO: this needs to be a new state that overrides all the other turret movements. it also needs to have rpm and hood
 
         Button g2x = button(() -> gamepad2.x)
-                .whenBecomesTrue(robot.intake.intake())
+                .whenBecomesTrue(robot.intake::intake)
+                .whenBecomesFalse(robot.gate.closeGate)
                 .whenBecomesFalse(robot.intake.stop());
+
+        Gamepads.gamepad2().rightTrigger().atLeast(.1)
+                .whenBecomesTrue(autoAimCommand)
+                .whenBecomesFalse(autoAimCommand::cancel);
+
+
+        Gamepads.gamepad2().leftTrigger().atLeast(.1)
+                .whenBecomesTrue(robot.gate.openGate)
+                .whenBecomesTrue(robot.intake.intake())
+                .whenBecomesFalse(robot.gate.closeGate)
+                .whenBecomesFalse(robot.intake.stop());
+
+
 
 
 
@@ -106,8 +137,15 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
     @Override
     public void onUpdate() {
+
+        g1LeftX = Gamepads.gamepad1().leftTrigger().get();
+
+
         BaseRobot.INSTANCE.periodic(); // update all subsystems
         BindingManager.update(); // update button states
+
+        robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
+
 
     }
     @Override public void onStop() {
