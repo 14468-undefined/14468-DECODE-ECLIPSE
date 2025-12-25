@@ -19,6 +19,21 @@ import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
+/**
+ * auto naming scheme explained:
+ *
+ * First: B/R - Blue/Red aliances
+ * Second: N/F - Near/Far side from goal
+ * Third: # Of Artifacts - (i.e. 12)
+ * Fourth: indicates whether or not there is a
+ * gate dump, and if so, where it is located.
+ * ND: No Dump
+ * DA3: Dump after 3 shot (preloads)
+ * DA6: Dump after 6 shot (preloads + 1 pile)
+ *
+ * Example:*
+ * BN12DA3 - Blue Near 12 Artifacts with a gate dump after preloads shot
+ */
 @Autonomous(name = "BF9ND")
 public class BF9ND extends NextFTCOpMode {
 
