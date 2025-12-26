@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -31,11 +32,12 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  * Example:*
  * BN12DA3 - Blue Near 12 Artifacts with a gate dump after preloads shot
  */
-@Autonomous(name = "BN12DA3")
-public class BN12DA3 extends NextFTCOpMode {
+@Autonomous(name = "RN12DA6")
+public class RN12DA6 extends NextFTCOpMode {
 
-    private final Pose2d startPose = new Pose2d(9.0, 111.0, Math.toRadians(-90.0));
-    private final Pose2d shotPoseOnLine = new Pose2d(0, 0, Math.toRadians(0));
+    private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
+    private final Pose2d shotPoseOnLine = new Pose2d(-24,24, Math.toRadians(90));//go shoot
+
 
     HardwareMap hwMap;
     MecanumDrive drive;
@@ -48,15 +50,13 @@ public class BN12DA3 extends NextFTCOpMode {
     double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
     double RPM_CLOSE_ESTIMATE = 0;
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public BN12DA3() {
+    public RN12DA6() {
 
 
         addComponents(
                 new SubsystemComponent(robot)
         );
     }
-
-
 
 
 
@@ -73,23 +73,20 @@ public class BN12DA3 extends NextFTCOpMode {
                 .stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.gate.closeGate)
 
-                //.fresh()//update pose estimate
 
                 //FIRST PILE----------------------------------------------
-                .strafeToLinearHeading(new Vector2d(0, 0), 0)//go to first pile
+                .strafeToConstantHeading(new Vector2d(-11.2, 25.4))
+
+
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(0, 0))//intake
-                .strafeToConstantHeading(new Vector2d(0, 0))//back up
-                .strafeToConstantHeading(new Vector2d(0, 0))//line up a gate dump
-                .strafeToConstantHeading(new Vector2d(0, 0))//dump gate
-                .strafeToConstantHeading(new Vector2d(0, 0))//back up
+                .strafeToConstantHeading(new Vector2d(-11.2, 54.5), new TranslationalVelConstraint(15))//intake
                 .stopAndAdd(robot.intake.stop())
 
                 .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
                 .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .afterTime(1.0, new AutoAimCommand(robot))
+                .stopAndAdd(autoAimCommand)
 
                 .stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.shooter.stop())
@@ -97,21 +94,44 @@ public class BN12DA3 extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
                 //SECOND PILE --------------------------------------
-                .strafeToLinearHeading(new Vector2d(0,0), 0)//go to second pile
-                .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(0,0))//intake pile
-                .strafeToConstantHeading(new Vector2d(0,0))//back up
+                .strafeToConstantHeading(new Vector2d(12, 29))//line up intake
+
+                .strafeToConstantHeading(new Vector2d(12, 61), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(12, 48))//back up
+
                 .stopAndAdd(robot.intake.stop())
+
+                //GATE DUMP
+                .strafeToConstantHeading(new Vector2d(1.4, 48))//line up
+                .strafeToConstantHeading(new Vector2d(1.4, 55))//gate dump
 
                 //set the hood and rpm to a estimated value in case the ll fails
                 .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
                 .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .afterTime(1.0, new AutoAimCommand(robot))
+                .stopAndAdd(autoCommand)
 
                 .stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(robot.gate.closeGate)
+
+
+                //PILE 3
+                .stopAndAdd(robot.intake.intake())//start intaking
+                .strafeToConstantHeading(new Vector2d(35.8, 29))//go to motif
+                .strafeToConstantHeading(new Vector2d(35.8, 61))//intake
+                .stopAndAdd(robot.intake.stop())
+                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
+                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
+
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
+                .stopAndAdd(autoCommand)
+
+                .stopAndAdd(shoot3Command)
+                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(robot.gate.closeGate)
+
                 .build();
 
 
