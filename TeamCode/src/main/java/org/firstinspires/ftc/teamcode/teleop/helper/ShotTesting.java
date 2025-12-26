@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
+import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
@@ -24,9 +25,9 @@ public class ShotTesting extends NextFTCOpMode {
 
     ColorfulTelemetry cTelemetry;
     MecanumDrive drive;
-    BaseRobot robot;
+    private final BaseRobot robot = BaseRobot.INSTANCE;
     {
-        addComponents(/* vararg components */);
+        addComponents(new SubsystemComponent(robot));
     }
 
     double distance = 0;
@@ -76,7 +77,7 @@ public class ShotTesting extends NextFTCOpMode {
         });
         Button gamepad1b = button(() -> gamepad1.b);
         gamepad1b.whenBecomesTrue(() -> {
-            shooterRPM += 5;
+            shooterRPM += 50;
         });
 
 

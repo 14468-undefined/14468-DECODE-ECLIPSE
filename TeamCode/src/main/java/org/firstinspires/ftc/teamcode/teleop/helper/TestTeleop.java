@@ -9,6 +9,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
+import dev.nextftc.core.components.Component;
+import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
@@ -22,9 +24,9 @@ import static dev.nextftc.bindings.Bindings.*;
 public class TestTeleop extends NextFTCOpMode {
 
     MecanumDrive drive;
-    BaseRobot robot;
+    private final BaseRobot robot = BaseRobot.INSTANCE;
     {
-        addComponents(/* vararg components */);
+        addComponents(new SubsystemComponent(robot));
     }
 
     double distance = 0;
