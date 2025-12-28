@@ -77,36 +77,59 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
 
 
-        Button g1RB = button(() -> gamepad1.right_bumper).or(button(() -> gamepad1.left_bumper))
-                .whenBecomesTrue(() -> BindingManager.setLayer(llWorking))
-                .whenBecomesTrue(robot.turret.homeTurret())
-                .whenBecomesTrue(robot.hood.setHoodAngle(HOOD_ANGLE_FAR));
+        /*
+        g1 RB/LB
 
+        when in layer - Limelight Working
+        - set layer to ll not working
+        - home turret (cuz ll isnt working)
+        - set hood angle to far constant (bc auto-aim distance doesn't work)
 
-        Button g1A = button(() -> gamepad1.right_bumper)
-                .inLayer(llNotWorking)
-                .whenBecomesTrue(() -> BindingManager.setLayer(llWorking))
+        when in layer - ll not working
+        - set layer to limelight working
+
+         */
+        //TODO: this needs to override all the other turret movements and RPM and hood - when in this layer it shouldn't try to auto-aim
+        Button g1RBorLB = button(() -> gamepad1.right_bumper).or(button(() -> gamepad1.left_bumper))
+                .inLayer(llWorking)//when limelight is working
+                .whenBecomesTrue(() -> BindingManager.setLayer(llNotWorking))
                 .whenBecomesTrue(robot.turret.homeTurret())
-                .whenBecomesTrue(robot.hood.setHoodAngle(HOOD_ANGLE_FAR))
+                .whenBecomesTrue(robot.hood.setHoodAngle(HOOD_ANGLE_FAR))//default when ll not working
+
+                .inLayer(llWorking)
+                .whenBecomesTrue(() -> BindingManager.setLayer(llWorking))
                 .global();
 
 
 
 
-        //TODO set rpm too
-        //TODO another layer???
-        //TODO: this needs to be a new state that overrides all the other turret movements. it also needs to have rpm and hood
-
+        /*
+        g2x - intake normal
+        - intake
+        - close gate (so it doesn't shoot)
+         */
         Button g2x = button(() -> gamepad2.x)
                 .whenBecomesTrue(robot.intake::intake)
-                .whenBecomesFalse(robot.gate.closeGate)
+                .whenBecomesTrue(robot.gate.closeGate)
                 .whenBecomesFalse(robot.intake.stop());
 
+        /*
+        g2RT - auto aim
+        - while true, auto aim
+        - while false, don't
+         */
+        //TODO - should it hold pose when its false?
         Gamepads.gamepad2().rightTrigger().atLeast(.1)
                 .whenBecomesTrue(autoAimCommand)
                 .whenBecomesFalse(autoAimCommand::cancel);
 
 
+        /*
+        g2LT - shooting
+        - open gate
+        - run intake to transfer
+        NOTE: Flywheel controlled separately through auto aim command using RT
+         */
         Gamepads.gamepad2().leftTrigger().atLeast(.1)
                 .whenBecomesTrue(robot.gate.openGate)
                 .whenBecomesTrue(robot.intake.intake())
@@ -122,19 +145,12 @@ public class STATES_TELEOP extends NextFTCOpMode {
         //.whenBecomesTrue: the first loop when the button is true, a.k.a. the rising edge.
         //.whenBecomesFalse: the first loop when the button is false, a.k.a. the falling edge.
 
-        //button(() -> gamepad1.a)
-        //.whenBecomesTrue(() -> runSomeCode())
-        //.whenBecomesFalse(() -> runSomeMoreCode());
-
         //Button andButton = button1.and(button2); // true when both buttons are true
         //Button orButton = button1.or(button2); // true when at least one button is true
         //Button xorButton = button1.xor(button2); // true when exactly one button is true
         //Button notButton = button1.not(); // true when button1 is false
-
-
-
-        /// READ THIS ABOUT LAYERS IN TELEOP https://nextftc.dev/bindings/buttons //i.e. endgame layer
     }
+
     @Override
     public void onUpdate() {
 
@@ -146,8 +162,8 @@ public class STATES_TELEOP extends NextFTCOpMode {
         BaseRobot.INSTANCE.periodic(); // update all subsystems
         BindingManager.update(); // update button states
 
-        robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
-
+        ///robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
+        //TODO: field or robot centric?
         robot.drive.driveFieldcentric(g1LeftY, g1LeftX, -g1RightX, 1);
 
     }
