@@ -13,6 +13,7 @@ public class BaseRobot extends SubsystemGroup {
     public final LimelightSubsystem limelight = LimelightSubsystem.INSTANCE;
     public final ShooterSubsystem shooter = ShooterSubsystem.INSTANCE;
     public final TurretSubsystem turret = TurretSubsystem.INSTANCE;
+    public final LEDSubsystem LED = LEDSubsystem.INSTANCE;
     private BaseRobot() {
 
         super(
@@ -22,7 +23,8 @@ public class BaseRobot extends SubsystemGroup {
                 IntakeSubsystem.INSTANCE,
                 LimelightSubsystem.INSTANCE,
                 ShooterSubsystem.INSTANCE,
-                TurretSubsystem.INSTANCE
+                TurretSubsystem.INSTANCE,
+                LEDSubsystem.INSTANCE
 
         );
     }
