@@ -21,6 +21,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
+import org.firstinspires.ftc.teamcode.subsystem.LEDSubsystem;
 
 import static dev.nextftc.bindings.Bindings.*;
 
@@ -120,6 +121,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
          */
         //TODO - should it hold pose when its false?
         Gamepads.gamepad2().rightTrigger().atLeast(.1)
+                .inLayer(llWorking)
                 .whenBecomesTrue(autoAimCommand)
                 .whenBecomesFalse(autoAimCommand::cancel);
 
@@ -159,13 +161,23 @@ public class STATES_TELEOP extends NextFTCOpMode {
         g1RightX = Gamepads.gamepad1().rightStickX().get();
 
 
-        BaseRobot.INSTANCE.periodic(); // update all subsystems
+        //BaseRobot.INSTANCE.periodic(); // update all subsystems - dont need to bc addComponents should do this automatically
         BindingManager.update(); // update button states
 
         ///robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
         //TODO: field or robot centric?
         robot.drive.driveFieldcentric(g1LeftY, g1LeftX, -g1RightX, 1);
 
+
+        if(robot.shooter.isAtTargetSpeed() && robot.shooter.getTargetRPM() > 0){//if at target speed which is > 0
+            robot.LED.setColor(LEDSubsystem.LEDColor.GREEN);
+        }
+        else if (robot.shooter.getTargetRPM() > 0 && !robot.shooter.isAtTargetSpeed()){//if trying to spin but not up to speed
+            robot.LED.setColor(LEDSubsystem.LEDColor.RED);
+        }
+        else {//if target RPM is 0
+            robot.LED.setColor(LEDSubsystem.LEDColor.OFF);
+        }
     }
     @Override public void onStop() {
         BindingManager.reset();
