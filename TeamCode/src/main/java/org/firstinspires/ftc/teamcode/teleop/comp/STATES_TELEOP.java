@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.robocol.Command;
 
 import dev.nextftc.bindings.BindingManager;
@@ -43,6 +44,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
 
 
+    HardwareMap hwMap;
     private double HOOD_ANGLE_FAR = 0;
     double g1LeftX;
     double g1LeftY;
@@ -57,6 +59,8 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
     @Override
     public void onInit() {
+
+        robot.limelight.initHardware(hwMap, "RED");
         robot.initialize();
 
 

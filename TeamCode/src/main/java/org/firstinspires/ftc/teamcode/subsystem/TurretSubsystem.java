@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.function.DoubleSupplier;
@@ -12,6 +13,7 @@ import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
+@Config
 public class TurretSubsystem implements Subsystem {
 
     public static final TurretSubsystem INSTANCE = new TurretSubsystem();
@@ -39,9 +41,9 @@ public class TurretSubsystem implements Subsystem {
     private DoubleSupplier txSupplier = () -> 0.0;
 
     // Vision PID state
-    private double kP = 0.02;
-    private double kI = 0.0;
-    private double kD = 0.003;
+    private static double kP = 0.02;
+    private static double kI = 0.0;
+    private static double kD = 0.003;
 
     private double integralSum = 0;
     private double lastError = 0;

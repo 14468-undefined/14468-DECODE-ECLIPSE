@@ -8,6 +8,14 @@ public final class Constants{
 
     }
 
+
+    @Config
+    public static final class LimelightConstants{
+        public static int BLUE_GOAL_TAG_PIPELINE = 0;//20
+        public static int RED_GOAL_TAG_PIPELINE = 1;//24
+        public static int OBELISK_TAG_PIPELINE = 2;//21,22,23
+
+    }
     @Config
     public static final class FieldConstants{
 

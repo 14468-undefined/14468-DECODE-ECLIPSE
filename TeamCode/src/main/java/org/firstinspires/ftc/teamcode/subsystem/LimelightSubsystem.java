@@ -14,6 +14,7 @@ import dev.nextftc.core.subsystems.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
+import org.firstinspires.ftc.teamcode.util.Constants;
 
 
 public class LimelightSubsystem implements Subsystem {
@@ -29,10 +30,18 @@ public class LimelightSubsystem implements Subsystem {
     private static final double ROT_TOLERANCE = 2;
 
     //TODO: gotta initialize hardware in the opmode init
-    public void initHardware(HardwareMap hardwareMap) {
+    public void initHardware(HardwareMap hardwareMap, String pipeline) {
         if (limelight == null) {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
-            limelight.pipelineSwitch(8);
+            if(pipeline == "RED") {
+                limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
+            }
+            else if (pipeline == "Blue"){
+                limelight.pipelineSwitch(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);
+            }
+            else{
+                limelight.pipelineSwitch(Constants.LimelightConstants.OBELISK_TAG_PIPELINE);
+            }
         }
     }
 
@@ -43,6 +52,14 @@ public class LimelightSubsystem implements Subsystem {
                 .setIsDone(() -> true)
                 .requires(this)
                 .named("Initialize Limelight");
+    }
+
+    public Command setPipeline(int pipeline) {
+        return new LambdaCommand()
+                .setStart(() -> limelight.pipelineSwitch(pipeline))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("set pipeline");
     }
 
     public Command stopLimelight() {
@@ -74,6 +91,7 @@ public class LimelightSubsystem implements Subsystem {
 
     @Override
     public void initialize() {
+
         if (limelight != null) limelight.start();
     }
 
