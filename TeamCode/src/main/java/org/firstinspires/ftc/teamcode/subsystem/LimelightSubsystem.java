@@ -21,7 +21,10 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 public class LimelightSubsystem implements Subsystem {
 
     public static final LimelightSubsystem INSTANCE = new LimelightSubsystem();
-    private LimelightSubsystem() {}
+    private LimelightSubsystem() {
+        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(0);//default
+    }
 
     private Limelight3A limelight;
 
@@ -30,21 +33,8 @@ public class LimelightSubsystem implements Subsystem {
     //constants
     private static final double ROT_TOLERANCE = 2;
 
-    //TODO: gotta initialize hardware in the opmode init
-    public void initHardware(HardwareMap hardwareMap, String pipeline) {
-        if (limelight == null) {
-            limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
-            if(pipeline == "RED") {
-                limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
-            }
-            else if (pipeline == "Blue"){
-                limelight.pipelineSwitch(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);
-            }
-            else{
-                limelight.pipelineSwitch(Constants.LimelightConstants.OBELISK_TAG_PIPELINE);
-            }
-        }
-    }
+
+
 
 
     public Command initializeLimelight() {
@@ -84,7 +74,7 @@ public class LimelightSubsystem implements Subsystem {
         return (llResult != null && llResult.isValid()) ? llResult.getTx() : Double.NaN;
     }
 
-    //teleem
+    //telem
     public void printTelemetry(ColorfulTelemetry t) {
         t.addLine();
         t.update();
@@ -94,6 +84,7 @@ public class LimelightSubsystem implements Subsystem {
     public void initialize() {
 
         if (limelight != null) limelight.start();
+
     }
 
     @Override

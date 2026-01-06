@@ -74,7 +74,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
 
         robot.initialize();
-        //robot.limelight.initHardware(hwMap, "RED");
+
 
         BindingManager.setLayer(llWorking);
 
@@ -86,6 +86,8 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
     @Override public void onStartButtonPressed() {
 
+
+        robot.limelight.setPipeline(1);//change
 
         Command driverControlled = new MecanumDriverControlled(
                 frontLeftMotor,
