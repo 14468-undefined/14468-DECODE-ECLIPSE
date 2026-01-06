@@ -11,6 +11,7 @@ import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 
 
+import dev.nextftc.ftc.ActiveOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
@@ -32,7 +33,7 @@ public class LimelightSubsystem implements Subsystem {
     //TODO: gotta initialize hardware in the opmode init
     public void initHardware(HardwareMap hardwareMap, String pipeline) {
         if (limelight == null) {
-            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+            limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
             if(pipeline == "RED") {
                 limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
             }

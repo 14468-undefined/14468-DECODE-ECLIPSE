@@ -8,17 +8,23 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robocol.Command;
+//import com.qualcomm.robotcore.robocol.Command;
 
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
+import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.InstantCommand;
+import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.subsystems.SubsystemGroup;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.core.components.Component;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
+import dev.nextftc.ftc.components.BulkReadComponent;
+import dev.nextftc.hardware.driving.FieldCentric;
+import dev.nextftc.hardware.driving.MecanumDriverControlled;
+import dev.nextftc.hardware.impl.MotorEx;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
@@ -39,7 +45,8 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
     {
         addComponents(
-                new SubsystemComponent(robot)
+                new SubsystemComponent(robot), BulkReadComponent.INSTANCE,
+                BindingsComponent.INSTANCE
         );
     }
 
@@ -53,18 +60,25 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
 
 
+
     String llWorking = "Limelight Working";
     String llNotWorking = "Limelight Not Working";
 
-
+    private MotorEx frontLeftMotor = new MotorEx("leftFront").brakeMode().
+            reversed();
+    private MotorEx frontRightMotor = new MotorEx("rightFront").brakeMode();
+    private MotorEx backLeftMotor = new MotorEx("leftBack").brakeMode().reversed();
+    private MotorEx backRightMotor = new MotorEx("rightBack").brakeMode();
     @Override
     public void onInit() {
 
-        robot.limelight.initHardware(hwMap, "RED");
-        robot.initialize();
 
+        robot.initialize();
+        //robot.limelight.initHardware(hwMap, "RED");
 
         BindingManager.setLayer(llWorking);
+
+
     }
 
     @Override public void onWaitForStart() {
@@ -73,8 +87,35 @@ public class STATES_TELEOP extends NextFTCOpMode {
     @Override public void onStartButtonPressed() {
 
 
+        Command driverControlled = new MecanumDriverControlled(
+                frontLeftMotor,
+                frontRightMotor,
+                backLeftMotor,
+                backRightMotor,
+                Gamepads.gamepad1().leftStickY().negate(),
+                Gamepads.gamepad1().leftStickX(),
+                Gamepads.gamepad1().rightStickX()
+        );
+        driverControlled.schedule();
 
 
+        driverControlled = new MecanumDriverControlled(
+                frontLeftMotor,
+                frontRightMotor,
+                backLeftMotor,
+                backRightMotor,
+                Gamepads.gamepad1().leftStickY().negate(),
+                Gamepads.gamepad1().leftStickX(),
+                Gamepads.gamepad1().rightStickX(),
+                new FieldCentric(imu)
+        );
+        driverControlled.schedule();
+
+//TODO: get this to work
+
+
+        robot.intake.setIntakePower(1);
+        robot.intake.intake();
 
         AutoAimCommand autoAimCommand = new AutoAimCommand(robot);
 
@@ -95,7 +136,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
          */
         //TODO: this needs to override all the other turret movements and RPM and hood - when in this layer it shouldn't try to auto-aim
-        Button g1RBorLB = button(() -> gamepad1.right_bumper).or(button(() -> gamepad1.left_bumper))
+        Button g1RBorLB = button(Gamepads.gamepad1().rightBumper()).or(Gamepads.gamepad1().leftBumper())
                 .inLayer(llWorking)//when limelight is working
                 .whenBecomesTrue(() -> BindingManager.setLayer(llNotWorking))
                 .whenBecomesTrue(robot.turret.homeTurret())
@@ -113,7 +154,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
         - intake
         - close gate (so it doesn't shoot)
          */
-        Button g2x = button(() -> gamepad2.x)
+        Gamepads.gamepad2().x()
                 .whenBecomesTrue(robot.intake::intake)
                 .whenBecomesTrue(robot.gate.closeGate)
                 .whenBecomesFalse(robot.intake.stop());
@@ -160,20 +201,24 @@ public class STATES_TELEOP extends NextFTCOpMode {
     @Override
     public void onUpdate() {
 
-        g1LeftX = Gamepads.gamepad1().leftStickX().get();
+        //BindingManager.update(); // update button states
+
+        /*g1LeftX = Gamepads.gamepad1().leftStickX().get();
         g1LeftY = Gamepads.gamepad1().leftStickY().get();
         g1RightX = Gamepads.gamepad1().rightStickX().get();
 
+         */
+
 
         //BaseRobot.INSTANCE.periodic(); // update all subsystems - dont need to bc addComponents should do this automatically
-        BindingManager.update(); // update button states
+
 
         ///robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
         //TODO: field or robot centric?
-        robot.drive.driveFieldcentric(g1LeftY, g1LeftX, -g1RightX, 1);
+        //robot.drive.driveFieldcentric(g1LeftY, g1LeftX, -g1RightX, 1);
 
 
-        if(robot.shooter.isAtTargetSpeed() && robot.shooter.getTargetRPM() > 0){//if at target speed which is > 0
+        /*if(robot.shooter.isAtTargetSpeed() && robot.shooter.getTargetRPM() > 0){//if at target speed which is > 0
             robot.LED.setColor(LEDSubsystem.LEDColor.GREEN);
         }
         else if (robot.shooter.getTargetRPM() > 0 && !robot.shooter.isAtTargetSpeed()){//if trying to spin but not up to speed
@@ -182,8 +227,10 @@ public class STATES_TELEOP extends NextFTCOpMode {
         else {//if target RPM is 0
             robot.LED.setColor(LEDSubsystem.LEDColor.OFF);
         }
+
+         */
     }
     @Override public void onStop() {
-        BindingManager.reset();
+        //BindingManager.reset();
     }
 }
