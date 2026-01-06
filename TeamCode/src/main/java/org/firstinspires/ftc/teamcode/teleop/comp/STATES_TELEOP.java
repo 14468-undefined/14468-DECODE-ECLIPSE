@@ -25,10 +25,13 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.FieldCentric;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystem.LEDSubsystem;
+import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
+import org.firstinspires.ftc.teamcode.util.Constants;
 
 import static dev.nextftc.bindings.Bindings.*;
 
@@ -51,26 +54,22 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
 
 
+
     HardwareMap hwMap;
     private double HOOD_ANGLE_FAR = 0;
-    double g1LeftX;
-    double g1LeftY;
-    double g1RightX;
 
 
 
+    ColorfulTelemetry t;
 
 
     String llWorking = "Limelight Working";
     String llNotWorking = "Limelight Not Working";
 
-    private MotorEx frontLeftMotor = new MotorEx("leftFront").brakeMode().
-            reversed();
-    private MotorEx frontRightMotor = new MotorEx("rightFront").brakeMode();
-    private MotorEx backLeftMotor = new MotorEx("leftBack").brakeMode().reversed();
-    private MotorEx backRightMotor = new MotorEx("rightBack").brakeMode();
+
     @Override
     public void onInit() {
+
 
 
         robot.initialize();
@@ -78,46 +77,40 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
         BindingManager.setLayer(llWorking);
 
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
 
     }
 
     @Override public void onWaitForStart() {
-
+        t.addLine("OpMode Initialized");
+        t.addLine("Waiting for start...");
     }
     @Override public void onStartButtonPressed() {
 
+        t.addLine("x/b = intake controls");
+        t.addLine("a/y = april tag red/blue swap");
 
-        robot.limelight.setPipeline(1);//change
-
-        Command driverControlled = new MecanumDriverControlled(
-                frontLeftMotor,
-                frontRightMotor,
-                backLeftMotor,
-                backRightMotor,
-                Gamepads.gamepad1().leftStickY().negate(),
-                Gamepads.gamepad1().leftStickX(),
-                Gamepads.gamepad1().rightStickX()
-        );
-        driverControlled.schedule();
-
-
-        driverControlled = new MecanumDriverControlled(
-                frontLeftMotor,
-                frontRightMotor,
-                backLeftMotor,
-                backRightMotor,
-                Gamepads.gamepad1().leftStickY().negate(),
+        Command robotCentricDrive = drive.driverControlledCommand(
+                Gamepads.gamepad1().leftStickY(),
                 Gamepads.gamepad1().leftStickX(),
                 Gamepads.gamepad1().rightStickX(),
-                new FieldCentric(imu)
-        );
-        driverControlled.schedule();
+                true
+        );//robot centric is auto true
+        robotCentricDrive.schedule();
+//TODO: Field Centric?
 
-//TODO: get this to work
+        robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);//change
+
+        Gamepads.gamepad1().a().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE));
+        Gamepads.gamepad1().y().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE));
 
 
-        robot.intake.setIntakePower(1);
-        robot.intake.intake();
+
+
+
+
+
+
 
         AutoAimCommand autoAimCommand = new AutoAimCommand(robot);
 
@@ -161,6 +154,9 @@ public class STATES_TELEOP extends NextFTCOpMode {
                 .whenBecomesTrue(robot.gate.closeGate)
                 .whenBecomesFalse(robot.intake.stop());
 
+        Gamepads.gamepad2().b()
+                        .whenBecomesTrue(robot.intake::intakeReverse)
+                                .whenBecomesFalse(robot.intake.stop());
         /*
         g2RT - auto aim
         - while true, auto aim

@@ -58,7 +58,7 @@ dependencies {
     implementation 'dev.nextftc:ftc:1.0.1'//next ftc 12/10/25
     implementation 'dev.nextftc:hardware:1.0.1' // If you would like to use the hardware module //12/10/25
     implementation 'dev.nextftc:bindings:1.0.1'//next ftc 12/10/25
-    implementation 'dev.nextftc.extensions:roadrunner:1.0.0'//RoadRunner EXTENSION 12/23/25
+    implementation 'dev.nextftc.extensions:roadrunner:1.1.0'//RoadRunner EXTENSION 12/23/25
 
 
     implementation project(':FtcRobotController')
