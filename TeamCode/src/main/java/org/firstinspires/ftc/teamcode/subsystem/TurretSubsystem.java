@@ -17,7 +17,21 @@ import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 public class TurretSubsystem implements Subsystem {
 
     public static final TurretSubsystem INSTANCE = new TurretSubsystem();
-    private TurretSubsystem() {}
+
+
+    private final MotorEx turretMotor = new MotorEx("turret").brakeMode();//.reversed();
+
+
+    private TurretSubsystem() {
+
+
+        angleController = ControlSystem.builder()
+                .posPid(0.1, 0.0, 0.001)
+                .build();
+
+
+
+    }
 
     public enum TurretMode {
         ANGLE,
@@ -26,7 +40,7 @@ public class TurretSubsystem implements Subsystem {
 
     private TurretMode mode = TurretMode.ANGLE;
 
-    private MotorEx turretMotor;
+
     private ColorfulTelemetry telemetry;
 
     private ControlSystem angleController;
@@ -49,22 +63,10 @@ public class TurretSubsystem implements Subsystem {
     private double lastError = 0;
     private double lastTime = 0;
 
-    private boolean initialized = false;
+
 
     // ---------------- Initialization ----------------
-    public void initHardware(HardwareMap hardwareMap, ColorfulTelemetry telemetry) {
-        if (initialized) return;
 
-        this.telemetry = telemetry;
-        turretMotor = new MotorEx("turret");
-        turretMotor.brakeMode();
-
-        angleController = ControlSystem.builder()
-                .posPid(0.1, 0.0, 0.001)
-                .build();
-
-        initialized = true;
-    }
 
     // ---------------- Angle Control ----------------
     public double angleToTicks(double degrees) {
@@ -109,6 +111,19 @@ public class TurretSubsystem implements Subsystem {
                 .named("TurretVisionAim");
     }
 
+
+    /*public Command setTurretPower(double p) {
+        return new LambdaCommand()
+                .setStart(() -> {
+                    turretMotor.setPower(p);
+                })
+                .setIsDone(() -> false)
+                .requires(this)
+                .named("TurretVisionAim");
+    }
+
+     */
+
     private double turretPID(double error) {
         double currentTime = System.nanoTime() / 1e9;
         double dt = currentTime - lastTime;
@@ -142,9 +157,8 @@ public class TurretSubsystem implements Subsystem {
     // ---------------- Periodic ----------------
     @Override
     public void periodic() {
-        if (!initialized) return;
 
-        if (mode == TurretMode.ANGLE) {
+       if (mode == TurretMode.ANGLE) {
             turretMotor.setPower(
                     angleController.calculate(turretMotor.getState())
             );
@@ -152,6 +166,11 @@ public class TurretSubsystem implements Subsystem {
             double tx = txSupplier.getAsDouble();
             turretMotor.setPower(turretPID(tx));
         }
+
+
+
+
+
     }
 
     public double getTurretPosition() {

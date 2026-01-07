@@ -46,7 +46,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
     private final BaseRobot robot = BaseRobot.INSTANCE;
 
-    {
+    public STATES_TELEOP(){
         addComponents(
                 new SubsystemComponent(robot), BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE

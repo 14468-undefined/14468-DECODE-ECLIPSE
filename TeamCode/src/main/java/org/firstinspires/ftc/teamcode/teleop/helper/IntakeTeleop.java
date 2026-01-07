@@ -45,14 +45,13 @@ public class IntakeTeleop extends NextFTCOpMode {
     MecanumDrive drive;
 
     private final BaseRobot robot = BaseRobot.INSTANCE;
+    public IntakeTeleop(){
 
-    {
         addComponents(
                 new SubsystemComponent(robot), BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
         );
     }
-
 
 
     HardwareMap hwMap;
@@ -121,7 +120,7 @@ public class IntakeTeleop extends NextFTCOpMode {
 
     @Override
     public void onUpdate() {
-        robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(gamepad1.left_stick_y, -gamepad1.right_stick_x), -gamepad1.right_stick_x));
+        //robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(gamepad1.left_stick_y, -gamepad1.right_stick_x), -gamepad1.right_stick_x));
     }
     @Override public void onStop() {}
 
