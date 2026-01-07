@@ -14,7 +14,7 @@ public class IntakeSubsystem implements Subsystem {
     public static final IntakeSubsystem INSTANCE = new IntakeSubsystem();
     private IntakeSubsystem() {}
 
-    private final MotorEx intakeMotor = new MotorEx("intake");
+    private final MotorEx intakeMotor = new MotorEx("intake").reversed();
 
     private double intakePower = 1;
     private double reverseIntakePower = 0.5;

@@ -63,7 +63,7 @@ public class RF12ND extends NextFTCOpMode {
 
     @Override
     public void onInit(){
-        robot.limelight.initHardware(hwMap, "RED");
+        //robot.limelight.initHardware(hwMap, "RED");
 
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.FAR_ZONE, 0);//shot time is irrelevant here bc its far zone
         drive = new MecanumDrive(hwMap, startPose);

@@ -82,21 +82,23 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
 
     @Override public void onWaitForStart() {
-        t.addLine("OpMode Initialized");
-        t.addLine("Waiting for start...");
+        //t.addLine("OpMode Initialized");
+        //t.addLine("Waiting for start...");
     }
     @Override public void onStartButtonPressed() {
 
-        t.addLine("x/b = intake controls");
-        t.addLine("a/y = april tag red/blue swap");
+       // t.addLine("x/b = intake controls");
+        //t.addLine("a/y = april tag red/blue swap");
 
-        Command robotCentricDrive = drive.driverControlledCommand(
+        /*Command robotCentricDrive = drive.driverControlledCommand(
                 Gamepads.gamepad1().leftStickY(),
                 Gamepads.gamepad1().leftStickX(),
                 Gamepads.gamepad1().rightStickX(),
                 true
         );//robot centric is auto true
         robotCentricDrive.schedule();
+
+         */
 //TODO: Field Centric?
 
         robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);//change
@@ -197,38 +199,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
 
     @Override
-    public void onUpdate() {
+    public void onUpdate() {}
+    @Override public void onStop() {}
 
-        //BindingManager.update(); // update button states
-
-        /*g1LeftX = Gamepads.gamepad1().leftStickX().get();
-        g1LeftY = Gamepads.gamepad1().leftStickY().get();
-        g1RightX = Gamepads.gamepad1().rightStickX().get();
-
-         */
-
-
-        //BaseRobot.INSTANCE.periodic(); // update all subsystems - dont need to bc addComponents should do this automatically
-
-
-        ///robot.drive.drive.setDrivePowers(new PoseVelocity2d(new Vector2d(g1LeftY, -g1LeftX), -g1RightX));
-        //TODO: field or robot centric?
-        //robot.drive.driveFieldcentric(g1LeftY, g1LeftX, -g1RightX, 1);
-
-
-        /*if(robot.shooter.isAtTargetSpeed() && robot.shooter.getTargetRPM() > 0){//if at target speed which is > 0
-            robot.LED.setColor(LEDSubsystem.LEDColor.GREEN);
-        }
-        else if (robot.shooter.getTargetRPM() > 0 && !robot.shooter.isAtTargetSpeed()){//if trying to spin but not up to speed
-            robot.LED.setColor(LEDSubsystem.LEDColor.RED);
-        }
-        else {//if target RPM is 0
-            robot.LED.setColor(LEDSubsystem.LEDColor.OFF);
-        }
-
-         */
-    }
-    @Override public void onStop() {
-        //BindingManager.reset();
-    }
 }
