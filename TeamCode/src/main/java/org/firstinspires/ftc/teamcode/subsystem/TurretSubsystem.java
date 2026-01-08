@@ -11,6 +11,7 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.powerable.SetPower;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 
 @Config
@@ -124,6 +125,10 @@ public class TurretSubsystem implements Subsystem {
 
      */
 
+
+    public Command set4 = new SetPower(turretMotor, .4);
+    public Command setneg4 = new SetPower(turretMotor, -.4);
+    public Command set0 = new SetPower(turretMotor, 0);
     private double turretPID(double error) {
         double currentTime = System.nanoTime() / 1e9;
         double dt = currentTime - lastTime;
@@ -158,7 +163,8 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public void periodic() {
 
-       if (mode == TurretMode.ANGLE) {
+
+        /* if (mode == TurretMode.ANGLE) {
             turretMotor.setPower(
                     angleController.calculate(turretMotor.getState())
             );
@@ -166,6 +172,8 @@ public class TurretSubsystem implements Subsystem {
             double tx = txSupplier.getAsDouble();
             turretMotor.setPower(turretPID(tx));
         }
+        //TODO: FIX
+         */
 
 
 

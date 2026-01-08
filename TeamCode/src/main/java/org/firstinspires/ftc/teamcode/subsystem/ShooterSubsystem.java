@@ -9,6 +9,7 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.powerable.SetPower;
 
 @Config
 public class ShooterSubsystem implements Subsystem {
@@ -70,6 +71,14 @@ public class ShooterSubsystem implements Subsystem {
                 .requires(this)
                 .named("Spin Shooter");
     }
+
+
+
+    public Command set1 = new SetPower(shooterLeft, 1);
+    public Command setneg1 = new SetPower(shooterLeft, -1);
+    public Command set0 = new SetPower(shooterLeft, 0);
+
+
 
     public Command stop() {
         return new LambdaCommand()

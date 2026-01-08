@@ -7,6 +7,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 //import com.qualcomm.robotcore.robocol.Command;
 
@@ -60,7 +62,7 @@ public class IntakeTeleop extends NextFTCOpMode {
 
 
 
-
+    //private MotorEx shooterLeft;
 
     @Override
     public void onInit() {
@@ -68,6 +70,10 @@ public class IntakeTeleop extends NextFTCOpMode {
         robot.initialize();
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
+
+        //shooterLeft = new MotorEx("shooterLeft").floatMode();
+
+
 
     }
 
@@ -77,6 +83,13 @@ public class IntakeTeleop extends NextFTCOpMode {
     }
     @Override public void onStartButtonPressed() {
 
+
+
+        Gamepads.gamepad2().y().whenTrue(robot.shooter.set1);//.whenBecomesFalse(() ->shooterLeft.setPower(0));
+        Gamepads.gamepad2().a().whenTrue(robot.shooter.setneg1);
+
+        Gamepads.gamepad2().rightTrigger().atLeast(.1).whenBecomesTrue(robot.turret.set4).whenBecomesFalse(robot.turret.set0);
+        Gamepads.gamepad2().leftTrigger().atLeast(.1).whenTrue(robot.turret.setneg4).whenBecomesFalse(robot.turret.set0);
 
 
 
@@ -99,13 +112,6 @@ public class IntakeTeleop extends NextFTCOpMode {
                 .whenBecomesFalse(robot.intake.stop());
 
 
-        Gamepads.gamepad2().rightTrigger().atLeast(.1)
-                .whenBecomesTrue(robot.intake.intake())
-                .whenBecomesFalse(robot.intake.stop());
-
-        Gamepads.gamepad2().leftTrigger().atLeast(.1)
-                .whenBecomesTrue(robot.intake.intake())
-                .whenBecomesFalse(robot.intake.stop());
 
 
         Gamepads.gamepad1().rightTrigger().atLeast(.1)
