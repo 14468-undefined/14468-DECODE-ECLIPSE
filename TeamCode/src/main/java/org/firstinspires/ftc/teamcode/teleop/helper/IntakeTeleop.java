@@ -85,11 +85,14 @@ public class IntakeTeleop extends NextFTCOpMode {
 
 
 
+        //robot.turret.turretPowerCommand.schedule();
+
+
         Gamepads.gamepad2().y().whenTrue(robot.shooter.set1);//.whenBecomesFalse(() ->shooterLeft.setPower(0));
         Gamepads.gamepad2().a().whenTrue(robot.shooter.setneg1);
 
-        Gamepads.gamepad2().rightTrigger().atLeast(.1).whenBecomesTrue(robot.turret.set4).whenBecomesFalse(robot.turret.set0);
-        Gamepads.gamepad2().leftTrigger().atLeast(.1).whenTrue(robot.turret.setneg4).whenBecomesFalse(robot.turret.set0);
+        //Gamepads.gamepad2().rightTrigger().atLeast(.1).whenBecomesTrue(robot.turret.set4).whenBecomesFalse(robot.turret.set0);
+        //Gamepads.gamepad2().leftTrigger().atLeast(.1).whenTrue(robot.turret.setneg4).whenBecomesFalse(robot.turret.set0);
 
 
 

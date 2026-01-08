@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.teleop.helper;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
@@ -20,6 +23,9 @@ public class LimelightTest extends NextFTCOpMode {
 
     private boolean limelightStarted = false;
     private Limelight3A limelight;
+
+
+    private FtcDashboard dash;
 
     private final BaseRobot robot = BaseRobot.INSTANCE;
     public LimelightTest(){
@@ -64,22 +70,32 @@ public class LimelightTest extends NextFTCOpMode {
         telemetry.addData("LL Running", limelight.isRunning());
 
         LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
-            double tx = result.getTx(); // How far left or right the target is (degrees)
-            double ty = result.getTy(); // How far up or down the target is (degrees)
-            double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+        LLStatus status = limelight.getStatus();
+            if (result != null && result.isValid()) {
+                double tx = result.getTx();
+                double ty = result.getTy(); // How far up or down the target is (degrees)
+                double ta = result.getTa(); // How big the target looks (0%-100% of the image)
 
-            telemetry.addData("Target X", tx);
-            telemetry.addData("Target Y", ty);
-            telemetry.addData("Target Area", ta);
+                telemetry.addData("Ty", ty);
+                telemetry.addData("Ta", ta);
+                telemetry.addData("Tx", tx);
 
-            DoubleSupplier txSupplier = result::getTx;
+                // only schedule once
+                if (!robot.turret.isAiming()) {
+                    DoubleSupplier txSupplier = result::getTx;
+                    robot.turret.aimWithVision(txSupplier).schedule();
+                }
+            } else {
+                telemetry.addData("Limelight", "No Targets");
+                telemetry.addData("CPU", status.getCpu());
+                telemetry.addData("Temp", status.getTemp());
+                telemetry.addData("RAM", status.getRam());
+                telemetry.addData("Pipeline Type", status.getPipelineType());
 
-            robot.turret.aimWithVision(txSupplier);
+                // stop turret if no target
+                robot.turret.stopTurret();
+            }
 
-        } else {
-            telemetry.addData("Limelight", "No Targets");
-        }
 
         telemetry.update();
     }
