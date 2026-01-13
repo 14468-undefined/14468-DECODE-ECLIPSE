@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  */
 @Autonomous(name = "RF12ND")
 public class RF12ND extends NextFTCOpMode {
-
+//hunter is my goat
     private final Pose2d startPose = new Pose2d(9.0, 111.0, Math.toRadians(-90.0));
     private final Pose2d shotPose = new Pose2d(65, 15, Math.toRadians(90));//go to shoot pose
 
