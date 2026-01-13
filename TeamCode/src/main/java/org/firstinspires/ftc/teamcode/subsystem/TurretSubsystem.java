@@ -19,7 +19,7 @@ public class TurretSubsystem implements Subsystem {
     /* ---------------- Hardware ---------------- */
 
     private final MotorEx turretMotor =
-            new MotorEx("turret").brakeMode();
+            new MotorEx("turret").reversed().brakeMode();
 
     /* ---------------- Modes ---------------- */
 
@@ -143,11 +143,12 @@ public class TurretSubsystem implements Subsystem {
         lastError = error;
         lastTime = currentTime;
 
+
         // Raw PID output
         double output = P + I + D;
 
         // Clamp to motor limits
-        output = Math.max(-1.0, Math.min(1.0, output));
+        output = Math.max(-.5, Math.min(.5, output));//TODO: change?
 
         // Minimum power to overcome static friction
         double minPower = 0.05;
@@ -174,7 +175,7 @@ public class TurretSubsystem implements Subsystem {
 
             case VISION:
                 // Negate if direction is reversed
-                desiredPower = visionPID(-txSupplier.getAsDouble());
+                desiredPower = visionPID(txSupplier.getAsDouble());
                 break;
 
             case IDLE:

@@ -74,9 +74,12 @@ public class ShooterSubsystem implements Subsystem {
 
 
 
-    public Command set1 = new SetPower(shooterLeft, 1);
-    public Command setneg1 = new SetPower(shooterLeft, -1);
-    public Command set0 = new SetPower(shooterLeft, 0);
+    public Command setLeft1 = new SetPower(shooterLeft, 1);
+    public Command setRight1 = new SetPower(shooterRight, 1);
+    public Command setLeftNeg1 = new SetPower(shooterLeft, -1);
+    public Command setRightNeg1 = new SetPower(shooterRight, -1);
+    public Command setLeft0 = new SetPower(shooterLeft, 0);
+    public Command setRight0 = new SetPower(shooterRight, 0);
 
 
 

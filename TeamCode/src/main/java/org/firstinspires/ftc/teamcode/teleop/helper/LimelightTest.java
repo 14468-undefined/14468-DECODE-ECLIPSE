@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop.helper;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -27,6 +29,8 @@ public class LimelightTest extends NextFTCOpMode {
 
     private FtcDashboard dash;
 
+    TelemetryPacket packet = new TelemetryPacket();
+
     private final BaseRobot robot = BaseRobot.INSTANCE;
     public LimelightTest(){
 
@@ -36,17 +40,18 @@ public class LimelightTest extends NextFTCOpMode {
         );
     }
 
+
     @Override
     public void onInit() {
+        dash = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(telemetry, dash.getTelemetry());
 
         limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
-//        limelight.start();
-//        limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
-//        limelight.pipelineSwitch(0);
 
         telemetry.addLine("Limelight initialized");
         telemetry.update();
     }
+
 
     @Override
     public void onStartButtonPressed(){
@@ -93,7 +98,7 @@ public class LimelightTest extends NextFTCOpMode {
                 telemetry.addData("Pipeline Type", status.getPipelineType());
 
                 // stop turret if no target
-                robot.turret.stopTurret();
+                //robot.turret.stopTurret(); /TODO
             }
 
 
