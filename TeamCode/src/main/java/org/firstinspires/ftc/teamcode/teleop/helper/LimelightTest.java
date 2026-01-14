@@ -75,6 +75,11 @@ public class LimelightTest extends NextFTCOpMode {
         telemetry.addData("LL Running", limelight.isRunning());
 
         LLResult result = limelight.getLatestResult();
+
+        DoubleSupplier txSupplier = () -> {
+            LLResult r = limelight.getLatestResult();
+            return (r != null && r.isValid()) ? r.getTx() : 0.0;
+        };
         LLStatus status = limelight.getStatus();
             if (result != null && result.isValid()) {
                 double tx = result.getTx();
@@ -87,7 +92,8 @@ public class LimelightTest extends NextFTCOpMode {
 
                 // only schedule once
                 if (!robot.turret.isAiming()) {
-                    DoubleSupplier txSupplier = result::getTx;
+
+
                     robot.turret.aimWithVision(txSupplier).schedule();
                 }
             } else {
