@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
-
 import java.util.function.DoubleSupplier;
 
 import dev.nextftc.control.ControlSystem;
@@ -18,11 +17,11 @@ public class TurretSubsystem implements Subsystem {
 
     /* ---------------- Hardware ---------------- */
 
+    // Motor reversed so +power = right, -power = left
     private final MotorEx turretMotor =
             new MotorEx("turret").reversed().brakeMode();
 
     /* ---------------- Modes ---------------- */
-
     public enum TurretMode {
         ANGLE,
         VISION,
@@ -38,8 +37,8 @@ public class TurretSubsystem implements Subsystem {
     /* ---------------- Vision PID ---------------- */
 
     public static double kP = 0.01;
-    public static double kI = 0.0;//.001
-    public static double kD = 0.0;//.002
+    public static double kI = 0.0;
+    public static double kD = 0.0;
 
     private double integralSum = 0.0;
     private double lastError = 0.0;
@@ -51,7 +50,11 @@ public class TurretSubsystem implements Subsystem {
 
     private static final int TICKS_TOLERANCE = 10;
     private static final double TICKS_PER_REV = 145.1;
-    private static final double GEAR_RATIO = 5.0;//TODO: Correct?
+    private static final double GEAR_RATIO = 5.0;
+
+    private static final double MAX_POWER = 0.5;
+    private static final double MIN_POWER = 0.05;
+    private static final double TX_TOLERANCE = 0.5;
 
     private double desiredPower = 0.0;
 
@@ -90,13 +93,13 @@ public class TurretSubsystem implements Subsystem {
                 .named("TurretToAngle");
     }
 
-
     public boolean isAiming() {
         return mode == TurretMode.VISION;
     }
 
     public void stopTurret() {
         mode = TurretMode.IDLE;
+        turretMotor.setPower(0.0);
     }
 
     public Command homeTurret() {
@@ -122,43 +125,40 @@ public class TurretSubsystem implements Subsystem {
     /* ---------------- Vision PID ---------------- */
 
     private double visionPID(double error) {
+
         double currentTime = System.nanoTime() / 1e9;
         double dt = currentTime - lastTime;
         if (dt <= 0) dt = 0.02;
 
-        // PID constants (starting safe values)
-
-
-        // Proportional
         double P = kP * error;
 
-        // Integral
         integralSum += error * dt;
         double I = kI * integralSum;
 
-        // Derivative
         double derivative = (error - lastError) / dt;
         double D = kD * derivative;
 
         lastError = error;
         lastTime = currentTime;
 
-
-        // Raw PID output
         double output = P + I + D;
 
-        // Clamp to motor limits
-        output = Math.max(-.5, Math.min(.5, output));//TODO: change?
+        output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
 
-        // Minimum power to overcome static friction
-        double minPower = 0.05;
-        if (Math.abs(output) < minPower && Math.abs(error) > 0.5) {
-            output = Math.copySign(minPower, output);
+        // Minimum power uses ERROR sign
+        if (Math.abs(error) > TX_TOLERANCE &&
+                Math.abs(output) < MIN_POWER) {
+            output = Math.copySign(MIN_POWER, error);
+        }
+
+        // Deadband
+        if (Math.abs(error) <= TX_TOLERANCE) {
+            output = 0.0;
+            integralSum = 0.0;
         }
 
         return output;
     }
-
 
     /* ---------------- Periodic ---------------- */
 
@@ -174,8 +174,9 @@ public class TurretSubsystem implements Subsystem {
                 break;
 
             case VISION:
-                // Negate if direction is reversed
-                desiredPower = visionPID(txSupplier.getAsDouble());
+                //latest update 1/14/26 1:50pm - made error + tx not negative tx
+                double tx = txSupplier.getAsDouble();
+                desiredPower = visionPID(tx);
                 break;
 
             case IDLE:
