@@ -77,7 +77,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
         BindingManager.setLayer(llWorking);
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
 
     }
 
@@ -90,15 +90,15 @@ public class STATES_TELEOP extends NextFTCOpMode {
        // t.addLine("x/b = intake controls");
         //t.addLine("a/y = april tag red/blue swap");
 
-        /*Command robotCentricDrive = drive.driverControlledCommand(
-                Gamepads.gamepad1().leftStickY(),
-                Gamepads.gamepad1().leftStickX(),
-                Gamepads.gamepad1().rightStickX(),
+        Command robotCentricDrive = drive.driverControlledCommand(
+                Gamepads.gamepad1().leftStickY().negate(),
+                Gamepads.gamepad1().leftStickX().negate(),
+                Gamepads.gamepad1().rightStickX().negate(),
                 true
         );//robot centric is auto true
         robotCentricDrive.schedule();
 
-         */
+
 //TODO: Field Centric?
 
         robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);//change
@@ -108,6 +108,9 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
 
 
+
+        Gamepads.gamepad2().y().whenTrue(robot.shooter.setLeftNeg1).whenTrue(robot.shooter.setRightNeg1);//.whenBecomesFalse(() ->shooterLeft.setPower(0));
+        Gamepads.gamepad2().a().whenTrue(robot.shooter.setLeft1).whenTrue(robot.shooter.setRight1);
 
 
 
@@ -152,13 +155,14 @@ public class STATES_TELEOP extends NextFTCOpMode {
         - close gate (so it doesn't shoot)
          */
         Gamepads.gamepad2().x()
-                .whenBecomesTrue(robot.intake::intake)
+                .whenBecomesTrue(robot.intake.intake())
                 .whenBecomesTrue(robot.gate.closeGate)
                 .whenBecomesFalse(robot.intake.stop());
 
         Gamepads.gamepad2().b()
-                        .whenBecomesTrue(robot.intake::intakeReverse)
-                                .whenBecomesFalse(robot.intake.stop());
+                .whenBecomesTrue(robot.intake.intakeReverse())
+                .whenBecomesFalse(robot.intake.stop());
+
         /*
         g2RT - auto aim
         - while true, auto aim
