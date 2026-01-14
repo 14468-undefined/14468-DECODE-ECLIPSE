@@ -25,6 +25,7 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.FieldCentric;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.powerable.SetPower;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -55,13 +56,14 @@ public class STATES_TELEOP extends NextFTCOpMode {
 
 
 
+
+    MotorEx turretMotor;
     HardwareMap hwMap;
     private double HOOD_ANGLE_FAR = 0;
 
 
 
     ColorfulTelemetry t;
-
 
     String llWorking = "Limelight Working";
     String llNotWorking = "Limelight Not Working";
@@ -71,6 +73,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
     public void onInit() {
 
 
+        turretMotor = new MotorEx("turret").reversed().brakeMode();
 
         robot.initialize();
 
@@ -87,7 +90,17 @@ public class STATES_TELEOP extends NextFTCOpMode {
     }
     @Override public void onStartButtonPressed() {
 
-       // t.addLine("x/b = intake controls");
+
+
+        Command turretLeft = new SetPower(turretMotor, -.3);
+        Command turretRight = new SetPower(turretMotor, .3);
+        Command turretHold = new SetPower(turretMotor, 0);
+
+        Gamepads.gamepad2().leftTrigger().atLeast(.1).whenTrue(turretLeft).whenBecomesFalse(turretHold);
+        Gamepads.gamepad2().rightTrigger().atLeast(.1).whenTrue(turretRight).whenBecomesFalse(turretHold);
+
+
+        // t.addLine("x/b = intake controls");
         //t.addLine("a/y = april tag red/blue swap");
 
         Command robotCentricDrive = drive.driverControlledCommand(
@@ -169,7 +182,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
         - while false, don't
          */
         //TODO - should it hold pose when its false?
-        Gamepads.gamepad2().rightTrigger().atLeast(.1)
+        /*Gamepads.gamepad2().rightTrigger().atLeast(.1)
                 .inLayer(llWorking)
                 .whenBecomesTrue(autoAimCommand)
                 .whenBecomesFalse(autoAimCommand::cancel);
@@ -181,12 +194,14 @@ public class STATES_TELEOP extends NextFTCOpMode {
         - run intake to transfer
         NOTE: Flywheel controlled separately through auto aim command using RT
          */
-        Gamepads.gamepad2().leftTrigger().atLeast(.1)
+        /*Gamepads.gamepad2().leftTrigger().atLeast(.1)
                 .whenBecomesTrue(robot.gate.openGate)
                 .whenBecomesTrue(robot.intake.intake())
                 .whenBecomesFalse(robot.gate.closeGate)
                 .whenBecomesFalse(robot.intake.stop());
 
+
+         */
 
 
 
