@@ -36,9 +36,11 @@ public class TurretSubsystem implements Subsystem {
 
     /* ---------------- Vision PID ---------------- */
 
-    public static double kP = 0.01;
-    public static double kI = 0.0;
-    public static double kD = 0.0;
+
+    //constants 1/15/26 working decent
+    public static double kP = 0.02;
+    public static double kI = 0.004;
+    public static double kD = 0.002;
 
     private double integralSum = 0.0;
     private double lastError = 0.0;

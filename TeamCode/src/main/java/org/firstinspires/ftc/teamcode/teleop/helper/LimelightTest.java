@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.teleop.helper;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.Gamepads;
@@ -15,6 +17,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 
 import java.util.function.DoubleSupplier;
@@ -31,6 +34,7 @@ public class LimelightTest extends NextFTCOpMode {
 
     TelemetryPacket packet = new TelemetryPacket();
 
+    MecanumDrive drive;
     private final BaseRobot robot = BaseRobot.INSTANCE;
     public LimelightTest(){
 
@@ -56,7 +60,15 @@ public class LimelightTest extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed(){
 
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
 
+        Command robotCentricDrive = drive.driverControlledCommand(
+                Gamepads.gamepad1().leftStickY().negate(),
+                Gamepads.gamepad1().leftStickX().negate(),
+                Gamepads.gamepad1().rightStickX().negate(),
+                true
+        );//robot centric is auto true
+        robotCentricDrive.schedule();
 
     }
     @Override
