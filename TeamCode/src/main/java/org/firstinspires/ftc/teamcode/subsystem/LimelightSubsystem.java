@@ -22,8 +22,7 @@ public class LimelightSubsystem implements Subsystem {
 
     public static final LimelightSubsystem INSTANCE = new LimelightSubsystem();
     private LimelightSubsystem() {
-        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(0);//default
+
     }
 
     private Limelight3A limelight;
@@ -85,6 +84,8 @@ public class LimelightSubsystem implements Subsystem {
 
         if (limelight != null) limelight.start();
 
+        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(0);//default
     }
 
     @Override
