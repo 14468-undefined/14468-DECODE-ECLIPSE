@@ -26,7 +26,7 @@ public class ShooterSubsystem implements Subsystem {
     private boolean active;
 
     private final MotorEx shooterLeft = new MotorEx("shooterLeft");
-    private final MotorEx shooterRight = new MotorEx("shooterRight");
+    private final MotorEx shooterRight = new MotorEx("shooterRight").reversed();
 
     private ControlSystem controller;
 

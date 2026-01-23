@@ -120,6 +120,12 @@ public class STATES_TELEOP extends NextFTCOpMode {
         Gamepads.gamepad1().y().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE));
 
 
+        Gamepads.gamepad2().rightBumper().whenBecomesTrue(robot.gate.openGate);
+        Gamepads.gamepad2().leftBumper().whenBecomesTrue(robot.gate.closeGate);
+
+        Gamepads.gamepad2().dpadUp().whenBecomesTrue(robot.hood.setHoodPose(.84));
+        Gamepads.gamepad2().dpadDown().whenBecomesTrue(robot.hood.setHoodPose(.0311));
+        Gamepads.gamepad2().dpadLeft().whenBecomesTrue(robot.hood.setHoodPose(.46));
 
 
         Gamepads.gamepad2().y().whenTrue(robot.shooter.setLeftNeg1).whenTrue(robot.shooter.setRightNeg1);//.whenBecomesFalse(() ->shooterLeft.setPower(0));

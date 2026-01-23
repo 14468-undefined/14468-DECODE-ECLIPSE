@@ -17,7 +17,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
 
     public static double kP = 0.1;
     public static double kI = 0.0;
-    public static double kD = 0.001;
+    public static double kD = 0.0;
 
     public static double TARGET_TICKS = 0.0;
 

@@ -18,8 +18,8 @@ public class GateSubsystem implements Subsystem {
     ColorfulTelemetry cTelemetry;
 
 
-    private final double GATE_OPEN = 0;
-    private final double GATE_CLOSED = 0;
+    private final double GATE_OPEN = .32;
+    private final double GATE_CLOSED = .93;
     //private final double RIGHT_GATE_OPEN = 0;
     //private final double RIGHT_GATE_CLOSED = 0;
 
@@ -42,6 +42,13 @@ public class GateSubsystem implements Subsystem {
 
 
 
+    public Command setGatePos(double pose) {
+        return new LambdaCommand()
+                .setStart(() -> gate.setPosition(pose))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Set Intake Power");
+    }
     public Command closeGate = new SetPosition(gate, GATE_CLOSED).requires(this);
     public Command openGate = new SetPosition(gate, GATE_OPEN).requires(this);
 

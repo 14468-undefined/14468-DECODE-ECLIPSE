@@ -70,6 +70,8 @@ public class LimelightTest extends NextFTCOpMode {
         );//robot centric is auto true
         robotCentricDrive.schedule();
 
+
+        Gamepads.gamepad1().a().whenBecomesTrue(robot.turret.runToAngle(0));
     }
     @Override
     public void onUpdate() {
