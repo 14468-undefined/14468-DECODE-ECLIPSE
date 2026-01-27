@@ -1,0 +1,212 @@
+package org.firstinspires.ftc.teamcode.teleop.comp;
+
+import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import dev.nextftc.bindings.BindingManager;
+import dev.nextftc.bindings.Button;
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.components.BindingsComponent;
+import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.ActiveOpMode;
+import dev.nextftc.ftc.Gamepads;
+import dev.nextftc.ftc.NextFTCOpMode;
+import dev.nextftc.ftc.components.BulkReadComponent;
+import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.powerable.SetPower;
+import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
+import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
+import org.firstinspires.ftc.teamcode.util.Constants;
+
+import java.util.function.DoubleSupplier;
+
+import static dev.nextftc.bindings.Bindings.button;
+
+
+@TeleOp(name = "STATES_TELEOP" , group = "AA - COMP")
+
+public class STATES_TELEOP_V2 extends NextFTCOpMode {
+
+    MecanumDrive drive;
+
+    private final BaseRobot robot = BaseRobot.INSTANCE;
+
+    public STATES_TELEOP_V2(){
+        addComponents(
+                new SubsystemComponent(robot), BulkReadComponent.INSTANCE,
+                BindingsComponent.INSTANCE
+        );
+    }
+
+
+
+
+    private Limelight3A limelight;
+    private boolean limelightStarted = false;
+
+
+
+    MotorEx turretMotor;
+    HardwareMap hwMap;
+
+
+
+
+    ColorfulTelemetry t;
+
+    String llWorking = "Limelight Working";
+    String llNotWorking = "Limelight Not Working";
+
+
+    @Override
+    public void onInit() {
+
+
+
+        BindingManager.setLayer(llWorking);
+
+        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
+
+    }
+
+    @Override public void onWaitForStart() {
+        //t.addLine("OpMode Initialized");
+        //t.addLine("Waiting for start...");
+    }
+    @Override public void onStartButtonPressed() {
+
+
+
+        Command turretLeft = new SetPower(turretMotor, -.3);
+        Command turretRight = new SetPower(turretMotor, .3);
+        Command turretHold = new SetPower(turretMotor, 0);
+
+
+
+        robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);//change
+
+        Gamepads.gamepad1().a().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE));
+        Gamepads.gamepad1().y().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE));
+
+
+        Gamepads.gamepad2().rightBumper().whenBecomesTrue(robot.gate.openGate);
+        Gamepads.gamepad2().leftBumper().whenBecomesTrue(robot.gate.closeGate);
+
+
+
+
+
+        //GAMEPAD 1 ---------------- zone + drive
+
+
+        //DRIVE
+        Command robotCentricDrive = drive.driverControlledCommand(
+                Gamepads.gamepad1().leftStickY().negate(),
+                Gamepads.gamepad1().leftStickX().negate(),
+                Gamepads.gamepad1().rightStickX().negate(),
+                true
+        );//robot centric is auto true
+        robotCentricDrive.schedule();
+
+        //zone
+        Gamepads.gamepad1().dpadUp().whenBecomesTrue(robot.hood.setHoodPose(.84));//top
+        Gamepads.gamepad1().dpadDown().whenBecomesTrue(robot.hood.setHoodPose(.0311));//mid
+        Gamepads.gamepad1().dpadLeft().whenBecomesTrue(robot.hood.setHoodPose(.46));//bottom
+
+
+
+
+        //GAMEPAD 2 ------------------ everything else
+
+        //intake normal
+        Gamepads.gamepad2().x()
+                .whenBecomesTrue(robot.intake.intake())
+                .whenBecomesTrue(robot.gate.closeGate)
+                .whenBecomesFalse(robot.intake.stop());
+
+
+        //intake + transfer
+        Gamepads.gamepad2().leftBumper()
+                .whenBecomesTrue(robot.intake.intake())
+                .whenBecomesTrue(robot.gate.openGate)
+                .whenBecomesFalse(robot.intake.stop());
+
+        //intake reverse
+        Gamepads.gamepad2().b()
+                .whenBecomesTrue(robot.intake.intakeReverse())
+                .whenBecomesFalse(robot.intake.stop());
+
+
+        //spin flywheel backwards full power
+        Gamepads.gamepad2().leftTrigger().atLeast(.1)
+                .whenTrue(robot.shooter.setLeftNeg1)
+                .whenTrue(robot.shooter.setRightNeg1);
+
+        //spin flywheel forwards full power
+        Gamepads.gamepad2().rightTrigger().atLeast(.1)
+                .whenTrue(robot.shooter.setLeft1)
+                .whenTrue(robot.shooter.setRight1);
+
+
+
+
+
+
+
+
+    }
+
+    @Override
+    public void onUpdate() {
+
+
+        if (!limelightStarted) {
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(0);
+            limelight.start();
+            limelightStarted = true;
+        }
+
+        LLResult result = limelight.getLatestResult();
+        DoubleSupplier txSupplier = () -> {
+            LLResult r = limelight.getLatestResult();
+            return (r != null && r.isValid()) ? r.getTx() : 0.0;
+        };
+        LLStatus status = limelight.getStatus();
+        if (result != null && result.isValid()) {
+            double tx = result.getTx();
+            double ty = result.getTy(); // How far up or down the target is (degrees)
+            double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+
+            telemetry.addData("Ty", ty);
+            telemetry.addData("Ta", ta);
+            telemetry.addData("Tx", tx);
+
+            // only schedule once
+            if (!robot.turret.isAiming()) {
+                robot.turret.aimWithVision(txSupplier).schedule();
+            }
+
+        }
+        else {
+            telemetry.addData("Limelight", "No Targets");
+            telemetry.addData("CPU", status.getCpu());
+            telemetry.addData("Temp", status.getTemp());
+            telemetry.addData("RAM", status.getRam());
+            telemetry.addData("Pipeline Type", status.getPipelineType());
+
+            // stop turret if no target
+            //robot.turret.stopTurret(); /TODO
+        }
+        telemetry.update();
+    }
+    @Override public void onStop() {}
+
+}

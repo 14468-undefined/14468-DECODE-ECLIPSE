@@ -35,7 +35,7 @@ public class AutoAimCommand extends Command {
 
     @Override
     public boolean isDone() {
-        return Tx < 1; // whether or not the command is done
+        return false;
     }
 
     @Override
