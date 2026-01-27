@@ -28,7 +28,7 @@ import java.util.function.DoubleSupplier;
 import static dev.nextftc.bindings.Bindings.button;
 
 
-@TeleOp(name = "STATES_TELEOP" , group = "AA - COMP")
+@TeleOp(name = "STATES_TELEOPV2" , group = "AA - COMP")
 
 public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
@@ -51,7 +51,6 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-    MotorEx turretMotor;
     HardwareMap hwMap;
 
 
@@ -84,20 +83,21 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-        Command turretLeft = new SetPower(turretMotor, -.3);
-        Command turretRight = new SetPower(turretMotor, .3);
-        Command turretHold = new SetPower(turretMotor, 0);
+
 
 
 
         robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);//change
 
-        Gamepads.gamepad1().a().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE));
-        Gamepads.gamepad1().y().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE));
+        //Gamepads.gamepad1().a().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE));
+        //Gamepads.gamepad1().y().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE));
+
+        //Gamepads.gamepad1().a().whenBecomesTrue(limelight.pipelineSwitch(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE));
+        //Gamepads.gamepad1().y().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE));
 
 
-        Gamepads.gamepad2().rightBumper().whenBecomesTrue(robot.gate.openGate);
-        Gamepads.gamepad2().leftBumper().whenBecomesTrue(robot.gate.closeGate);
+        //Gamepads.gamepad2().rightBumper().whenBecomesTrue(robot.gate.openGate);
+        //Gamepads.gamepad2().leftBumper().whenBecomesTrue(robot.gate.closeGate);
 
 
 

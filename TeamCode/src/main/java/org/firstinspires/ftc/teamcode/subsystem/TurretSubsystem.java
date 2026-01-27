@@ -38,9 +38,9 @@ public class TurretSubsystem implements Subsystem {
 
 
     //constants 1/15/26 working decent
-    public static double kP = 0.01;
-    public static double kI = 0.0;
-    public static double kD = 0.0;
+    public static double kP = 0.03;
+    public static double kI = 0.001;
+    public static double kD = 0.001;
 
     private double integralSum = 0.0;
     private double lastError = 0.0;

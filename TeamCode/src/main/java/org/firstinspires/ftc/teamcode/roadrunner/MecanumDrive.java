@@ -72,19 +72,19 @@ public final class MecanumDrive extends NextFTCMecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.DOWN;
+                RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         // drive model parameters
-        public double inPerTick = 1; //past ex (.00196236869)
-        public double lateralInPerTick =  inPerTick; //leave at inPerTick while tuning. Past ex (0.001074687201745253)
-        public double trackWidthTicks = 0;//past ex (7594.890836779084)
+        public double inPerTick = 0.00197412076; //past ex (.00196236869) //60280 //119 in
+        public double lateralInPerTick =  0.0014366076782968628; //leave at inPerTick while tuning. Past ex (0.001074687201745253)
+        public double trackWidthTicks = 4709.855616114046;//past ex (7594.890836779084)
 
         // feedforward parameters (in tick units)
-        public double kS = 0;//past ex (2.0130495722512527)
-        public double kV = 0;//past ex (0.0002306635950958281)
-        public double kA = 0;//was 9 //past ex (0.00006)
+        public double kS = 1.1439566798895804;//past ex (2.0130495722512527)
+        public double kV = 0.000381346129858154;//past ex (0.0002306635950958281)
+        public double kA = 0.00009;//was 9 //past ex (0.00006)
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;//for ITD it was 60
@@ -96,9 +96,9 @@ public final class MecanumDrive extends NextFTCMecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0;//past ex (3.2)
-        public double lateralGain = 0;//past ex (.2)
-        public double headingGain = 0; // shared with turn. past ex (3.6)
+        public double axialGain = 2.5;//past ex (3.2)
+        public double lateralGain = 0.8;//past ex (.2)
+        public double headingGain = 0.8; // shared with turn. past ex (3.6)
 
         public double axialVelGain = 0.0; //was .01 for itd
         public double lateralVelGain = 0.0;
