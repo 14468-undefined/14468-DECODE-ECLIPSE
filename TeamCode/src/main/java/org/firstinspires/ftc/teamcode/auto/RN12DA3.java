@@ -39,7 +39,7 @@ public class RN12DA3 extends NextFTCOpMode {
     private final Pose2d shotPoseOnLine = new Pose2d(-24,24, Math.toRadians(90));//go shoot
 
 
-    HardwareMap hwMap;
+    //HardwareMap hwMap;
     MecanumDrive drive;
     Command driveCommand;
     Command autoCommand;
