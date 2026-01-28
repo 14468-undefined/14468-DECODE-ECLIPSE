@@ -96,9 +96,9 @@ public final class MecanumDrive extends NextFTCMecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 2.5;//past ex (3.2)
-        public double lateralGain = 0.8;//past ex (.2)
-        public double headingGain = 0.8; // shared with turn. past ex (3.6)
+        public double axialGain = 3.5;//past ex (3.2)
+        public double lateralGain = 2.8;//past ex (.2)
+        public double headingGain = 1.5; // shared with turn. past ex (3.6)
 
         public double axialVelGain = 0.0; //was .01 for itd
         public double lateralVelGain = 0.0;

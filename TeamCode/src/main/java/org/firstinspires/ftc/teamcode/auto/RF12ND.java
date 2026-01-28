@@ -38,7 +38,7 @@ public class RF12ND extends NextFTCOpMode {
     private final Pose2d shotPose = new Pose2d(65, 15, Math.toRadians(90));//go to shoot pose
 
 
-    HardwareMap hwMap;
+    //HardwareMap hwMap;
     MecanumDrive drive;
 
     Command autoCommand;
@@ -66,7 +66,7 @@ public class RF12ND extends NextFTCOpMode {
         //robot.limelight.initHardware(hwMap, "RED");
 
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.FAR_ZONE, 0);//shot time is irrelevant here bc its far zone
-        drive = new MecanumDrive(hwMap, startPose);
+        drive = new MecanumDrive(hardwareMap, startPose);
         autoAimCommand = new AutoAimCommand(robot);
 
 
@@ -74,8 +74,8 @@ public class RF12ND extends NextFTCOpMode {
 
                 //.strafeToLinearHeading(shotPose.position, shotPose.heading)
                 .stopAndAdd(robot.turret.runToAngle(-45))//so it can see the tag
-                .stopAndAdd(autoAimCommand)//aim turret and set hood
-                .stopAndAdd(shoot3Command)//shoot 3
+                //.stopAndAdd(autoAimCommand)//aim turret and set hood
+                //.stopAndAdd(shoot3Command)//shoot 3
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
@@ -92,9 +92,9 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin(RPM_FAR_ESTIMATE))//set RPM to an estimate so it can start spinning up
 
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
-                .stopAndAdd(autoAimCommand)//start auto aiming after 1 second
+                //.stopAndAdd(autoAimCommand)//start auto aiming after 1 second
 
-                .stopAndAdd(shoot3Command)//shoot 3
+                //.stopAndAdd(shoot3Command)//shoot 3
                 .stopAndAdd(robot.shooter.stop())//stop flywheel
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
