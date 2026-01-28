@@ -4,16 +4,14 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.groups.SequentialGroup;
+import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
-
-import dev.nextftc.core.commands.Command;
-import dev.nextftc.core.components.SubsystemComponent;
-import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
 
@@ -32,8 +30,10 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  * Example:*
  * BN12DA3 - Blue Near 12 Artifacts with a gate dump after preloads shot
  */
-@Autonomous(name = "RN12DA3")
-public class RN12DA3 extends NextFTCOpMode {
+
+//WAI = With auto aim
+@Autonomous(name = "RN12DA3WAI")
+public class RN12DA3WAI extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
     private final Pose2d shotPoseOnLine = new Pose2d(-24,24, Math.toRadians(90));//go shoot
@@ -50,13 +50,53 @@ public class RN12DA3 extends NextFTCOpMode {
     double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
     double RPM_CLOSE_ESTIMATE = 0;
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public RN12DA3() {
+    public RN12DA3WAI() {
 
 
         addComponents(
                 new SubsystemComponent(robot)
         );
     }
+
+
+    private Command autoAim() {
+        return new SequentialGroup(
+                // Aim turret using Limelight, then continue
+                new Command() {
+
+                    private static final double TX_TOLERANCE = 1.0;
+
+                    {
+                        requires(
+                                BaseRobot.INSTANCE.turret,
+                                BaseRobot.INSTANCE.limelight
+                        );
+                    }
+
+                    @Override
+                    public void update() {
+                        if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
+                            return;
+                        }
+
+                        BaseRobot.INSTANCE.turret
+                                .aimWithVision(BaseRobot.INSTANCE.limelight::getTx);
+                    }
+
+                    @Override
+                    public boolean isDone() {
+                        if (!BaseRobot.INSTANCE.limelight.hasTarget()) return false;
+                        return Math.abs(BaseRobot.INSTANCE.limelight.getTx()) < TX_TOLERANCE;
+                    }
+
+                    @Override
+                    public void stop(boolean interrupted) {
+
+                    }
+                }
+        );
+    }
+
 
 
 
@@ -74,6 +114,7 @@ public class RN12DA3 extends NextFTCOpMode {
                 //.stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.gate.closeGate)
 
+                .stopAndAdd(autoAim())
 
                 //FIRST PILE----------------------------------------------
                 .strafeToConstantHeading(new Vector2d(-11.2, 25.4))

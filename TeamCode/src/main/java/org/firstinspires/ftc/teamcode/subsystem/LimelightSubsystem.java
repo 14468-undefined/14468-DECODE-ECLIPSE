@@ -92,4 +92,8 @@ public class LimelightSubsystem implements Subsystem {
     public void periodic() {
 
     }
+
+    public boolean hasTarget(){
+        return limelight.getLatestResult().isValid();
+    }
 }
