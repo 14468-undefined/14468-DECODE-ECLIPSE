@@ -25,14 +25,19 @@ public class ShooterSubsystem implements Subsystem {
 
     private boolean active;
 
-    private final MotorEx shooterLeft = new MotorEx("shooterLeft").reversed();
-    private final MotorEx shooterRight = new MotorEx("shooterRight");
 
     private ControlSystem controller;
 
     public static final ShooterSubsystem INSTANCE = new ShooterSubsystem();
 
     private ShooterSubsystem() {
+    }
+
+    private final MotorEx shooterLeft = new MotorEx("shooterLeft").reversed();
+    private final MotorEx shooterRight = new MotorEx("shooterRight");
+    @Override
+    public void initialize() {
+
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
@@ -41,7 +46,10 @@ public class ShooterSubsystem implements Subsystem {
                 .basicFF(kV)
                 .build();
         controller.setGoal(new KineticState(0, 0));
+        // initialization logic (runs on init)
     }
+
+
 
     public void applyPIDF() {
         controller = ControlSystem.builder()
@@ -74,13 +82,53 @@ public class ShooterSubsystem implements Subsystem {
 
 
 
-    public Command setLeft1 = new SetPower(shooterLeft, 1);
-    public Command setRight1 = new SetPower(shooterRight, 1);
-    public Command setLeftNeg1 = new SetPower(shooterLeft, -1);
-    public Command setRightNeg1 = new SetPower(shooterRight, -1);
-    public Command setLeft0 = new SetPower(shooterLeft, 0);
-    public Command setRight0 = new SetPower(shooterRight, 0);
+    public Command setLeft1() {
+        return new LambdaCommand()
+                .setStart(() -> shooterLeft.setPower(1))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Shooter Left +1");
+    }
 
+    public Command setRight1() {
+        return new LambdaCommand()
+                .setStart(() -> shooterRight.setPower(1))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Shooter Right +1");
+    }
+
+    public Command setLeftNeg1() {
+        return new LambdaCommand()
+                .setStart(() -> shooterLeft.setPower(-1))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Shooter Left -1");
+    }
+
+    public Command setRightNeg1() {
+        return new LambdaCommand()
+                .setStart(() -> shooterRight.setPower(-1))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Shooter Right -1");
+    }
+
+    public Command setLeft0() {
+        return new LambdaCommand()
+                .setStart(() -> shooterLeft.setPower(0))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Shooter Left 0");
+    }
+
+    public Command setRight0() {
+        return new LambdaCommand()
+                .setStart(() -> shooterRight.setPower(0))
+                .setIsDone(() -> true)
+                .requires(this)
+                .named("Shooter Right 0");
+    }
 
 
     public Command stop() {

@@ -128,11 +128,12 @@ public class RN12DA3WAI extends NextFTCOpMode {
                 .strafeToConstantHeading(new Vector2d(-3, 48))
                 .strafeToSplineHeading(new Vector2d(1.4, 55), Math.toRadians(90))//gate dump
 
-                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
+                .stopAndAdd(robot.gate.openGate)
+                //.stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
                 //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                //.stopAndAdd(autoAimCommand)
+                .stopAndAdd(autoAim())
 
                 //.stopAndAdd(shoot3Command)
                 //.stopAndAdd(robot.shooter.stop())

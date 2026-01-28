@@ -128,8 +128,8 @@ public class STATES_TELEOP extends NextFTCOpMode {
         Gamepads.gamepad2().dpadLeft().whenBecomesTrue(robot.hood.setHoodPose(.46));
 
 
-        Gamepads.gamepad2().y().whenTrue(robot.shooter.setLeftNeg1).whenTrue(robot.shooter.setRightNeg1);//.whenBecomesFalse(() ->shooterLeft.setPower(0));
-        Gamepads.gamepad2().a().whenTrue(robot.shooter.setLeft1).whenTrue(robot.shooter.setRight1);
+        Gamepads.gamepad2().y().whenTrue(robot.shooter.setLeftNeg1()).whenTrue(robot.shooter.setRightNeg1());//.whenBecomesFalse(() ->shooterLeft.setPower(0));
+        Gamepads.gamepad2().a().whenTrue(robot.shooter.setLeft1()).whenTrue(robot.shooter.setRight1());
 
 
 

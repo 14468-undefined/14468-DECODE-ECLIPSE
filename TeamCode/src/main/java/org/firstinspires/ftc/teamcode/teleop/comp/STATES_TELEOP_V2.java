@@ -146,13 +146,13 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
         //spin flywheel backwards full power
         Gamepads.gamepad2().leftTrigger().atLeast(.1)
-                .whenTrue(robot.shooter.setLeftNeg1)
-                .whenTrue(robot.shooter.setRightNeg1);
+                .whenTrue(robot.shooter.setLeftNeg1())
+                .whenTrue(robot.shooter.setRightNeg1());
 
         //spin flywheel forwards full power
         Gamepads.gamepad2().rightTrigger().atLeast(.1)
-                .whenTrue(robot.shooter.setLeft1)
-                .whenTrue(robot.shooter.setRight1);
+                .whenTrue(robot.shooter.setLeft1())
+                .whenTrue(robot.shooter.setRight1());
 
 
 
