@@ -70,8 +70,8 @@ public class RN12DA3 extends NextFTCOpMode {
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
-                .stopAndAdd(autoAimCommand)
-                .stopAndAdd(shoot3Command)
+                //.stopAndAdd(autoAimCommand)
+                //.stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.gate.closeGate)
 
 
@@ -88,13 +88,13 @@ public class RN12DA3 extends NextFTCOpMode {
                 .strafeToSplineHeading(new Vector2d(1.4, 55), Math.toRadians(90))//gate dump
 
                 .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
-                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
+                //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(autoAimCommand)
+                //.stopAndAdd(autoAimCommand)
 
-                .stopAndAdd(shoot3Command)
-                .stopAndAdd(robot.shooter.stop())
+                //.stopAndAdd(shoot3Command)
+                //.stopAndAdd(robot.shooter.stop())
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
@@ -109,13 +109,13 @@ public class RN12DA3 extends NextFTCOpMode {
 
                 //set the hood and rpm to a estimated value in case the ll fails
                 .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
-                .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
+                //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(autoCommand)
+                //.stopAndAdd(autoCommand)
 
-                .stopAndAdd(shoot3Command)
-                .stopAndAdd(robot.shooter.stop())
+                //.stopAndAdd(shoot3Command)
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
 
 
@@ -128,10 +128,10 @@ public class RN12DA3 extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(autoCommand)
+                //.stopAndAdd(autoCommand)
 
-                .stopAndAdd(shoot3Command)
-                .stopAndAdd(robot.shooter.stop())
+                //.stopAndAdd(shoot3Command)
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
 
                 .build();

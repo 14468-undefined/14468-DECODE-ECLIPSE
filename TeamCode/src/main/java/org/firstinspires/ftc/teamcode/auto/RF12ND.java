@@ -73,7 +73,7 @@ public class RF12ND extends NextFTCOpMode {
         autoCommand = drive.commandBuilder(startPose)
 
                 //.strafeToLinearHeading(shotPose.position, shotPose.heading)
-                .stopAndAdd(robot.turret.runToAngle(-45))//so it can see the tag
+                //.stopAndAdd(robot.turret.runToAngle(-45))//so it can see the tag
                 //.stopAndAdd(autoAimCommand)//aim turret and set hood
                 //.stopAndAdd(shoot3Command)//shoot 3
 
