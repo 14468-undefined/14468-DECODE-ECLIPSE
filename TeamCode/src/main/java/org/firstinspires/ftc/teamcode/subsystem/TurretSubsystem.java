@@ -18,7 +18,7 @@ public class TurretSubsystem implements Subsystem {
     /* ---------------- Hardware ---------------- */
 
     // Motor reversed so +power = right, -power = left
-    private final MotorEx turretMotor =
+    public final MotorEx turretMotor =
             new MotorEx("turret").reversed().brakeMode();
 
     /* ---------------- Modes ---------------- */
@@ -28,7 +28,7 @@ public class TurretSubsystem implements Subsystem {
         IDLE
     }
 
-    private TurretMode mode = TurretMode.IDLE;
+    public TurretMode mode = TurretMode.IDLE;
 
     /* ---------------- Angle Control ---------------- */
 
@@ -42,9 +42,9 @@ public class TurretSubsystem implements Subsystem {
     public static double kI = 0.001;
     public static double kD = 0.001;
 
-    private double integralSum = 0.0;
-    private double lastError = 0.0;
-    private double lastTime = 0.0;
+    public double integralSum = 0.0;
+    public double lastError = 0.0;
+    public double lastTime = 0.0;
 
     private DoubleSupplier txSupplier = () -> 0.0;
 
@@ -65,7 +65,11 @@ public class TurretSubsystem implements Subsystem {
     private TurretSubsystem() {
         angleController = ControlSystem.builder()
                 .posPid(0.1, 0.0, 0.001)
+                .basicFF()
                 .build();
+
+
+
     }
 
     /* ---------------- Angle Utilities ---------------- */
@@ -126,7 +130,7 @@ public class TurretSubsystem implements Subsystem {
 
     /* ---------------- Vision PID ---------------- */
 
-    private double visionPID(double error) {
+    public double visionPID(double error) {
 
         double currentTime = System.nanoTime() / 1e9;
         double dt = currentTime - lastTime;

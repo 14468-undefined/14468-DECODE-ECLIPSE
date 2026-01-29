@@ -63,6 +63,7 @@ public class RN12DA3 extends NextFTCOpMode {
     @Override
     public void onInit(){
 
+
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
         drive = new MecanumDrive(hardwareMap, startPose);

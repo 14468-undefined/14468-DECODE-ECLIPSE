@@ -18,6 +18,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
     public static double kP = 0.1;
     public static double kI = 0.0;
     public static double kD = 0.0;
+    public static double kF = 0.0;
 
     public static double TARGET_TICKS = 0.0;
 
@@ -31,7 +32,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
 
     private ControlSystem controller;
 
-    private double lastKP, lastKI, lastKD;
+    private double lastKP, lastKI, lastKD, lastKF;
 
     /* ---------------- Init ---------------- */
 
@@ -55,7 +56,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
         while(opModeIsActive()){
 
             // Rebuild controller if dashboard values changed
-            if (kP != lastKP || kI != lastKI || kD != lastKD) {
+            if (kP != lastKP || kI != lastKI || kD != lastKD || kF != lastKF) {
                 rebuildController();
             }
 
@@ -80,6 +81,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
             telemetry.addData("kP", kP);
             telemetry.addData("kI", kI);
             telemetry.addData("kD", kD);
+            telemetry.addData("kF", kF);
 
             telemetry.update();
         }
@@ -92,6 +94,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
     private void rebuildController() {
         controller = ControlSystem.builder()
                 .posPid(kP, kI, kD)
+                .basicFF(kF)
                 .build();
 
         controller.setGoal(new KineticState(TARGET_TICKS));
@@ -99,6 +102,7 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
         lastKP = kP;
         lastKI = kI;
         lastKD = kD;
+        lastKF = kF;
     }
 
     /* ---------------- Loop ---------------- */

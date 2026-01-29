@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
+import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
 
@@ -59,50 +60,88 @@ public class RN12DA3WAI extends NextFTCOpMode {
     }
 
 
-    private Command autoAim() {
-        return new SequentialGroup(
-                // Aim turret using Limelight, then continue
-                new Command() {
+    private Command autoAimWithPID() {
+        return new Command() {
 
-                    private static final double TX_TOLERANCE = 1.0;
+            private static final double TX_TOLERANCE = 4.0;
 
-                    {
-                        requires(
-                                BaseRobot.INSTANCE.turret,
-                                BaseRobot.INSTANCE.limelight
-                        );
-                    }
+            // Auto-specific PID constants
+            private final double AUTO_kP = 0.03;
+            private final double AUTO_kI = 0;//.002
+            private final double AUTO_kD = 0;//.002
 
-                    @Override
-                    public void update() {
-                        if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
-                            return;
-                        }
+            // Store original PID constants to restore after auto
+            private double original_kP;
+            private double original_kI;
+            private double original_kD;
 
-                        BaseRobot.INSTANCE.turret
-                                .aimWithVision(BaseRobot.INSTANCE.limelight::getTx);
-                    }
+            {
+                requires(BaseRobot.INSTANCE.turret, BaseRobot.INSTANCE.limelight);
+            }
 
-                    @Override
-                    public boolean isDone() {
-                        if (!BaseRobot.INSTANCE.limelight.hasTarget()) return false;
-                        return Math.abs(BaseRobot.INSTANCE.limelight.getTx()) < TX_TOLERANCE;
-                    }
+            @Override
+            public void start() {
+                // Save current PID constants
+                original_kP = BaseRobot.INSTANCE.turret.kP;
+                original_kI = BaseRobot.INSTANCE.turret.kI;
+                original_kD = BaseRobot.INSTANCE.turret.kD;
 
-                    @Override
-                    public void stop(boolean interrupted) {
+                // Override with auto PID constants
+                BaseRobot.INSTANCE.turret.kP = AUTO_kP;
+                BaseRobot.INSTANCE.turret.kI = AUTO_kI;
+                BaseRobot.INSTANCE.turret.kD = AUTO_kD;
 
-                    }
+                // Reset PID state
+                BaseRobot.INSTANCE.turret.integralSum = 0.0;
+                BaseRobot.INSTANCE.turret.lastError = 0.0;
+                BaseRobot.INSTANCE.turret.lastTime = System.nanoTime() / 1e9;
+
+                // Set turret mode
+                BaseRobot.INSTANCE.turret.mode = TurretSubsystem.TurretMode.VISION;
+            }
+
+            @Override
+            public void update() {
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
+                    BaseRobot.INSTANCE.turret.stopTurret();
+                    return;
                 }
-        );
+
+                // Fetch TX in real time
+                double tx = BaseRobot.INSTANCE.limelight.getTx();
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx); // PID calculation
+                BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
+            }
+
+            @Override
+            public boolean isDone() {
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) return false;
+                return Math.abs(BaseRobot.INSTANCE.limelight.getTx()) < TX_TOLERANCE;
+            }
+
+            @Override
+            public void stop(boolean interrupted) {
+                BaseRobot.INSTANCE.turret.stopTurret();
+
+                // Restore original PID constants
+                BaseRobot.INSTANCE.turret.kP = original_kP;
+                BaseRobot.INSTANCE.turret.kI = original_kI;
+                BaseRobot.INSTANCE.turret.kD = original_kD;
+            }
+        };
     }
+
+
+
+
+
 
 
 
 
     @Override
     public void onInit(){
-
+        robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
         drive = new MecanumDrive(hardwareMap, startPose);
@@ -114,40 +153,70 @@ public class RN12DA3WAI extends NextFTCOpMode {
                 //.stopAndAdd(shoot3Command)
                 .stopAndAdd(robot.gate.closeGate)
 
-                .stopAndAdd(autoAim())
+                .stopAndAdd(autoAimWithPID())
 
-                //FIRST PILE----------------------------------------------
-                .strafeToConstantHeading(new Vector2d(-11.2, 25.4))
+
+
+                //SECOND PILE --------------------------------------
+                .strafeToConstantHeading(new Vector2d(8, 29))//line up intake
 
 
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(8, 61), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(8, 48))//back up
+
                 .stopAndAdd(robot.intake.stop())
 
+
                 //gate dump
-                .strafeToConstantHeading(new Vector2d(-3, 48))
-                .strafeToSplineHeading(new Vector2d(1.4, 55), Math.toRadians(90))//gate dump
+                //.strafeToConstantHeading(new Vector2d(-3, 48))
+                //.strafeToSplineHeading(new Vector2d(1.4, 55), Math.toRadians(90))//gate dump
 
                 .stopAndAdd(robot.gate.openGate)
                 //.stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_CLOSE_ESTIMATE))
                 //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(autoAim())
+                .stopAndAdd(autoAimWithPID())
 
                 //.stopAndAdd(shoot3Command)
                 //.stopAndAdd(robot.shooter.stop())
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
-                //SECOND PILE --------------------------------------
-                .strafeToConstantHeading(new Vector2d(10, 29))//line up intake
+                //GATE INTAKE --------------------------------------
+                .strafeToLinearHeading(new Vector2d(8, 48), Math.toRadians(180))
+                .strafeToConstantHeading(new Vector2d(7, 62))//gate dump
+
+                .strafeToConstantHeading(new Vector2d(16, 66))
+                //.strafeToConstantHeading(new Vector2d(13, 60))
+                .stopAndAdd(robot.intake.intake())//start intaking
+                .waitSeconds(3)
+
+                .strafeToConstantHeading(new Vector2d(15, 40))
+                .stopAndAdd(robot.intake.stop())
+
+
+
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
+                .stopAndAdd(autoAimWithPID())
+
+                //.stopAndAdd(shoot3Command)
+                //.stopAndAdd(robot.shooter.stop())
+
+                .stopAndAdd(robot.gate.closeGate)//close gate */
+
+                //FIRST PILE----------------------------------------------
+                .strafeToConstantHeading(new Vector2d(-15, 25.4))
+
 
                 .stopAndAdd(robot.intake.intake())
-                .strafeToConstantHeading(new Vector2d(10, 61), new TranslationalVelConstraint(15))//intake
-                .strafeToConstantHeading(new Vector2d(10, 48))//back up
+
+                .strafeToConstantHeading(new Vector2d(-15, 54.5), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(-15, 48), new TranslationalVelConstraint(15))//intake
 
                 .stopAndAdd(robot.intake.stop())
+
 
 
                 //set the hood and rpm to a estimated value in case the ll fails
@@ -155,7 +224,7 @@ public class RN12DA3WAI extends NextFTCOpMode {
                 //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                //.stopAndAdd(autoCommand)
+                .stopAndAdd(autoAimWithPID())
 
                 //.stopAndAdd(shoot3Command)
                 //.stopAndAdd(robot.shooter.stop())
@@ -171,7 +240,7 @@ public class RN12DA3WAI extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                //.stopAndAdd(autoCommand)
+                .stopAndAdd(autoAimWithPID())
 
                 //.stopAndAdd(shoot3Command)
                 //.stopAndAdd(robot.shooter.stop())
@@ -183,6 +252,7 @@ public class RN12DA3WAI extends NextFTCOpMode {
     }
     @Override
     public void onStartButtonPressed() {
+        robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
         autoCommand.schedule();
 
     }
