@@ -15,6 +15,7 @@ public class TurretSubsystem implements Subsystem {
 
     public static final TurretSubsystem INSTANCE = new TurretSubsystem();
 
+
     /* ---------------- Hardware ---------------- */
 
     // Motor reversed so +power = right, -power = left
@@ -25,6 +26,7 @@ public class TurretSubsystem implements Subsystem {
     public enum TurretMode {
         ANGLE,
         VISION,
+        VISIONFF,
         IDLE
     }
 
@@ -46,6 +48,16 @@ public class TurretSubsystem implements Subsystem {
     public double lastError = 0.0;
     public double lastTime = 0.0;
 
+    public static double kP2 = 0.012;     // lower than before
+    public static double kI2 = 0.0;      // start OFF
+    public static double kD2 = 0.0;      // start OFF
+
+    public static double kS2 = .02;     // tune this first
+    public static double I_MAX2 = 0.3;
+
+    private double ffIntegral = 0.0;
+    private double ffLastError = 0.0;
+    private double ffLastTime = 0.0;
     private DoubleSupplier txSupplier = () -> 0.0;
 
     /* ---------------- Constants ---------------- */
@@ -64,8 +76,8 @@ public class TurretSubsystem implements Subsystem {
 
     private TurretSubsystem() {
         angleController = ControlSystem.builder()
-                .posPid(0.1, 0.0, 0.001)
-                .basicFF()
+                .posPid(0.004, 0.0, 0.0)
+                .basicFF(1)
                 .build();
 
 
@@ -126,7 +138,23 @@ public class TurretSubsystem implements Subsystem {
                 .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretVisionAim");
-    }
+                }
+
+        public Command aimWithVisionFF(DoubleSupplier txSupplier) {
+            return new LambdaCommand()
+                    .setStart(() -> {
+                        mode = TurretMode.VISIONFF;
+                    this.txSupplier = txSupplier;
+
+                    ffIntegral = 0.0;
+                    ffLastError = 0.0;
+                    ffLastTime = System.nanoTime() / 1e9;
+                })
+                .setIsDone(() -> false)
+                .setStop(interrupted -> mode = TurretMode.IDLE)
+                .requires(this)
+                .named("TurretVisionAimFF");
+        }
 
     /* ---------------- Vision PID ---------------- */
 
@@ -166,6 +194,56 @@ public class TurretSubsystem implements Subsystem {
         return output;
     }
 
+
+    //this is a new vision controller for testing
+    public double visionController(double error) {
+
+        double currentTime = System.nanoTime() / 1e9;
+        double dt = currentTime - ffLastTime;
+        if (dt <= 0 || dt > 0.1) dt = 0.02;
+
+        /* ---------- PID ---------- */
+
+        // Proportional
+        double P = kP2 * error;
+
+        // Integral (clamped)
+        ffIntegral += error * dt;
+        ffIntegral = Math.max(-I_MAX2, Math.min(I_MAX2, ffIntegral));
+        double I = kI2 * ffIntegral;
+
+
+        // Derivative (optional — usually small or zero for vision)
+        double derivative = (error - ffLastError) / dt;
+        double D = kD2 * derivative;
+
+        /* ---------- Feedforward ---------- */
+
+        // Static friction compensation
+        double ff = 0.0;
+        if (Math.abs(error) > TX_TOLERANCE) {
+            ff = kS2 * Math.signum(error);
+        }
+
+        /* ---------- Combine ---------- */
+
+        double output = P + I + D + ff;
+
+        output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
+
+        /* ---------- Deadband ---------- */
+
+        if (Math.abs(error) <= TX_TOLERANCE) {
+            output = 0.0;
+            ffIntegral = 0.0;
+        }
+
+        ffLastError = error;
+        ffLastTime = currentTime;
+
+        return output;
+    }
+
     /* ---------------- Periodic ---------------- */
 
     @Override
@@ -183,6 +261,11 @@ public class TurretSubsystem implements Subsystem {
                 //latest update 1/14/26 1:50pm - made error + tx not negative tx
                 double tx = txSupplier.getAsDouble();
                 desiredPower = visionPID(tx);
+                break;
+
+            case VISIONFF:
+                double txFF = txSupplier.getAsDouble();
+                desiredPower = visionController(txFF);
                 break;
 
             case IDLE:

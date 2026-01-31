@@ -44,11 +44,17 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     }
 
 
+    private boolean visionEnabled = false;
 
 
     private Limelight3A limelight;
     private boolean limelightStarted = false;
 
+
+
+    private double CLOSE_RPM = 2550;//close
+    private double MID_RPM = 2550;//farthest spot in close zone
+    private double FAR_RPM = 3500;//farthest spot
 
 
     HardwareMap hwMap;
@@ -78,6 +84,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override public void onWaitForStart() {
         //t.addLine("OpMode Initialized");
         //t.addLine("Waiting for start...");
+
     }
     @Override public void onStartButtonPressed() {
 
@@ -115,12 +122,29 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
         );//robot centric is auto true
         robotCentricDrive.schedule();
 
-        //zone
-        Gamepads.gamepad1().dpadUp().whenBecomesTrue(robot.hood.setHoodPose(.84));//top
-        Gamepads.gamepad1().dpadDown().whenBecomesTrue(robot.hood.setHoodPose(.0311));//mid
-        Gamepads.gamepad1().dpadLeft().whenBecomesTrue(robot.hood.setHoodPose(.46));//bottom
+        //ZONES------------------------------------------------------
+
+        //far zone
+        Gamepads.gamepad1().dpadUp()
+                .whenBecomesTrue(robot.hood.setHoodPose(.84))//top
+                .whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM));
+
+        //mid zone
+        Gamepads.gamepad1().dpadDown()
+                .whenBecomesTrue(robot.hood.setHoodPose(.0311))//mid
+                .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM));
 
 
+        //close zone
+        Gamepads.gamepad1().dpadLeft().or(Gamepads.gamepad1().dpadRight())
+                .whenBecomesTrue(robot.hood.setHoodPose(.311))//bottom //.46 is bottom
+                .whenBecomesTrue(robot.shooter.setTargetRPM(CLOSE_RPM));
+
+
+        Gamepads.gamepad1().leftBumper()
+                .whenBecomesTrue(() -> visionEnabled = false)
+                .whenBecomesTrue(robot.turret.runToAngle(0))
+                .whenBecomesFalse(() -> visionEnabled = true);
 
 
         //GAMEPAD 2 ------------------ everything else
@@ -145,19 +169,36 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
         //spin flywheel backwards full power
+
+
+        Gamepads.gamepad2().rightTrigger().atLeast(.1)
+                .whenBecomesTrue(robot.shooter.spin());
+
         Gamepads.gamepad2().leftTrigger().atLeast(.1)
-                .whenTrue(robot.shooter.setLeftNeg1())
-                .whenTrue(robot.shooter.setRightNeg1());
+                .whenBecomesTrue(robot.shooter.spinReverse());
+
+
+
+
+        //OLD SHOOTER CONTROLS - JUST POWER - ARCHIVE
+
+
+        /*Gamepads.gamepad2().y().whenBecomesTrue(robot.shooter.setRight1()).whenBecomesFalse(robot.shooter.setRight0());
+
+        Gamepads.gamepad2().leftTrigger().atLeast(.1)
+
+                .whenTrue(robot.shooter.setRightNeg1())
+                .whenBecomesFalse(robot.shooter.setLeft0())
+                .whenBecomesFalse(robot.shooter.setRight0());
 
         //spin flywheel forwards full power
         Gamepads.gamepad2().rightTrigger().atLeast(.1)
                 .whenTrue(robot.shooter.setLeft1())
-                .whenTrue(robot.shooter.setRight1());
+                .whenTrue(robot.shooter.setRight1())
+                .whenBecomesFalse(robot.shooter.setLeft0())
+                .whenBecomesFalse(robot.shooter.setRight0());
 
-
-
-
-
+         */
 
 
 
@@ -180,7 +221,9 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
             return (r != null && r.isValid()) ? r.getTx() : 0.0;
         };
         LLStatus status = limelight.getStatus();
-        if (result != null && result.isValid()) {
+        if (result != null && result.isValid() && visionEnabled) {
+
+
             double tx = result.getTx();
             double ty = result.getTy(); // How far up or down the target is (degrees)
             double ta = result.getTa(); // How big the target looks (0%-100% of the image)

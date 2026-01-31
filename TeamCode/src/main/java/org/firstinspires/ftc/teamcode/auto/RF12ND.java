@@ -46,8 +46,8 @@ public class RF12ND extends NextFTCOpMode {
 
     Shoot3Command shoot3Command;
 
-    double HOOD_ANGLE_FAR_ESTIMATE = 0;
-    double RPM_FAR_ESTIMATE = 0;
+    double HOOD_ANGLE = 0;
+    double RPM_FAR = 0;
     private final BaseRobot robot = BaseRobot.INSTANCE;
     public RF12ND() {
 
@@ -72,6 +72,10 @@ public class RF12ND extends NextFTCOpMode {
 
         autoCommand = drive.commandBuilder(startPose)
 
+                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE))
+                .stopAndAdd(robot.shooter.setTargetRPM(RPM_FAR))
+
+                .stopAndAdd(robot.turret.runToAngle(-45))
                 //.strafeToLinearHeading(shotPose.position, shotPose.heading)
                 //.stopAndAdd(robot.turret.runToAngle(-45))//so it can see the tag
                 //.stopAndAdd(autoAimCommand)//aim turret and set hood
@@ -88,8 +92,8 @@ public class RF12ND extends NextFTCOpMode {
 
                 .stopAndAdd(robot.intake.stop())
 
-                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_FAR_ESTIMATE))//set hood angle to an estimate
-                .stopAndAdd(robot.shooter.spin(RPM_FAR_ESTIMATE))//set RPM to an estimate so it can start spinning up
+                .stopAndAdd(robot.shooter.spin())
+
 
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
                 //.stopAndAdd(autoAimCommand)//start auto aiming after 1 second
@@ -105,9 +109,8 @@ public class RF12ND extends NextFTCOpMode {
                 .strafeToConstantHeading(new Vector2d(35.8, 61), new TranslationalVelConstraint(15))//intake
                 .stopAndAdd(robot.intake.stop())
 
-                //set the hood and rpm to a estimated value in case the ll fails
-                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_FAR_ESTIMATE))
-                .stopAndAdd(robot.shooter.spin(RPM_FAR_ESTIMATE))//start spinning flywheel
+
+                .stopAndAdd(robot.shooter.spin())
 
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
                 .stopAndAdd(autoAimCommand)
@@ -126,8 +129,8 @@ public class RF12ND extends NextFTCOpMode {
 
                 .stopAndAdd(robot.intake.stop())
 
-                .stopAndAdd(robot.hood.setHoodAngle(HOOD_ANGLE_FAR_ESTIMATE))//set hood angle to an estimate
-                .stopAndAdd(robot.shooter.spin(RPM_FAR_ESTIMATE))//set RPM to an estimate so it can start spinning up
+
+                .stopAndAdd(robot.shooter.spin())
 
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
                 .stopAndAdd(autoAimCommand)//start auto aiming after 1 second
