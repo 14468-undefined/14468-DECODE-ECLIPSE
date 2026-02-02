@@ -91,7 +91,7 @@ public class STATES_TELEOP extends NextFTCOpMode {
     @Override public void onStartButtonPressed() {
 
 
-
+        turretMotor.setPower(.2);
         Command turretLeft = new SetPower(turretMotor, -.3);
         Command turretRight = new SetPower(turretMotor, .3);
         Command turretHold = new SetPower(turretMotor, 0);
@@ -128,8 +128,6 @@ public class STATES_TELEOP extends NextFTCOpMode {
         Gamepads.gamepad2().dpadLeft().whenBecomesTrue(robot.hood.setHoodPose(.46));
 
 
-        Gamepads.gamepad2().y().whenTrue(robot.shooter.setLeftNeg1()).whenTrue(robot.shooter.setRightNeg1());//.whenBecomesFalse(() ->shooterLeft.setPower(0));
-        Gamepads.gamepad2().a().whenTrue(robot.shooter.setLeft1()).whenTrue(robot.shooter.setRight1());
 
 
 

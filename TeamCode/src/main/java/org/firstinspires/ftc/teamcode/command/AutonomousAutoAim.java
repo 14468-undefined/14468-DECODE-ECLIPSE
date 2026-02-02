@@ -35,6 +35,7 @@ public class AutonomousAutoAim extends Command {
 
 
 
+
     }
 
     @Override
@@ -50,8 +51,9 @@ public class AutonomousAutoAim extends Command {
         ShotPoint shot = shooterInterpolator.interpolate(camAngle);
 
         robot.hood.setHoodAngle(shot.hoodDeg);
-        robot.shooter.spin(shot.rpm);
+        robot.shooter.setTargetRPM(shot.rpm);
 
+        robot.shooter.spin();//TODO - might be a problem on update
 
         /*
         this is the turret auto-aim logic

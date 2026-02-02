@@ -59,7 +59,7 @@ public class RapidFireShootCommand extends Command {
 
 
             new SequentialGroup(
-                    robot.shooter.spin(rpm),
+                    robot.shooter.spin(),
                     waitTilAtTargetRPM,
                     robot.intake.intake(),
                     waitTil3Shot

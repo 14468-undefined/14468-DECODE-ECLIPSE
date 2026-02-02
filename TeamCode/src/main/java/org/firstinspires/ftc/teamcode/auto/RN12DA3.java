@@ -149,16 +149,20 @@ public class RN12DA3 extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
-                .stopAndAdd(robot.turret.runToAngle(-45))
+                .stopAndAdd(robot.turret.resetTicks())
+                .stopAndAdd(robot.shooter.setTargetRPM(2550))
+                .stopAndAdd(robot.shooter.spin())
+                .stopAndAdd(robot.turret.runToAngle(-54))
+
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
                 //.stopAndAdd(autoAimCommand)
                 //.stopAndAdd(shoot3Command)
-                .stopAndAdd(robot.gate.closeGate)
+                .stopAndAdd(robot.gate.openGate)
 
                 .stopAndAdd(autoAimWithPID())
-                .stopAndAdd(robot.gate.openGate)
+
                 .stopAndAdd(robot.intake.intake())
-                .stopAndAdd(robot.shooter.spin())
+
 
                 .waitSeconds(SHOOTING_DELAY)//WAIT
 
@@ -195,7 +199,7 @@ public class RN12DA3 extends NextFTCOpMode {
                 .stopAndAdd(autoAimWithPID())
                 //.stopAndAdd(robot.turret.runToAngle(0))
 
-
+                .waitSeconds(1)
                 .stopAndAdd(robot.intake.intake())
                 .waitSeconds(SHOOTING_DELAY)
                 .stopAndAdd(robot.shooter.stop())

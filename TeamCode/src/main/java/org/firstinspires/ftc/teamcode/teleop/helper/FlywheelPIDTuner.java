@@ -51,7 +51,7 @@ public class FlywheelPIDTuner extends NextFTCOpMode {
 
         // directly set target (not a Command)
         shooter.setTargetRPM(ShooterSubsystem.TARGET_RPM);
-
+        shooter.spin();
         TelemetryPacket packet = new TelemetryPacket();
 
         packet.put("target_shooter_rpm", shooter.getTargetRPM());

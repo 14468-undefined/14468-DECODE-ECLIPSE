@@ -60,7 +60,7 @@ public class Shoot3Command extends Command {
 
         if(shotZone.equals(Constants.FieldConstants.FAR_ZONE)) {
             new SequentialGroup(
-                    robot.shooter.spin(rpm),
+                    robot.shooter.spin(),
                     waitTilAtTargetRPM,
                     robot.intake.intake(),
                     waitTilRPMDrop,
@@ -82,7 +82,7 @@ public class Shoot3Command extends Command {
         else if (shotZone.equals(Constants.FieldConstants.CLOSE_SHOT)){
 
             new SequentialGroup(
-                    robot.shooter.spin(rpm),
+                    robot.shooter.spin(),
                     waitTilAtTargetRPM,
                     robot.intake.intake(),
                     waitTil3Shot

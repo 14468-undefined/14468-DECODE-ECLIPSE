@@ -108,7 +108,7 @@ public class LimelightTest extends NextFTCOpMode {
                 if (!robot.turret.isAiming()) {
 
 
-                    robot.turret.aimWithVisionFF(txSupplier).schedule();
+                    robot.turret.aimWithVision(txSupplier).schedule();
                 }
             } else {
                 telemetry.addData("Limelight", "No Targets");

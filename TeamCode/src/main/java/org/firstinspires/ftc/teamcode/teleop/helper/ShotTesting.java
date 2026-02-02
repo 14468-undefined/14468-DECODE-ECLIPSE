@@ -46,6 +46,7 @@ public class ShotTesting extends NextFTCOpMode {
     }
     @Override public void onStartButtonPressed() {
 
+        robot.shooter.spin();
 
 
         //.whenTrue: every loop when the button is true.
@@ -86,7 +87,8 @@ public class ShotTesting extends NextFTCOpMode {
     }
     @Override public void onUpdate() {
 
-        robot.shooter.spin(shooterRPM);
+        robot.shooter.setTargetRPM(shooterRPM);
+
         robot.hood.setHoodAngle(hoodAngle);
 
         distance = robot.limelight.getDistance();
