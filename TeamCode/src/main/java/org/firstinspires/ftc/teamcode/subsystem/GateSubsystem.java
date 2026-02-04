@@ -18,8 +18,8 @@ public class GateSubsystem implements Subsystem {
     ColorfulTelemetry cTelemetry;
 
 
-    private final double GATE_OPEN = .32;
-    private final double GATE_CLOSED = .93;
+    private final double GATE_OPEN = .32;//was .32 on 2/2
+    private final double GATE_CLOSED = .7;
     //private final double RIGHT_GATE_OPEN = 0;
     //private final double RIGHT_GATE_CLOSED = 0;
 

@@ -112,6 +112,22 @@ public class ShooterSubsystem implements Subsystem {
                 .named("Set Shooter PIDF");
     }
 
+    public void setTargetRPMDirect(double rpm) {
+        TARGET_RPM = rpm;
+        if (mode == ShooterMode.PID) {
+            controller.setGoal(
+                    new KineticState(0, RPMtoTPS(TARGET_RPM))
+            );
+        }
+    }
+
+
+    public void spinPls(){
+        controller.setGoal(
+                new KineticState(0, RPMtoTPS(TARGET_RPM))
+        );
+    }
+
     public Command spin() {
         return new LambdaCommand()
                 .setStart(() -> {

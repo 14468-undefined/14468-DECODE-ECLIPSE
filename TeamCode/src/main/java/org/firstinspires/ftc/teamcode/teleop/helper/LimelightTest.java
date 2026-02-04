@@ -76,8 +76,6 @@ public class LimelightTest extends NextFTCOpMode {
     @Override
     public void onUpdate() {
 
-
-
         if (!limelightStarted) {
             limelight.setPollRateHz(100);
             limelight.pipelineSwitch(0);
@@ -110,7 +108,8 @@ public class LimelightTest extends NextFTCOpMode {
 
                     robot.turret.aimWithVision(txSupplier).schedule();
                 }
-            } else {
+            }
+            else {
                 telemetry.addData("Limelight", "No Targets");
                 telemetry.addData("CPU", status.getCpu());
                 telemetry.addData("Temp", status.getTemp());
@@ -120,8 +119,6 @@ public class LimelightTest extends NextFTCOpMode {
                 // stop turret if no target
                 //robot.turret.stopTurret(); /TODO
             }
-
-
         telemetry.update();
     }
 }

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.components.BulkReadComponent;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystem.ShooterSubsystem;
@@ -41,6 +42,11 @@ public class FlywheelPIDTuner extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         // nothing
+
+        shooter.spinPls();
+
+
+
     }
 
     @Override
@@ -50,12 +56,11 @@ public class FlywheelPIDTuner extends NextFTCOpMode {
         shooter.maybeUpdatePIDF();
 
         // directly set target (not a Command)
-        shooter.setTargetRPM(ShooterSubsystem.TARGET_RPM);
-        shooter.spin();
+        //shooter.setTargetRPMDirect(ShooterSubsystem.TARGET_RPM);
         TelemetryPacket packet = new TelemetryPacket();
 
         packet.put("target_shooter_rpm", shooter.getTargetRPM());
-        //packet.put("current_shooter_rpm", shooter.getRPM());
+        packet.put("current_shooter_rpm", shooter.getRPM());
         packet.put("left_power", shooter.getLeftPower());
         packet.put("right_power", shooter.getRightPower());
         packet.put("right_RPM", shooter.getRightRPM());

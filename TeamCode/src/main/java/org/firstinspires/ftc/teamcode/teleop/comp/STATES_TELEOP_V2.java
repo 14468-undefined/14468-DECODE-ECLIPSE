@@ -32,6 +32,9 @@ import static dev.nextftc.bindings.Bindings.button;
 
 public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
+    private Limelight3A limelight;
+    private boolean limelightStarted = false;
+
     MecanumDrive drive;
 
     private final BaseRobot robot = BaseRobot.INSTANCE;
@@ -44,11 +47,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     }
 
 
-    private boolean visionEnabled = false;
 
-
-    private Limelight3A limelight;
-    private boolean limelightStarted = false;
 
 
 
@@ -70,6 +69,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
     @Override
     public void onInit() {
+
 
 
 
@@ -212,8 +212,6 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     public void onUpdate() {
 
 
-
-
         if (!limelightStarted) {
             limelight.setPollRateHz(100);
             limelight.pipelineSwitch(0);
@@ -258,6 +256,5 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
         telemetry.update();
     }
-    @Override public void onStop() {}
 
 }

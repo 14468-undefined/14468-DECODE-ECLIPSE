@@ -142,6 +142,7 @@ public class RN12DA3 extends NextFTCOpMode {
 
     @Override
     public void onInit(){
+
         robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
@@ -149,7 +150,7 @@ public class RN12DA3 extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
-                .stopAndAdd(robot.turret.resetTicks())
+                //.stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.shooter.setTargetRPM(2550))
                 .stopAndAdd(robot.shooter.spin())
                 .stopAndAdd(robot.turret.runToAngle(-54))
@@ -174,13 +175,13 @@ public class RN12DA3 extends NextFTCOpMode {
                 //.stopAndAdd(robot.turret.runToAngle(0))
 
                 //SECOND PILE --------------------------------------
-                .strafeToConstantHeading(new Vector2d(8, 29))//line up intake
+                .strafeToConstantHeading(new Vector2d(9.5, 29))//line up intake
 
 
 
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(8, 61), new TranslationalVelConstraint(15))//intake
-                .strafeToConstantHeading(new Vector2d(8, 48))//back up
+                .strafeToConstantHeading(new Vector2d(9.5, 61), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(9.5, 48))//back up
 
                 .stopAndAdd(robot.intake.stop())
 
@@ -209,7 +210,8 @@ public class RN12DA3 extends NextFTCOpMode {
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
-                //GATE INTAKE --------------------------------------
+
+                /*//GATE INTAKE --------------------------------------
                 .strafeToLinearHeading(new Vector2d(8, 48), Math.toRadians(180))
                 .strafeToConstantHeading(new Vector2d(7, 62))//gate dump
 
@@ -238,19 +240,23 @@ public class RN12DA3 extends NextFTCOpMode {
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
 
+                 */
+
 
                 //FIRST PILE----------------------------------------------
-                .strafeToConstantHeading(new Vector2d(-15, 25.4))
+                .strafeToConstantHeading(new Vector2d(-16, 25.4))
 
 
                 .stopAndAdd(robot.intake.intake())
 
-                .strafeToConstantHeading(new Vector2d(-15, 54.5), new TranslationalVelConstraint(15))//intake
-                .strafeToConstantHeading(new Vector2d(-15, 48), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(-16, 54.5), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(-16, 48), new TranslationalVelConstraint(15))//intake
 
                 .stopAndAdd(robot.intake.stop())
 
 
+                .stopAndAdd(robot.shooter.spin())
+                .stopAndAdd(robot.gate.openGate)
 
                 //set the hood and rpm to a estimated value in case the ll fails
 
@@ -280,6 +286,7 @@ public class RN12DA3 extends NextFTCOpMode {
 
                 .stopAndAdd(robot.shooter.spin())
 
+                .stopAndAdd(robot.gate.openGate)
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
                 .stopAndAdd(autoAimWithPID())
 

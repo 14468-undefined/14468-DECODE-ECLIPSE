@@ -33,7 +33,7 @@ public class TurretSubsystem implements Subsystem {
 
     /* ---------------- Angle Control ---------------- */
 
-    private final ControlSystem angleController;
+    private ControlSystem angleController;
 
     /* ---------------- Vision PID ---------------- */
 
@@ -65,13 +65,19 @@ public class TurretSubsystem implements Subsystem {
     /* ---------------- Constructor ---------------- */
 
     private TurretSubsystem() {
+
+
+
+
+    }
+
+    @Override
+    public void initialize() {
+        turretMotor.zero();
         angleController = ControlSystem.builder()
                 .posPid(0.0045, 0.0, 0.0)
                 .basicFF(1)
                 .build();
-
-
-
     }
 
     /* ---------------- Angle Utilities ---------------- */

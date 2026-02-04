@@ -92,6 +92,7 @@ public class LimelightSubsystem implements Subsystem {
     @Override
     public void initialize() {
         limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+
         if (limelight != null) {
             limelight.start();
             limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE); // default pipeline
