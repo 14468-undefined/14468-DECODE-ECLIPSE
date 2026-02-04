@@ -43,7 +43,8 @@ public class FlywheelPIDTuner extends NextFTCOpMode {
     public void onStartButtonPressed() {
         // nothing
 
-        shooter.spinPls();
+
+        shooter.spin().schedule();
 
 
 
@@ -55,6 +56,7 @@ public class FlywheelPIDTuner extends NextFTCOpMode {
         // only updates PID if values changed
         shooter.maybeUpdatePIDF();
 
+        shooter.spin().schedule();
         // directly set target (not a Command)
         //shooter.setTargetRPMDirect(ShooterSubsystem.TARGET_RPM);
         TelemetryPacket packet = new TelemetryPacket();

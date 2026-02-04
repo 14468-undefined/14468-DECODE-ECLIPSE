@@ -30,10 +30,15 @@ public class ShooterSubsystem implements Subsystem {
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
 
-    public static double kP = 0.00008;
+
+    //2500-2450 rpm close
+    //3520 rpm far
+
+    //values as of 2/4
+    public static double kP = 0.000105;
     public static double kI = 0.0;
     public static double kD = 0.0;
-    public static double kV = 0.00043;
+    public static double kV = 0.00038;
 
     private double lastKP, lastKI, lastKD, lastKV;
 
@@ -126,6 +131,19 @@ public class ShooterSubsystem implements Subsystem {
         controller.setGoal(
                 new KineticState(0, RPMtoTPS(TARGET_RPM))
         );
+    }
+
+
+    public Command spinAndHold() {
+        return new LambdaCommand()
+                .setStart(() -> {
+                    mode = ShooterMode.PID;
+                    controller.setGoal(
+                            new KineticState(0, RPMtoTPS(TARGET_RPM))
+                    );
+                })
+                .setIsDone(() -> false)
+                .requires(this);
     }
 
     public Command spin() {
@@ -241,12 +259,12 @@ public class ShooterSubsystem implements Subsystem {
     }
 
     public double getRPM() {
-        double avgTPS = (shooterLeft.getVelocity() + shooterRight.getVelocity()) / 2.0;
+        double avgTPS = (-shooterLeft.getVelocity() + shooterRight.getVelocity()) / 2.0;
         return (avgTPS * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 
     public double getLeftRPM(){
-        return ((shooterLeft.getVelocity()) * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
+        return ((-shooterLeft.getVelocity()) * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 
     public double getRightRPM(){

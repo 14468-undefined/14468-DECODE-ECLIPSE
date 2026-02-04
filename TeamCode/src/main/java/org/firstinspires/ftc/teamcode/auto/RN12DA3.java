@@ -151,7 +151,7 @@ public class RN12DA3 extends NextFTCOpMode {
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
                 //.stopAndAdd(robot.turret.resetTicks())
-                .stopAndAdd(robot.shooter.setTargetRPM(2550))
+                .stopAndAdd(robot.shooter.setTargetRPM(2500))
                 .stopAndAdd(robot.shooter.spin())
                 .stopAndAdd(robot.turret.runToAngle(-54))
 
