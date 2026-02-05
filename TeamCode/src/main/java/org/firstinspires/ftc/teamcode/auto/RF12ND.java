@@ -156,7 +156,7 @@ public class RF12ND extends NextFTCOpMode {
 
                 .stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.hood.setHoodPose(.84))
-                .stopAndAdd(robot.shooter.setTargetRPM(3900))
+                .stopAndAdd(robot.shooter.setTargetRPM(3120))
                 .stopAndAdd(robot.intake.setIntakePower(.3))
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToConstantHeading(new Vector2d(60, 15))

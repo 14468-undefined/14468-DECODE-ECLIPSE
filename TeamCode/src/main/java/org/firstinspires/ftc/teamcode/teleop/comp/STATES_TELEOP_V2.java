@@ -52,9 +52,9 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-    private double CLOSE_RPM = 3000;//close
-    private double MID_RPM = 3200;//farthest spot in close zone
-    private double FAR_RPM = 3800;//farthest spot
+    private double CLOSE_RPM = 2550;//close
+    private double MID_RPM = 2650;//farthest spot in close zone
+    private double FAR_RPM = 3150;//farthest spot
 
 
     private double CURRENT_RPM = 0;
@@ -132,17 +132,17 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
                 .whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM))
                 .whenBecomesTrue(robot.intake.setIntakePower(1));
 
-        //mid zone
+        //close
         Gamepads.gamepad1().dpadDown().or(Gamepads.gamepad1().rightBumper()).or(Gamepads.gamepad1().rightTrigger().atLeast(.1))
                 .whenBecomesTrue(robot.hood.setHoodPose(.0311))//mid
-                .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM))
-                        .whenBecomesTrue(robot.intake.setIntakePower(.25));
+                .whenBecomesTrue(robot.shooter.setTargetRPM(CLOSE_RPM))
+                        .whenBecomesTrue(robot.intake.setIntakePower(1));
 
 
-        //close zone
+        //mid
         Gamepads.gamepad1().dpadLeft().or(Gamepads.gamepad1().dpadRight())
                 .whenBecomesTrue(robot.hood.setHoodPose(.311))//bottom //.46 is bottom
-                .whenBecomesTrue(robot.shooter.setTargetRPM(CLOSE_RPM))
+                .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM))
                 .whenBecomesTrue(robot.intake.setIntakePower(1));
 
 
@@ -231,7 +231,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
         }
 
         if(gamepad2.x){
-            gamepad2.rumble(1000);
+            //gamepad2.rumble(500);
 
         }
 

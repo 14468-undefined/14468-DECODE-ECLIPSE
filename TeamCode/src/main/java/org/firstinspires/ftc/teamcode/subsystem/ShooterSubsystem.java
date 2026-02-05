@@ -22,7 +22,7 @@ public class ShooterSubsystem implements Subsystem {
 
 
 
-    public static double TARGET_RPM = 3500.0;
+    public static double TARGET_RPM = 3500.0;//3150 = far - new 2/5, 2550 = close
     public static double TARGET_REVERSE_RPM = 1000;
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
@@ -32,10 +32,10 @@ public class ShooterSubsystem implements Subsystem {
     //3520 rpm far
 
     //values as of 2/4
-    public static double kP = 0.000105;
+    public static double kP = 0.00014;//0.00014
     public static double kI = 0.0;
     public static double kD = 0.0;
-    public static double kV = 0.00038;
+    public static double kV = 0.00041;//0.00041
 
     private double lastKP, lastKI, lastKD, lastKV;
 
