@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 /**
  * auto naming scheme explained:
  *
- * First: B/R - Blue/Red aliances
+ * First: B/R - Blue/Red alliances
  * Second: N/F - Near/Far side from goal
  * Third: # Of Artifacts - (i.e. 12)
  * Fourth: indicates whether or not there is a
@@ -67,7 +67,7 @@ public class RN12DA3 extends NextFTCOpMode {
             private static final double TX_TOLERANCE = 4.0;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.03;
+            private final double AUTO_kP = 0.02;
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
@@ -151,9 +151,9 @@ public class RN12DA3 extends NextFTCOpMode {
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
                 //.stopAndAdd(robot.turret.resetTicks())
-                .stopAndAdd(robot.shooter.setTargetRPM(2500))
+                .stopAndAdd(robot.shooter.setTargetRPM(3000))
                 .stopAndAdd(robot.shooter.spin())
-                .stopAndAdd(robot.turret.runToAngle(-54))
+                .stopAndAdd(robot.turret.runToAngle(-8))
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
                 //.stopAndAdd(autoAimCommand)

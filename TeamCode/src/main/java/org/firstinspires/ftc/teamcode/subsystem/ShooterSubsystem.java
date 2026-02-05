@@ -15,16 +15,12 @@ public class ShooterSubsystem implements Subsystem {
 
     public static final ShooterSubsystem INSTANCE = new ShooterSubsystem();
 
-    public enum ShooterMode {
-        PID,
-        MANUAL,
-        IDLE
-    }
+
 
 
     //RPM close - 2550
 
-    private ShooterMode mode = ShooterMode.IDLE;
+
 
     public static double TARGET_RPM = 3500.0;
     public static double GEAR_RATIO = 1.0;
@@ -119,11 +115,11 @@ public class ShooterSubsystem implements Subsystem {
 
     public void setTargetRPMDirect(double rpm) {
         TARGET_RPM = rpm;
-        if (mode == ShooterMode.PID) {
+
             controller.setGoal(
                     new KineticState(0, RPMtoTPS(TARGET_RPM))
             );
-        }
+
     }
 
 
@@ -137,19 +133,19 @@ public class ShooterSubsystem implements Subsystem {
     public Command spinAndHold() {
         return new LambdaCommand()
                 .setStart(() -> {
-                    mode = ShooterMode.PID;
+
                     controller.setGoal(
                             new KineticState(0, RPMtoTPS(TARGET_RPM))
                     );
                 })
-                .setIsDone(() -> false)
+                .setIsDone(() -> true)
                 .requires(this);
     }
 
     public Command spin() {
         return new LambdaCommand()
                 .setStart(() -> {
-                    mode = ShooterMode.PID;
+
                     controller.setGoal(
                             new KineticState(0, RPMtoTPS(TARGET_RPM))
                     );
@@ -162,7 +158,6 @@ public class ShooterSubsystem implements Subsystem {
     public Command spinReverse() {
         return new LambdaCommand()
                 .setStart(() -> {
-                    mode = ShooterMode.PID;
                     controller.setGoal(
                             new KineticState(0, RPMtoTPS(-TARGET_RPM))
                     );
@@ -175,9 +170,9 @@ public class ShooterSubsystem implements Subsystem {
     public Command stop() {
         return new LambdaCommand()
                 .setStart(() -> {
-                    mode = ShooterMode.IDLE;
-                    manualLeft = 0.0;
-                    manualRight = 0.0;
+                    controller.setGoal(
+                            new KineticState(0, RPMtoTPS(0))
+                    );
                 })
                 .setIsDone(() -> true)
                 .requires(this)
@@ -291,23 +286,9 @@ public class ShooterSubsystem implements Subsystem {
 
     @Override
     public void periodic() {
-        switch (mode) {
 
-            case MANUAL:
-                shooterLeft.setPower(manualLeft);
-                shooterRight.setPower(manualRight);
-                break;
+        shooterLeft.setPower(controller.calculate(shooterLeft.getState()));
+        shooterRight.setPower(controller.calculate(shooterRight.getState()));
 
-            case PID:
-                shooterLeft.setPower(controller.calculate(shooterLeft.getState()));
-                shooterRight.setPower(controller.calculate(shooterRight.getState()));
-                break;
-
-            case IDLE:
-            default:
-                shooterLeft.setPower(0.0);
-                shooterRight.setPower(0.0);
-                break;
-        }
     }
 }

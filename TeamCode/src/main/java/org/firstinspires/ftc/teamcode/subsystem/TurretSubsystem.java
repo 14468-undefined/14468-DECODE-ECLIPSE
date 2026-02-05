@@ -75,8 +75,8 @@ public class TurretSubsystem implements Subsystem {
     public void initialize() {
         turretMotor.zero();
         angleController = ControlSystem.builder()
-                .posPid(0.0045, 0.0, 0.0)
-                .basicFF(1)
+                .posPid(0.1, 0.0, 0.0)
+                .basicFF(0)
                 .build();
     }
 

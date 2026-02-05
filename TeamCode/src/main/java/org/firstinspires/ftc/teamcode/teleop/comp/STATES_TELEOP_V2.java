@@ -51,9 +51,9 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-    private double CLOSE_RPM = 2550;//close
+    private double CLOSE_RPM = 2500;//close
     private double MID_RPM = 2550;//farthest spot in close zone
-    private double FAR_RPM = 3500;//farthest spot
+    private double FAR_RPM = 3520;//farthest spot
 
 
     HardwareMap hwMap;
@@ -125,12 +125,12 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
         //ZONES------------------------------------------------------
 
         //far zone
-        Gamepads.gamepad1().dpadUp()
+        Gamepads.gamepad1().dpadUp().or(Gamepads.gamepad1().leftBumper())
                 .whenBecomesTrue(robot.hood.setHoodPose(.84))//top
                 .whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM));
 
         //mid zone
-        Gamepads.gamepad1().dpadDown()
+        Gamepads.gamepad1().dpadDown().or(Gamepads.gamepad1().rightBumper()).or(Gamepads.gamepad1().rightTrigger().atLeast(.1))
                 .whenBecomesTrue(robot.hood.setHoodPose(.0311))//mid
                 .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM));
 
