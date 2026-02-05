@@ -107,6 +107,26 @@ public class TurretSubsystem implements Subsystem {
                 .named("TurretToAngle");
     }
 
+    public Command runToTicks(double ticks) {//-152 = far
+        return new LambdaCommand()
+                .setStart(() -> {
+                    angleController.reset();
+                    mode = TurretMode.ANGLE;
+                    angleController.setGoal(
+                            new KineticState(ticks)
+                    );
+                })
+                .setIsDone(() ->
+                        Math.abs(
+                                angleController.getGoal().getPosition()
+                                        - turretMotor.getCurrentPosition()
+                        ) < TICKS_TOLERANCE
+                )
+                .setStop(interrupted -> mode = TurretMode.IDLE)
+                .requires(this)
+                .named("TurretToTicks");
+    }
+
     public boolean isAiming() {
         return mode == TurretMode.VISION;
     }
@@ -194,9 +214,11 @@ public class TurretSubsystem implements Subsystem {
         switch (mode) {
 
             case ANGLE:
-                desiredPower = angleController.calculate(
+                double rawPower = angleController.calculate(
                         turretMotor.getState()
                 );
+                desiredPower = Math.max(-.5,
+                        Math.min(.5, rawPower));
                 break;
 
             case VISION:

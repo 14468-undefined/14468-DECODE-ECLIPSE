@@ -5,6 +5,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import dev.nextftc.bindings.BindingManager;
 import dev.nextftc.bindings.Button;
@@ -51,11 +52,12 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-    private double CLOSE_RPM = 2500;//close
-    private double MID_RPM = 2550;//farthest spot in close zone
-    private double FAR_RPM = 3520;//farthest spot
+    private double CLOSE_RPM = 3000;//close
+    private double MID_RPM = 3200;//farthest spot in close zone
+    private double FAR_RPM = 3800;//farthest spot
 
 
+    private double CURRENT_RPM = 0;
     HardwareMap hwMap;
 
 
@@ -127,18 +129,21 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
         //far zone
         Gamepads.gamepad1().dpadUp().or(Gamepads.gamepad1().leftBumper())
                 .whenBecomesTrue(robot.hood.setHoodPose(.84))//top
-                .whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM));
+                .whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM))
+                .whenBecomesTrue(robot.intake.setIntakePower(1));
 
         //mid zone
         Gamepads.gamepad1().dpadDown().or(Gamepads.gamepad1().rightBumper()).or(Gamepads.gamepad1().rightTrigger().atLeast(.1))
                 .whenBecomesTrue(robot.hood.setHoodPose(.0311))//mid
-                .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM));
+                .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM))
+                        .whenBecomesTrue(robot.intake.setIntakePower(.25));
 
 
         //close zone
         Gamepads.gamepad1().dpadLeft().or(Gamepads.gamepad1().dpadRight())
                 .whenBecomesTrue(robot.hood.setHoodPose(.311))//bottom //.46 is bottom
-                .whenBecomesTrue(robot.shooter.setTargetRPM(CLOSE_RPM));
+                .whenBecomesTrue(robot.shooter.setTargetRPM(CLOSE_RPM))
+                .whenBecomesTrue(robot.intake.setIntakePower(1));
 
 
        /* Gamepads.gamepad1().leftBumper()
@@ -217,6 +222,17 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
             limelight.pipelineSwitch(0);
             limelight.start();
             limelightStarted = true;
+        }
+
+        if(robot.shooter.isAtTargetSpeed()){
+            gamepad2.rumble(1000);
+            //gamepad2.rumble(1, 0, 2); //power left, power right, duration (ms)
+
+        }
+
+        if(gamepad2.x){
+            gamepad2.rumble(1000);
+
         }
 
 

@@ -23,6 +23,7 @@ public class ShooterSubsystem implements Subsystem {
 
 
     public static double TARGET_RPM = 3500.0;
+    public static double TARGET_REVERSE_RPM = 1000;
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
 
@@ -159,7 +160,7 @@ public class ShooterSubsystem implements Subsystem {
         return new LambdaCommand()
                 .setStart(() -> {
                     controller.setGoal(
-                            new KineticState(0, RPMtoTPS(-TARGET_RPM))
+                            new KineticState(0, RPMtoTPS(-TARGET_REVERSE_RPM))
                     );
                 })
                 .setIsDone(() -> true)
