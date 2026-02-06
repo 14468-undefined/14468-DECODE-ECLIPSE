@@ -36,7 +36,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
-    private final Pose2d shotPoseOnLine = new Pose2d(-24,24, Math.toRadians(90));//go shoot
+    private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
 
 
     //HardwareMap hwMap;
@@ -151,14 +151,14 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
-                .stopAndAdd(robot.intake.setIntakePower(.82))
+                .stopAndAdd(robot.intake.setIntakePower(1))
 
-                .stopAndAdd(robot.shooter.setTargetRPM(2650))
-                .stopAndAdd(robot.hood.setHoodPose(.311))
+                .stopAndAdd(robot.shooter.setTargetRPM(2900))
+                .stopAndAdd(robot.hood.setHoodPose(1))
                 .stopAndAdd(robot.shooter.spin())
 
 
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
 
                 .stopAndAdd(robot.gate.openGate)
 
@@ -198,7 +198,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
 
 
-                .stopAndAdd(robot.intake.setIntakePower(.79))
+                .stopAndAdd(robot.intake.setIntakePower(1))
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
 
                 .stopAndAdd(robot.intake.intake())
@@ -236,7 +236,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin())
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(robot.intake.setIntakePower(.82))
+                .stopAndAdd(robot.intake.setIntakePower(1))
 
                 .stopAndAdd(robot.intake.intake())
                 .stopAndAdd(autoAimWithPID())
