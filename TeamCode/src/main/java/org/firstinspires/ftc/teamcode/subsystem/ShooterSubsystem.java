@@ -9,6 +9,7 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.impl.VoltageCompensatingMotor;
 
 @Config
 public class ShooterSubsystem implements Subsystem {
@@ -22,7 +23,7 @@ public class ShooterSubsystem implements Subsystem {
 
 
 
-    public static double TARGET_RPM = 3500.0;//3150 = far - new 2/5, 2550 = close
+    public double TARGET_RPM = 3500.0;//3150 = far - new 2/5, 2550 = close
     public static double TARGET_REVERSE_RPM = 1000;
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
@@ -53,6 +54,8 @@ public class ShooterSubsystem implements Subsystem {
     public void initialize() {
         shooterLeft = new MotorEx("shooterLeft").reversed();
         shooterRight = new MotorEx("shooterRight");
+
+        //VoltageCompensatingMotor shooterLeft = new VoltageCompensatingMotor("shooterLeft").
 
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

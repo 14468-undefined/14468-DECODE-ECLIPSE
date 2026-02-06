@@ -17,6 +17,7 @@ import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.impl.VoltageCompensatingMotor;
 import dev.nextftc.hardware.powerable.SetPower;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import static dev.nextftc.bindings.Bindings.button;
@@ -56,8 +58,9 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     private double MID_RPM = 2650;//farthest spot in close zone
     private double FAR_RPM = 3150;//farthest spot
 
+    private double CURRENT_RPM = 2560;
 
-    private double CURRENT_RPM = 0;
+
     HardwareMap hwMap;
 
 
@@ -93,9 +96,6 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-
-
-
         //robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);//change
 
         //Gamepads.gamepad1().a().whenBecomesTrue(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE));
@@ -127,9 +127,37 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
         //ZONES------------------------------------------------------
 
         //far zone
+
+        //new zones
+
+        Gamepads.gamepad1().rightTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM += 50);
+        Gamepads.gamepad1().leftTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM -= 50);
+
+
+        //mid rpm high hood
         Gamepads.gamepad1().dpadUp().or(Gamepads.gamepad1().leftBumper())
                 .whenBecomesTrue(robot.hood.setHoodPose(.84))//top
-                .whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM))
+                .whenBecomesTrue(() -> CURRENT_RPM = MID_RPM);
+
+        //close rpm low hood
+        Gamepads.gamepad1().dpadDown().or(Gamepads.gamepad1().rightBumper())
+                .whenBecomesTrue(() -> CURRENT_RPM = CLOSE_RPM)
+                .whenBecomesTrue(robot.hood.setHoodPose(.0311));
+
+
+        Gamepads.gamepad1().dpadRight().or(Gamepads.gamepad1().dpadLeft())
+                .whenBecomesTrue(robot.hood.setHoodPose(.311));
+
+
+
+
+
+
+
+        /*
+        Gamepads.gamepad1().dpadUp().or(Gamepads.gamepad1().leftBumper())
+                .whenBecomesTrue(robot.hood.setHoodPose(.84))//top
+                //.whenBecomesTrue(robot.shooter.setTargetRPM(FAR_RPM))
                 .whenBecomesTrue(robot.intake.setIntakePower(1));
 
         //close
@@ -145,6 +173,8 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
                 .whenBecomesTrue(robot.shooter.setTargetRPM(MID_RPM))
                 .whenBecomesTrue(robot.intake.setIntakePower(1));
 
+
+         */
 
        /* Gamepads.gamepad1().leftBumper()
                 .whenBecomesTrue(() -> visionEnabled = false)
@@ -217,6 +247,9 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     public void onUpdate() {
 
 
+        telemetry.addData("Current RPM: ", CURRENT_RPM);
+        robot.shooter.TARGET_RPM = CURRENT_RPM;
+
         if (!limelightStarted) {
             limelight.setPollRateHz(100);
             limelight.pipelineSwitch(0);
@@ -230,40 +263,45 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
         }
 
-        if(gamepad2.x){
-            //gamepad2.rumble(500);
 
-        }
-
-
-        telemetry.addData("LL Running", limelight.isRunning());
+        //telemetry.addData("LL Running", limelight.isRunning());
 
         LLResult result = limelight.getLatestResult();
 
+        BooleanSupplier hasTargetSupplier = () -> {
+            LLResult r = limelight.getLatestResult();
+            return r != null && r.isValid();
+        };
         DoubleSupplier txSupplier = () -> {
             LLResult r = limelight.getLatestResult();
             return (r != null && r.isValid()) ? r.getTx() : 0.0;
         };
+
+
         LLStatus status = limelight.getStatus();
         if (result != null && result.isValid()) {
             double tx = result.getTx();
             double ty = result.getTy(); // How far up or down the target is (degrees)
             double ta = result.getTa(); // How big the target looks (0%-100% of the image)
 
-            telemetry.addData("Ty", ty);
-            telemetry.addData("Ta", ta);
-            telemetry.addData("Tx", tx);
+            //telemetry.addData("Ty", ty);
+            //telemetry.addData("Ta", ta);
+            //telemetry.addData("Tx", tx);
 
             // only schedule once
             if (!robot.turret.isAiming()) {
-                robot.turret.aimWithVision(txSupplier).schedule();
+                robot.turret.aimWithVision(txSupplier, hasTargetSupplier).schedule();
             }
         } else {
-            telemetry.addData("Limelight", "No Targets");
-            telemetry.addData("CPU", status.getCpu());
-            telemetry.addData("Temp", status.getTemp());
-            telemetry.addData("RAM", status.getRam());
-            telemetry.addData("Pipeline Type", status.getPipelineType());
+
+
+
+
+            //telemetry.addData("Limelight", "No Targets");
+            //telemetry.addData("CPU", status.getCpu());
+            //telemetry.addData("Temp", status.getTemp());
+            //telemetry.addData("RAM", status.getRam());
+            //telemetry.addData("Pipeline Type", status.getPipelineType());
 
             // stop turret if no target
             //robot.turret.stopTurret(); /TODO
