@@ -195,9 +195,11 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
         //intake + transfer
         Gamepads.gamepad2().leftBumper()
+                .whenBecomesTrue(robot.intake.setIntakePower(.8))
                 .whenBecomesTrue(robot.intake.intake())
                 .whenBecomesTrue(robot.gate.openGate)
-                .whenBecomesFalse(robot.intake.stop());
+                .whenBecomesFalse(robot.intake.stop())
+                        .whenBecomesTrue(robot.intake.setIntakePower(1));
 
         //intake reverse
         Gamepads.gamepad2().b()
