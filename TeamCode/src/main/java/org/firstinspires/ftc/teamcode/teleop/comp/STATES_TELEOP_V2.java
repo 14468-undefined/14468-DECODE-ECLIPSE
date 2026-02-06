@@ -246,55 +246,66 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override
     public void onUpdate() {
 
+        robot.shooter.TARGET_RPM = CURRENT_RPM;
+        telemetry.addData("Current RPM: ", CURRENT_RPM);
 
-            // Update shooter RPM
-            telemetry.addData("Current RPM", CURRENT_RPM);
-            robot.shooter.TARGET_RPM = CURRENT_RPM;
+        if (!limelightStarted) {
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(0);
+            limelight.start();
+            limelightStarted = true;
+        }
 
-            // Shooter at speed feedback
-            if (robot.shooter.isAtTargetSpeed()) {
-                gamepad2.rumble(1000); // short rumble to indicate ready
-            }
+        if(robot.shooter.isAtTargetSpeed()){
+            gamepad2.rumble(1000);
+            //gamepad2.rumble(1, 0, 2); //power left, power right, duration (ms)
 
-            // Start Limelight once
-            if (!limelightStarted) {
-                limelight.setPollRateHz(100);
-                limelight.pipelineSwitch(0); // change pipeline if needed
-                limelight.start();
-                limelightStarted = true;
-            }
+        }
 
-            // --- Turret vision control ---
-            // Supply the tx value
-            DoubleSupplier txSupplier = () -> {
-                LLResult r = limelight.getLatestResult();
-                return (r != null && r.isValid()) ? r.getTx() : 0.0;
-            };
+        if(gamepad2.x){
+            //gamepad2.rumble(500);
 
-            // Supply whether there’s a valid target
-            BooleanSupplier hasTargetSupplier = () -> {
-                LLResult r = limelight.getLatestResult();
-                return r != null && r.isValid();
-            };
+        }
 
-            // Only schedule aiming once if not already aiming
+
+        telemetry.addData("LL Running", limelight.isRunning());
+
+        LLResult result = limelight.getLatestResult();
+
+        DoubleSupplier txSupplier = () -> {
+            LLResult r = limelight.getLatestResult();
+            return (r != null && r.isValid()) ? r.getTx() : 0.0;
+        };
+        LLStatus status = limelight.getStatus();
+        if (result != null && result.isValid()) {
+            double tx = result.getTx();
+            double ty = result.getTy(); // How far up or down the target is (degrees)
+            double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+
+            //telemetry.addData("Ty", ty);
+            //telemetry.addData("Ta", ta);
+            //telemetry.addData("Tx", tx);
+
+            // only schedule once
             if (!robot.turret.isAiming()) {
-                robot.turret.aimWithVision(txSupplier, hasTargetSupplier).schedule();
+                robot.turret.aimWithVision(txSupplier).schedule();
             }
+        } else {
+            /*telemetry.addData("Limelight", "No Targets");
+            telemetry.addData("CPU", status.getCpu());
+            telemetry.addData("Temp", status.getTemp());
+            telemetry.addData("RAM", status.getRam());
+            telemetry.addData("Pipeline Type", status.getPipelineType());
 
-            // --- Telemetry ---
-            LLResult result = limelight.getLatestResult();
-            if (result != null && result.isValid()) {
-                telemetry.addData("Limelight Target", "Yes");
-                telemetry.addData("Tx", result.getTx());
-                telemetry.addData("Ty", result.getTy());
-                telemetry.addData("Ta", result.getTa());
-            } else {
-                telemetry.addData("Limelight Target", "No");
-            }
+             */
 
-            telemetry.update();
+            // stop turret if no target
+            //robot.turret.stopTurret(); /TODO
+        }
 
+
+        telemetry.update();
     }
+
 
 }

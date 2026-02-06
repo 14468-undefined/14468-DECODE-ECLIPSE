@@ -1,26 +1,18 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
-
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
-import dev.nextftc.control.interpolators.ConstantInterpolator;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
-import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.MotorEx;
 
 @Config
 public class TurretSubsystem implements Subsystem {
 
-
-    private BooleanSupplier hasTarget = () -> false;
-
-    public double holdTicks = 0; //ticks to hold at
     public static final TurretSubsystem INSTANCE = new TurretSubsystem();
 
 
@@ -34,11 +26,10 @@ public class TurretSubsystem implements Subsystem {
     public enum TurretMode {
         ANGLE,
         VISION,
-        HOLD,
-        FREE
+        IDLE
     }
 
-    public TurretMode mode = TurretMode.FREE;
+    public TurretMode mode = TurretMode.IDLE;
 
     /* ---------------- Angle Control ---------------- */
 
@@ -86,7 +77,6 @@ public class TurretSubsystem implements Subsystem {
         angleController = ControlSystem.builder()
                 .posPid(0.1, 0.0, 0.0)
                 .basicFF(0)
-
                 .build();
     }
 
@@ -112,11 +102,7 @@ public class TurretSubsystem implements Subsystem {
                                         - turretMotor.getCurrentPosition()
                         ) < TICKS_TOLERANCE
                 )
-                .setStop(interrupted -> {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                })
+                .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretToAngle");
     }
@@ -136,11 +122,7 @@ public class TurretSubsystem implements Subsystem {
                                         - turretMotor.getCurrentPosition()
                         ) < TICKS_TOLERANCE
                 )
-                .setStop(interrupted -> {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                })
+                .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretToTicks");
     }
@@ -150,42 +132,29 @@ public class TurretSubsystem implements Subsystem {
     }
 
     public void stopTurret() {
-            mode = TurretMode.FREE;
-
-            // Reset vision PID so it doesn't kick later
-            integralSum = 0.0;
-            lastError = 0.0;
-
-
+        mode = TurretMode.IDLE;
+        turretMotor.setPower(0.0);
     }
 
     public Command homeTurret() {
         return runToAngle(0).named("HomeTurret");
     }
 
-    public Command aimWithVision(DoubleSupplier txSupplier, BooleanSupplier hasTarget) {
-
-
-
+    public Command aimWithVision(DoubleSupplier txSupplier) {
         return new LambdaCommand()
                 .setStart(() -> {
                     mode = TurretMode.VISION;
                     this.txSupplier = txSupplier;
-                    this.hasTarget = hasTarget;
 
-                    integralSum = 0;
-                    lastError = 0;
+                    integralSum = 0.0;
+                    lastError = 0.0;
                     lastTime = System.nanoTime() / 1e9;
                 })
                 .setIsDone(() -> false)
-                .setStop(interrupted -> {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                })
+                .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretVisionAim");
-                }
+    }
 
 
     public Command resetTicks() {
@@ -253,35 +222,20 @@ public class TurretSubsystem implements Subsystem {
                 break;
 
             case VISION:
-                if (!hasTarget.getAsBoolean()) {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                    desiredPower = 0;
-                    break;
-                }
-
+                //latest update 1/14/26 1:50pm - made error + tx not negative tx
                 double tx = txSupplier.getAsDouble();
                 desiredPower = visionPID(tx);
                 break;
 
 
-            case HOLD:
-                angleController.setGoal(
-                        new KineticState(holdTicks)
-                );
-                desiredPower = angleController.calculate((turretMotor.getState()));
-                break;
 
-            case FREE:
-                desiredPower = 0;
-
+            case IDLE:
+            default:
+                desiredPower = 0.0;
                 break;
         }
 
         turretMotor.setPower(desiredPower);
-
-
 
     }
 

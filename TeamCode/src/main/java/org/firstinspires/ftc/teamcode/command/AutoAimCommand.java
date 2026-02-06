@@ -68,7 +68,7 @@ public class AutoAimCommand extends Command {
         this is the turret auto-aim logic
          */
 
-        robot.turret.aimWithVision(() -> Tx);
+        //robot.turret.aimWithVision(() -> Tx);
     }
 
     @Override

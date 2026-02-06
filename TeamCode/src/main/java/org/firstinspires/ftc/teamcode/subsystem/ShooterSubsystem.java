@@ -24,7 +24,7 @@ public class ShooterSubsystem implements Subsystem {
 
 
     public double TARGET_RPM = 3500.0;//3150 = far - new 2/5, 2550 = close
-    public static double TARGET_REVERSE_RPM = 1000;
+    public static double TARGET_REVERSE_RPM = 2000;
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
 
