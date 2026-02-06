@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
-
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
 import dev.nextftc.control.interpolators.ConstantInterpolator;
@@ -17,68 +14,42 @@ import dev.nextftc.hardware.impl.MotorEx;
 @Config
 public class TurretSubsystem implements Subsystem {
 
-
-    private BooleanSupplier hasTarget = () -> false;
-
-    public double holdTicks = 0; //ticks to hold at
     public static final TurretSubsystem INSTANCE = new TurretSubsystem();
 
-
     /* ---------------- Hardware ---------------- */
-
     // Motor reversed so +power = right, -power = left
-    public final MotorEx turretMotor =
-            new MotorEx("turret").reversed().brakeMode();
+    public final MotorEx turretMotor = new MotorEx("turret").reversed().brakeMode();
 
     /* ---------------- Modes ---------------- */
     public enum TurretMode {
-        ANGLE,
-        VISION,
-        HOLD,
-        FREE
+        ANGLE, VISION, IDLE
     }
-
-    public TurretMode mode = TurretMode.FREE;
+    public TurretMode mode = TurretMode.IDLE;
 
     /* ---------------- Angle Control ---------------- */
-
     private ControlSystem angleController;
 
     /* ---------------- Vision PID ---------------- */
-
-
     //constants 1/15/26 working decent
     public static double kP = 0.03;
     public static double kI = 0.001;
     public static double kD = 0.001;
-
     public double integralSum = 0.0;
     public double lastError = 0.0;
     public double lastTime = 0.0;
-
-
     private DoubleSupplier txSupplier = () -> 0.0;
 
     /* ---------------- Constants ---------------- */
-
     private static final int TICKS_TOLERANCE = 10;
     private static final double TICKS_PER_REV = 145.1;
     private static final double GEAR_RATIO = 5.0;
-
     private static final double MAX_POWER = 0.5;
     private static final double MIN_POWER = 0.05;
     private static final double TX_TOLERANCE = 0.5;
-
     private double desiredPower = 0.0;
 
     /* ---------------- Constructor ---------------- */
-
-    private TurretSubsystem() {
-
-
-
-
-    }
+    private TurretSubsystem() { }
 
     @Override
     public void initialize() {
@@ -86,18 +57,15 @@ public class TurretSubsystem implements Subsystem {
         angleController = ControlSystem.builder()
                 .posPid(0.1, 0.0, 0.0)
                 .basicFF(0)
-
                 .build();
     }
 
     /* ---------------- Angle Utilities ---------------- */
-
     private double angleToTicks(double degrees) {
         return degrees / 360.0 * TICKS_PER_REV * GEAR_RATIO;
     }
 
     /* ---------------- Commands ---------------- */
-
     public Command runToAngle(double degrees) {
         return new LambdaCommand()
                 .setStart(() -> {
@@ -106,41 +74,25 @@ public class TurretSubsystem implements Subsystem {
                             new KineticState(angleToTicks(degrees))
                     );
                 })
-                .setIsDone(() ->
-                        Math.abs(
-                                angleController.getGoal().getPosition()
-                                        - turretMotor.getCurrentPosition()
-                        ) < TICKS_TOLERANCE
-                )
-                .setStop(interrupted -> {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                })
+                .setIsDone(() -> Math.abs(
+                        angleController.getGoal().getPosition() - turretMotor.getCurrentPosition()
+                ) < TICKS_TOLERANCE)
+                .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretToAngle");
     }
 
-    public Command runToTicks(double ticks) {//-152 = far
+    public Command runToTicks(double ticks) {
         return new LambdaCommand()
                 .setStart(() -> {
                     angleController.reset();
                     mode = TurretMode.ANGLE;
-                    angleController.setGoal(
-                            new KineticState(ticks)
-                    );
+                    angleController.setGoal(new KineticState(ticks));
                 })
-                .setIsDone(() ->
-                        Math.abs(
-                                angleController.getGoal().getPosition()
-                                        - turretMotor.getCurrentPosition()
-                        ) < TICKS_TOLERANCE
-                )
-                .setStop(interrupted -> {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                })
+                .setIsDone(() -> Math.abs(
+                        angleController.getGoal().getPosition() - turretMotor.getCurrentPosition()
+                ) < TICKS_TOLERANCE)
+                .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretToTicks");
     }
@@ -150,43 +102,28 @@ public class TurretSubsystem implements Subsystem {
     }
 
     public void stopTurret() {
-            mode = TurretMode.FREE;
-
-            // Reset vision PID so it doesn't kick later
-            integralSum = 0.0;
-            lastError = 0.0;
-
-
+        mode = TurretMode.IDLE;
+        //turretMotor.setPower(0.0);
     }
 
     public Command homeTurret() {
         return runToAngle(0).named("HomeTurret");
     }
 
-    public Command aimWithVision(DoubleSupplier txSupplier, BooleanSupplier hasTarget) {
-
-
-
+    public Command aimWithVision(DoubleSupplier txSupplier) {
         return new LambdaCommand()
                 .setStart(() -> {
                     mode = TurretMode.VISION;
                     this.txSupplier = txSupplier;
-                    this.hasTarget = hasTarget;
-
-                    integralSum = 0;
-                    lastError = 0;
+                    integralSum = 0.0;
+                    lastError = 0.0;
                     lastTime = System.nanoTime() / 1e9;
                 })
                 .setIsDone(() -> false)
-                .setStop(interrupted -> {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                })
+                .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)
                 .named("TurretVisionAim");
-                }
-
+    }
 
     public Command resetTicks() {
         return new LambdaCommand()
@@ -196,21 +133,15 @@ public class TurretSubsystem implements Subsystem {
                 .named("ResetTicks");
     }
 
-
-
     /* ---------------- Vision PID ---------------- */
-
     public double visionPID(double error) {
-
         double currentTime = System.nanoTime() / 1e9;
         double dt = currentTime - lastTime;
         if (dt <= 0) dt = 0.02;
 
         double P = kP * error;
-
         integralSum += error * dt;
         double I = kI * integralSum;
-
         double derivative = (error - lastError) / dt;
         double D = kD * derivative;
 
@@ -218,12 +149,10 @@ public class TurretSubsystem implements Subsystem {
         lastTime = currentTime;
 
         double output = P + I + D;
-
         output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
 
         // Minimum power uses ERROR sign
-        if (Math.abs(error) > TX_TOLERANCE &&
-                Math.abs(output) < MIN_POWER) {
+        if (Math.abs(error) > TX_TOLERANCE && Math.abs(output) < MIN_POWER) {
             output = Math.copySign(MIN_POWER, error);
         }
 
@@ -236,59 +165,27 @@ public class TurretSubsystem implements Subsystem {
         return output;
     }
 
-
     /* ---------------- Periodic ---------------- */
-
     @Override
     public void periodic() {
-
         switch (mode) {
-
             case ANGLE:
-                double rawPower = angleController.calculate(
-                        turretMotor.getState()
-                );
-                desiredPower = Math.max(-.5,
-                        Math.min(.5, rawPower));
+                double rawPower = angleController.calculate(turretMotor.getState());
+                desiredPower = Math.max(-.5, Math.min(.5, rawPower));
                 break;
-
             case VISION:
-                if (!hasTarget.getAsBoolean()) {
-                    holdTicks = turretMotor.getCurrentPosition();
-                    angleController.setGoal(new KineticState(holdTicks));
-                    mode = TurretMode.HOLD;
-                    desiredPower = 0;
-                    break;
-                }
-
                 double tx = txSupplier.getAsDouble();
                 desiredPower = visionPID(tx);
                 break;
-
-
-            case HOLD:
-                angleController.setGoal(
-                        new KineticState(holdTicks)
-                );
-                desiredPower = angleController.calculate((turretMotor.getState()));
-                break;
-
-            case FREE:
-                desiredPower = 0;
-
+            case IDLE:
+            default:
+                turretMotor.setPower(0);
                 break;
         }
-
         turretMotor.setPower(desiredPower);
-
-
-
     }
 
-
-
     /* ---------------- Telemetry ---------------- */
-
     public double getTurretPosition() {
         return turretMotor.getCurrentPosition();
     }
@@ -296,4 +193,5 @@ public class TurretSubsystem implements Subsystem {
     public TurretMode getMode() {
         return mode;
     }
+
 }

@@ -268,10 +268,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
         LLResult result = limelight.getLatestResult();
 
-        BooleanSupplier hasTargetSupplier = () -> {
-            LLResult r = limelight.getLatestResult();
-            return r != null && r.isValid();
-        };
+
         DoubleSupplier txSupplier = () -> {
             LLResult r = limelight.getLatestResult();
             return (r != null && r.isValid()) ? r.getTx() : 0.0;
@@ -290,7 +287,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
             // only schedule once
             if (!robot.turret.isAiming()) {
-                robot.turret.aimWithVision(txSupplier, hasTargetSupplier).schedule();
+                robot.turret.aimWithVision(txSupplier).schedule();
             }
         } else {
 
