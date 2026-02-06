@@ -65,7 +65,7 @@ public class RF12ND extends NextFTCOpMode {
     private Command autoAimWithPID() {
         return new Command() {
 
-            private static final double TX_TOLERANCE = 10;
+            private static final double TX_TOLERANCE = 4;
 
             // Auto-specific PID constants
             private final double AUTO_kP = 0.02;
@@ -157,44 +157,66 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.hood.setHoodPose(.84))
                 .stopAndAdd(robot.shooter.setTargetRPM(3120))
-                .stopAndAdd(robot.intake.setIntakePower(.3))
+
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToConstantHeading(new Vector2d(60, 15))
-                .stopAndAdd(robot.turret.runToTicks(-152))
+                //.stopAndAdd(robot.turret.runToTicks(-152))
                 .stopAndAdd(robot.gate.openGate)
 
                 .stopAndAdd(autoAimWithPID())
 
-                .waitSeconds(3)
+                .waitSeconds(3.5)
+
+                .stopAndAdd(robot.intake.setIntakePower(.6))
                 .stopAndAdd(robot.intake.intake())
 
 
-                .waitSeconds(SHOOTING_DELAY)//WAIT
+                .waitSeconds(.4)//WAIT
+                .stopAndAdd(robot.intake.stop())
+                .waitSeconds(.5)
+                .stopAndAdd(robot.intake.intake())
+                .waitSeconds(1)
 
                 .stopAndAdd(robot.intake.stop())
-                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(robot.intake.setIntakePower(1))
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
 
 
                 //CORNER----------------------------------------------
                 .strafeToSplineHeading(new Vector2d(53, 57), Math.toRadians(70))//line up for HP zone balls
                 .stopAndAdd(robot.intake.intake())
+
                 .strafeToSplineHeading(new Vector2d(61, 60), Math.toRadians(60), new TranslationalVelConstraint(5))//line up for HP zone balls
                 .strafeToSplineHeading(new Vector2d(65, 60), Math.toRadians(90), new TranslationalVelConstraint(5))//line up for HP zone balls
 
                 .stopAndAdd(robot.intake.stop())
+                .stopAndAdd(robot.intake.setIntakePower(.6))
 
-                .stopAndAdd(robot.shooter.spin())
+
 
 
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
-                //.stopAndAdd(autoAimCommand)//start auto aiming after 1 second
+                .stopAndAdd(robot.gate.openGate)
 
-                //.stopAndAdd(shoot3Command)//shoot 3
-                .stopAndAdd(robot.shooter.stop())//stop flywheel
+                .stopAndAdd(autoAimWithPID())
 
-                .stopAndAdd(robot.gate.closeGate)//close gate
+                //.waitSeconds(3)
 
+                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .stopAndAdd(robot.intake.intake())
+
+
+                .waitSeconds(SHOOTING_DELAY-2)//WAIT
+                .stopAndAdd(robot.intake.stop())
+                .waitSeconds(.5)
+                .stopAndAdd(robot.intake.intake())
+                .waitSeconds(1)
+
+                .stopAndAdd(robot.intake.stop())
+                .stopAndAdd(robot.intake.setIntakePower(1))
+                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(robot.gate.closeGate)
                 //FIRST PILE --------------------------------------
                 .strafeToSplineHeading(new Vector2d(35.8, 29), Math.toRadians(90))//go to motif 1
                 .stopAndAdd(robot.intake.intake())
@@ -225,15 +247,26 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin())
 
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
-                .stopAndAdd(autoAimCommand)//start auto aiming after 1 second
+                .stopAndAdd(autoAimWithPID())
 
-                .stopAndAdd(shoot3Command)//shoot 3
-                .stopAndAdd(robot.shooter.stop())//stop flywheel
+                .waitSeconds(3)
 
-                .stopAndAdd(robot.gate.closeGate)//close gate
+                .stopAndAdd(robot.gate.openGate)
+                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .stopAndAdd(robot.intake.intake())
 
 
-                .stopAndAdd(robot.turret.homeTurret())//for teleop in case we need to home then so motor knows its pose
+                .waitSeconds(SHOOTING_DELAY-2)//WAIT
+                .stopAndAdd(robot.intake.stop())
+                .waitSeconds(.5)
+                .stopAndAdd(robot.intake.intake())
+                .waitSeconds(1)
+
+                .stopAndAdd(robot.intake.stop())
+                .stopAndAdd(robot.intake.setIntakePower(1))
+                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(robot.gate.closeGate)
+
                 .build();
 
 

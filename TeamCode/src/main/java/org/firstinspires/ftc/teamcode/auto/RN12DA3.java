@@ -64,7 +64,7 @@ public class RN12DA3 extends NextFTCOpMode {
     private Command autoAimWithPID() {
         return new Command() {
 
-            private static final double TX_TOLERANCE = 4.0;
+            private static final double TX_TOLERANCE = 8;
 
             // Auto-specific PID constants
             private final double AUTO_kP = 0.02;
@@ -143,6 +143,7 @@ public class RN12DA3 extends NextFTCOpMode {
     @Override
     public void onInit(){
 
+
         robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
@@ -150,10 +151,12 @@ public class RN12DA3 extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
+                .stopAndAdd(robot.intake.setIntakePower(.82))
                 //.stopAndAdd(robot.turret.resetTicks())
-                .stopAndAdd(robot.shooter.setTargetRPM(3000))
+                .stopAndAdd(robot.shooter.setTargetRPM(2650))
+                .stopAndAdd(robot.hood.setHoodPose(.311))
                 .stopAndAdd(robot.shooter.spin())
-                .stopAndAdd(robot.turret.runToAngle(-8))
+                //.stopAndAdd(robot.turret.runToAngle(-8))
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)
                 //.stopAndAdd(autoAimCommand)
@@ -161,11 +164,12 @@ public class RN12DA3 extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.openGate)
 
                 .stopAndAdd(autoAimWithPID())
+                .waitSeconds(.5)
 
                 .stopAndAdd(robot.intake.intake())
 
 
-                .waitSeconds(SHOOTING_DELAY)//WAIT
+                .waitSeconds(SHOOTING_DELAY-1.2)//WAIT
 
                 .stopAndAdd(robot.intake.stop())
                 .stopAndAdd(robot.shooter.stop())
@@ -174,14 +178,15 @@ public class RN12DA3 extends NextFTCOpMode {
 
                 //.stopAndAdd(robot.turret.runToAngle(0))
 
+                .stopAndAdd(robot.intake.setIntakePower(1))
                 //SECOND PILE --------------------------------------
-                .strafeToConstantHeading(new Vector2d(9.5, 29))//line up intake
+                .strafeToConstantHeading(new Vector2d(11, 29))//line up intake
 
 
 
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(9.5, 61), new TranslationalVelConstraint(15))//intake
-                .strafeToConstantHeading(new Vector2d(9.5, 48))//back up
+                .strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(11, 48))//back up
 
                 .stopAndAdd(robot.intake.stop())
 
@@ -195,7 +200,9 @@ public class RN12DA3 extends NextFTCOpMode {
                 //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))
 
                 .stopAndAdd(robot.shooter.spin())
+                .strafeToConstantHeading(new Vector2d(7, 26))
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
+                .stopAndAdd(robot.intake.setIntakePower(.87))
                 //.stopAndAdd(robot.turret.runToAngle(-45))
                 .stopAndAdd(autoAimWithPID())
                 //.stopAndAdd(robot.turret.runToAngle(0))
@@ -242,26 +249,29 @@ public class RN12DA3 extends NextFTCOpMode {
 
                  */
 
+                .stopAndAdd(robot.intake.setIntakePower(1))
 
                 //FIRST PILE----------------------------------------------
-                .strafeToConstantHeading(new Vector2d(-16, 25.4))
+                .strafeToConstantHeading(new Vector2d(-13, 25.4))
 
 
                 .stopAndAdd(robot.intake.intake())
 
-                .strafeToConstantHeading(new Vector2d(-16, 54.5), new TranslationalVelConstraint(15))//intake
-                .strafeToConstantHeading(new Vector2d(-16, 48), new TranslationalVelConstraint(15))//intake
+                .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(100))//intake
+                .stopAndAdd(robot.shooter.spin())
+                .strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
 
                 .stopAndAdd(robot.intake.stop())
 
 
-                .stopAndAdd(robot.shooter.spin())
+
                 .stopAndAdd(robot.gate.openGate)
 
                 //set the hood and rpm to a estimated value in case the ll fails
 
                 //.stopAndAdd(robot.shooter.spin(RPM_CLOSE_ESTIMATE))//start spinning flywheel
 
+                .stopAndAdd(robot.intake.setIntakePower(.82))
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
                 //.stopAndAdd(robot.turret.runToAngle(-45))
                 .stopAndAdd(autoAimWithPID())
@@ -269,7 +279,7 @@ public class RN12DA3 extends NextFTCOpMode {
 
 
                 .stopAndAdd(robot.intake.intake())
-                .waitSeconds(SHOOTING_DELAY)
+                .waitSeconds(SHOOTING_DELAY-1)
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(shoot3Command)
