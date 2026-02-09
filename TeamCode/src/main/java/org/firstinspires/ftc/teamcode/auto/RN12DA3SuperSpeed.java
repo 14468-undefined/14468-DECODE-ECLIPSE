@@ -144,7 +144,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
     public void onInit(){
 
 
-        robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
+        robot.limelight.setPipeline(1);
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
         drive = new MecanumDrive(hardwareMap, startPose);
@@ -163,7 +163,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.openGate)
 
                 .stopAndAdd(autoAimWithPID())
-                .waitSeconds(.5)
+                .waitSeconds(.3)
 
                 .stopAndAdd(robot.intake.intake())
 
@@ -181,7 +181,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
 
                 //FIRST PILE----------------------------------------------
-                .strafeToConstantHeading(new Vector2d(-13, 25.4))
+                //.strafeToConstantHeading(new Vector2d(-13, 25.4))
 
 
                 .stopAndAdd(robot.intake.intake())
@@ -252,8 +252,8 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
                 //PILE 3
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(35.8, 29),new TranslationalVelConstraint(100))//go to motif
-                .strafeToConstantHeading(new Vector2d(35.8, 61), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(33, 29),new TranslationalVelConstraint(100))//go to motif
+                .strafeToConstantHeading(new Vector2d(33, 61), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.intake.stop())
 
                 .stopAndAdd(robot.shooter.spin())
@@ -265,6 +265,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(autoAimWithPID())
                 .waitSeconds(.5)
 
+                .stopAndAdd(robot.intake.setIntakePower(.84))
                 .stopAndAdd(robot.intake.intake())
 
 
@@ -280,7 +281,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
     }
     @Override
     public void onStartButtonPressed() {
-        robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
+        robot.limelight.setPipeline(1);
         autoCommand.schedule();
 
 
