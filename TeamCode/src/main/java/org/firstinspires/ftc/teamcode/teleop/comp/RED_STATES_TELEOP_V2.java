@@ -31,7 +31,7 @@ import java.util.function.DoubleSupplier;
 import static dev.nextftc.bindings.Bindings.button;
 
 
-@TeleOp(name = "RED STATES_TELEOPV2" , group = "AA - COMP")
+@TeleOp(name = "RED_STATES_TELEOPV2" , group = "AA - COMP")
 
 public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 

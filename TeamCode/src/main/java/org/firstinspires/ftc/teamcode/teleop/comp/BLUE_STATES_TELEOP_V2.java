@@ -5,10 +5,8 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import dev.nextftc.bindings.BindingManager;
-import dev.nextftc.bindings.Button;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -16,24 +14,16 @@ import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
-import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.impl.VoltageCompensatingMotor;
-import dev.nextftc.hardware.powerable.SetPower;
-import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
-import org.firstinspires.ftc.teamcode.util.Constants;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import static dev.nextftc.bindings.Bindings.button;
 
+@TeleOp(name = "BLUE_STATES_TELEOPV2" , group = "AA - COMP")
 
-@TeleOp(name = "STATES_TELEOPV2" , group = "AA - COMP")
-
-public class STATES_TELEOP_V2 extends NextFTCOpMode {
+public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     private Limelight3A limelight;
     private boolean limelightStarted = false;
@@ -42,7 +32,7 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
 
     private final BaseRobot robot = BaseRobot.INSTANCE;
 
-    public STATES_TELEOP_V2(){
+    public BLUE_STATES_TELEOP_V2(){
         addComponents(
                 new SubsystemComponent(robot), BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
@@ -218,28 +208,6 @@ public class STATES_TELEOP_V2 extends NextFTCOpMode {
                 .whenBecomesTrue(robot.shooter.spinReverse())
                 .whenBecomesFalse(robot.shooter.stop());
 
-
-
-
-        //OLD SHOOTER CONTROLS - JUST POWER - ARCHIVE
-
-
-        /*Gamepads.gamepad2().y().whenBecomesTrue(robot.shooter.setRight1()).whenBecomesFalse(robot.shooter.setRight0());
-
-        Gamepads.gamepad2().leftTrigger().atLeast(.1)
-
-                .whenTrue(robot.shooter.setRightNeg1())
-                .whenBecomesFalse(robot.shooter.setLeft0())
-                .whenBecomesFalse(robot.shooter.setRight0());
-
-        //spin flywheel forwards full power
-        Gamepads.gamepad2().rightTrigger().atLeast(.1)
-                .whenTrue(robot.shooter.setLeft1())
-                .whenTrue(robot.shooter.setRight1())
-                .whenBecomesFalse(robot.shooter.setLeft0())
-                .whenBecomesFalse(robot.shooter.setRight0());
-
-         */
 
 
 
