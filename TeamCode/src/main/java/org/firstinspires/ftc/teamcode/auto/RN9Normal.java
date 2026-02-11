@@ -32,13 +32,14 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  */
 
 //WAI = With auto aim
-@Autonomous(name = "RN12DA3GI")
-public class RN12DA3GI extends NextFTCOpMode {
+@Autonomous(name = "RN9 Normal")
+public class RN9Normal extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
     //private final Pose2d shotPoseOnLine = new Pose2d(-41.7,34.5, Math.toRadians(90));//go shoot
     //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
-    private final Pose2d shotPoseOnLine = new Pose2d(-32.5,29.5, Math.toRadians(90));//go shoot
+    //private final Pose2d shotPoseOnLine = new Pose2d(-32.5,29.5, Math.toRadians(90));//go shoot
+    private final Pose2d shotPoseOnLine = new Pose2d(-30,27, Math.toRadians(90));//go shoot
 
 
 
@@ -59,7 +60,7 @@ public class RN12DA3GI extends NextFTCOpMode {
 
     double SHOOTING_DELAY = 3;//seconds
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public RN12DA3GI() {
+    public RN9Normal() {
 
 
         addComponents(
@@ -78,7 +79,7 @@ public class RN12DA3GI extends NextFTCOpMode {
     private Command autoAimWithPID() {
         return new Command() {
 
-            private static final double TX_TOLERANCE = 10;
+            private static final double TX_TOLERANCE = 7;
 
             // Auto-specific PID constants
             private final double AUTO_kP = 0.017;
@@ -165,9 +166,11 @@ public class RN12DA3GI extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
-                .stopAndAdd(robot.intake.setIntakePower(1))
+                .stopAndAdd(robot.intake.setIntakePower(.7))
 
-                .stopAndAdd(robot.shooter.setTargetRPM(2950))//2400
+
+                .stopAndAdd(robot.hood.setHoodPose(.269))
+                .stopAndAdd(robot.shooter.setTargetRPM(3030))//2400 NO //2950 works
                 //.stopAndAdd(robot.hood.setHoodPose(1))
                 .stopAndAdd(robot.shooter.spin())
 
@@ -188,7 +191,7 @@ public class RN12DA3GI extends NextFTCOpMode {
 
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
-                .stopAndAdd(robot.shooter.setTargetRPM(2900))//2400
+                .stopAndAdd(robot.shooter.setTargetRPM(3000))//2400 //2900
 
 
 
@@ -196,6 +199,42 @@ public class RN12DA3GI extends NextFTCOpMode {
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
 
+
+
+
+                //FIRST PILE----------------------------------------------
+                .strafeToConstantHeading(new Vector2d(-13, 21))
+
+
+                .stopAndAdd(robot.intake.intake())
+
+                .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(100))//intake
+                .stopAndAdd(robot.shooter.spin())
+                .strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
+
+                .stopAndAdd(robot.intake.stop())
+
+
+
+                .stopAndAdd(robot.gate.openGate)
+
+
+
+                .stopAndAdd(robot.intake.setIntakePower(.7))
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
+
+                .stopAndAdd(robot.intake.intake())
+                .stopAndAdd(autoAimWithPID())
+
+
+
+
+                .waitSeconds(SHOOTING_DELAY-1)
+                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(robot.intake.stop())
+
+
+                .stopAndAdd(robot.gate.closeGate)
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 //SECOND PILE --------------------------------------
@@ -218,86 +257,21 @@ public class RN12DA3GI extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin())
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(robot.intake.setIntakePower(1))
+                .stopAndAdd(robot.intake.setIntakePower(.7))
 
                 .stopAndAdd(robot.intake.intake())
                 .stopAndAdd(autoAimWithPID())
 
 
-                .waitSeconds(SHOOTING_DELAY-1.5)
+                .waitSeconds(SHOOTING_DELAY-.5)
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
 
 
                 .stopAndAdd(robot.gate.closeGate)//close gate
-
-
-
-                //PILE 3
-
-
 
                 .strafeToLinearHeading(new Vector2d(6.4, 46.9), Math.toRadians(99.13))//before
-                .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToLinearHeading(new Vector2d(7.58, 53.9), Math.toRadians(106.55))//dump
-                .strafeToLinearHeading(new Vector2d(18, 61), Math.toRadians(159.8))
-                .waitSeconds(1)
-                .strafeToLinearHeading(new Vector2d(13.25, 60), Math.toRadians(165.55))
-                .waitSeconds(1)
-                .strafeToLinearHeading(new Vector2d(11, 50), Math.toRadians(90))
-                .stopAndAdd(robot.intake.stop())
 
-                .stopAndAdd(robot.shooter.spin())
-
-
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
-                .stopAndAdd(robot.gate.openGate)
-
-                .stopAndAdd(autoAimWithPID())
-                .waitSeconds(.5)
-
-                .stopAndAdd(robot.intake.setIntakePower(.84))
-                .stopAndAdd(robot.intake.intake())
-
-
-                .waitSeconds(SHOOTING_DELAY-1.2)//WAIT
-
-                .stopAndAdd(robot.intake.stop())
-                .stopAndAdd(robot.shooter.stop())
-
-                .stopAndAdd(robot.gate.closeGate)//close gate
-
-
-                //FIRST PILE----------------------------------------------
-                .strafeToConstantHeading(new Vector2d(-13, 25.4))
-
-
-                .stopAndAdd(robot.intake.intake())
-
-                .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(100))//intake
-                .stopAndAdd(robot.shooter.spin())
-                .strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
-
-                .stopAndAdd(robot.intake.stop())
-
-
-
-                .stopAndAdd(robot.gate.openGate)
-
-
-
-                .stopAndAdd(robot.intake.setIntakePower(1))
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
-
-                .stopAndAdd(robot.intake.intake())
-                .stopAndAdd(autoAimWithPID())
-
-
-
-
-                .waitSeconds(SHOOTING_DELAY-1)
-                .stopAndAdd(robot.shooter.stop())
-                .stopAndAdd(robot.intake.stop())
 
 
 
