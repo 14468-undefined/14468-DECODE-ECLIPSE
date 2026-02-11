@@ -130,17 +130,20 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         //new zones
 
-        Gamepads.gamepad1().rightTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM += 50);
-        Gamepads.gamepad1().leftTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM -= 50);
-
+        Gamepads.gamepad1().rightTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM += 100);
+        Gamepads.gamepad1().leftTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM -= 100);
+        Gamepads.gamepad1().rightBumper().whenBecomesTrue(() -> CURRENT_RPM += 50);
+        Gamepads.gamepad1().leftBumper().whenBecomesTrue(() -> CURRENT_RPM -= 50);
 
         //mid rpm high hood
-        Gamepads.gamepad1().dpadUp().or(Gamepads.gamepad1().leftBumper())
+        //Gamepads.gamepad1().dpadUp().or(Gamepads.gamepad1().leftBumper())
+        Gamepads.gamepad1().dpadUp()
                 .whenBecomesTrue(robot.hood.setHoodPose(.84))//top
                 .whenBecomesTrue(() -> CURRENT_RPM = MID_RPM);
 
         //close rpm low hood
-        Gamepads.gamepad1().dpadDown().or(Gamepads.gamepad1().rightBumper())
+        //Gamepads.gamepad1().dpadDown().or(Gamepads.gamepad1().rightBumper())
+        Gamepads.gamepad1().dpadDown()
                 .whenBecomesTrue(() -> CURRENT_RPM = CLOSE_RPM)
                 .whenBecomesTrue(robot.hood.setHoodPose(.0311));
 

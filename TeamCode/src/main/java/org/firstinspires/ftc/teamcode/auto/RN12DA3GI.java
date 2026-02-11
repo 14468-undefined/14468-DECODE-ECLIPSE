@@ -74,7 +74,7 @@ public class RN12DA3GI extends NextFTCOpMode {
             private static final double TX_TOLERANCE = 8;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.02;
+            private final double AUTO_kP = 0.017;
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
