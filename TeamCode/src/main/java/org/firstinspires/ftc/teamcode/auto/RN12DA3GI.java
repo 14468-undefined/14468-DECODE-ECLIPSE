@@ -36,7 +36,13 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 public class RN12DA3GI extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
-    private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
+    private final Pose2d shotPoseOnLine = new Pose2d(-41.7,34.5, Math.toRadians(90));//go shoot
+
+
+
+
+
+
 
 
     //HardwareMap hwMap;
@@ -161,7 +167,7 @@ public class RN12DA3GI extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
 
                 .stopAndAdd(robot.shooter.setTargetRPM(2900))
-                .stopAndAdd(robot.hood.setHoodPose(1))
+                //.stopAndAdd(robot.hood.setHoodPose(1))
                 .stopAndAdd(robot.shooter.spin())
 
 
@@ -169,7 +175,7 @@ public class RN12DA3GI extends NextFTCOpMode {
 
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
                 .waitSeconds(.3)
 
                 .stopAndAdd(robot.intake.intake())
@@ -212,7 +218,7 @@ public class RN12DA3GI extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
 
                 .stopAndAdd(robot.intake.intake())
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
 
 
                 .waitSeconds(SHOOTING_DELAY-1.5)
