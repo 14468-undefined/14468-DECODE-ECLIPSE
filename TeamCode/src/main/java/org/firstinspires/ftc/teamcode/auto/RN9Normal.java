@@ -4,6 +4,8 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
@@ -158,6 +160,12 @@ public class RN9Normal extends NextFTCOpMode {
 
     @Override
     public void onInit(){
+
+        double voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+
+
+
+
 
 
         robot.limelight.setPipeline(1);

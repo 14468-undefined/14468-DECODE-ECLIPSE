@@ -49,6 +49,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
         );
     }
 
+    private double voltage = 14;
 
 
 
@@ -77,6 +78,8 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
+
+        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
         BindingManager.setLayer(llWorking);
 
@@ -250,6 +253,12 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     @Override
     public void onUpdate() {
+
+        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        robot.shooter.voltageCompensate(voltage);
+        robot.shooter.maybeUpdatePIDF();
+        telemetry.addData("VOLTAGE", voltage);
+
 
         robot.shooter.TARGET_RPM = CURRENT_RPM;
         telemetry.addData("Actual RPM", robot.shooter.getRPM());

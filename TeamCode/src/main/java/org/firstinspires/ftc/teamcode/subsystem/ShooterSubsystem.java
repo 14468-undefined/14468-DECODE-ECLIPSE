@@ -31,6 +31,13 @@ public class ShooterSubsystem implements Subsystem {
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
 
+    private static final double IDEAL_VOLTAGE = 13.8;
+    private static final double MAX_VOLTAGE_COMP = 1.20;
+
+    private double batteryVoltage = 13.8;
+    private double compensatedKV = kV;
+
+
 
     //2500-2450 rpm close
     //3520 rpm far
@@ -43,6 +50,8 @@ public class ShooterSubsystem implements Subsystem {
 
     private double lastKP, lastKI, lastKD, lastKV;
 
+    private double lastCompensatedKV;
+
     private ControlSystem controller;
 
     private MotorEx shooterLeft;
@@ -50,6 +59,7 @@ public class ShooterSubsystem implements Subsystem {
 
     private double manualLeft = 0.0;
     private double manualRight = 0.0;
+
 
     private ShooterSubsystem() {}
 
@@ -79,9 +89,13 @@ public class ShooterSubsystem implements Subsystem {
     // ONLY rebuilds if values changed
     public void maybeUpdatePIDF() {
         if (kP != lastKP || kI != lastKI || kD != lastKD || kV != lastKV) {
+            double comp = IDEAL_VOLTAGE / batteryVoltage;
+            comp = Math.min(comp, MAX_VOLTAGE_COMP);
+            compensatedKV = kV * comp;
+
             controller = ControlSystem.builder()
                     .velPid(kP, kI, kD)
-                    .basicFF(kV)
+                    .basicFF(compensatedKV)
                     .build();
 
             controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
@@ -94,6 +108,7 @@ public class ShooterSubsystem implements Subsystem {
     }
 
 
+
     public Command setTargetRPM(double rpm) {
         return new LambdaCommand()
                 .setStart(() -> {
@@ -104,6 +119,28 @@ public class ShooterSubsystem implements Subsystem {
                 .named("Set Shooter Target RPM");
     }
 
+    public void voltageCompensate(double voltage) {
+        if (voltage <= 0) return;
+
+        batteryVoltage = voltage;
+
+        double comp = IDEAL_VOLTAGE / batteryVoltage;
+        comp = Math.min(comp, MAX_VOLTAGE_COMP);
+
+        compensatedKV = kV * comp;
+
+        // Rebuild controller if FF changed
+        if (Math.abs(compensatedKV - lastKV) > 1e-6) {
+            controller = ControlSystem.builder()
+                    .velPid(kP, kI, kD)
+                    .basicFF(compensatedKV)
+                    .build();
+
+            controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
+
+            lastKV = compensatedKV;
+        }
+    }
 
     /* ===== existing Commands (unchanged) ===== */
 

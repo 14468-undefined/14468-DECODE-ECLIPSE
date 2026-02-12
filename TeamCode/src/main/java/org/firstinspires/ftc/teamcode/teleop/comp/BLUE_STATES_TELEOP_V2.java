@@ -60,11 +60,13 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     String llWorking = "Limelight Working";
     String llNotWorking = "Limelight Not Working";
+    private double voltage = 14;
 
 
     @Override
     public void onInit() {
 
+        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
 
 
@@ -219,6 +221,13 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     @Override
     public void onUpdate() {
+
+
+        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        robot.shooter.voltageCompensate(voltage);
+        robot.shooter.maybeUpdatePIDF();
+        telemetry.addData("VOLTAGE", voltage);
+
 
         robot.shooter.TARGET_RPM = CURRENT_RPM;
         telemetry.addData("Current RPM: ", CURRENT_RPM);
