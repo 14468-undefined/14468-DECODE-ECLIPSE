@@ -72,7 +72,7 @@ public class RN9Normal extends NextFTCOpMode {
     //
 
     //(-67.4, -6.9), -80.87 degrees //before
-    //(-68.58, -11.59), -73.45 degrees //dump
+        //(-68.58, -11.59), -73.45 degrees //dump
     //(-77.6, -18.33), -20.2 degrees //intake
     //(-74.25, -19.76), -14.45 degrees //intake farther
     //(-72, -10) constant
@@ -167,11 +167,11 @@ public class RN9Normal extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
-                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .stopAndAdd(robot.intake.setIntakePower(1))
 
 
                 //.stopAndAdd(robot.hood.setHoodPose(.269))
-                .stopAndAdd(robot.shooter.setTargetRPM(2620))//2400 NO //2950 works //3030
+                .stopAndAdd(robot.shooter.setTargetRPM(2800))//2400 NO //2950 works //3030
                 //.stopAndAdd(robot.hood.setHoodPose(1))
                 .stopAndAdd(robot.shooter.spin())
 
@@ -186,13 +186,13 @@ public class RN9Normal extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.intake())
 
 
-                .waitSeconds(SHOOTING_DELAY-1.2)//WAIT
+                .waitSeconds(SHOOTING_DELAY)//WAIT
 
                 .stopAndAdd(robot.intake.stop())
 
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
-                .stopAndAdd(robot.shooter.setTargetRPM(2485))//2400 //2900
+                .stopAndAdd(robot.shooter.setTargetRPM(2420))//2540
 
 
 
@@ -221,7 +221,7 @@ public class RN9Normal extends NextFTCOpMode {
 
 
 
-                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .stopAndAdd(robot.intake.setIntakePower(1))//.58
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
 
                 .stopAndAdd(robot.intake.intake())
@@ -230,7 +230,7 @@ public class RN9Normal extends NextFTCOpMode {
 
 
 
-                .waitSeconds(SHOOTING_DELAY-.5)
+                .waitSeconds(SHOOTING_DELAY)
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
 
@@ -258,13 +258,13 @@ public class RN9Normal extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin())
 
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
-                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .stopAndAdd(robot.intake.setIntakePower(1))
 
                 .stopAndAdd(robot.intake.intake())
                 .stopAndAdd(autoAimWithPID())
 
 
-                .waitSeconds(SHOOTING_DELAY-.5)
+                .waitSeconds(SHOOTING_DELAY)
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
 

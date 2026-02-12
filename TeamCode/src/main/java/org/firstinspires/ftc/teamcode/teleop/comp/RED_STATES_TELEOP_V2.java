@@ -297,6 +297,12 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
                 robot.turret.aimWithVision(txSupplier).schedule();
             }
         } else {
+
+            if(gamepad1.right_stick_button){
+                robot.turret.runToTicks(0).schedule();
+
+            }
+
             /*telemetry.addData("Limelight", "No Targets");
             telemetry.addData("CPU", status.getCpu());
             telemetry.addData("Temp", status.getTemp());
