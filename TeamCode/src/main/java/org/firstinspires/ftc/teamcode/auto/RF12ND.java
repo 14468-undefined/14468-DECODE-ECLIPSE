@@ -65,7 +65,7 @@ public class RF12ND extends NextFTCOpMode {
     private Command autoAimWithPID() {
         return new Command() {
 
-            private static final double TX_TOLERANCE = 4;
+            private static final double TX_TOLERANCE = 6;
 
             // Auto-specific PID constants
             private final double AUTO_kP = 0.02;
@@ -154,6 +154,7 @@ public class RF12ND extends NextFTCOpMode {
 
         autoCommand = drive.commandBuilder(startPose)
 
+                .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.hood.setHoodPose(.84))
                 .stopAndAdd(robot.shooter.setTargetRPM(3120))
@@ -163,20 +164,24 @@ public class RF12ND extends NextFTCOpMode {
                 //.stopAndAdd(robot.turret.runToTicks(-152))
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
 
-                .waitSeconds(3.5)
+                .waitSeconds(3.5)//was 3.5
 
                 .stopAndAdd(robot.intake.setIntakePower(.6))
                 .stopAndAdd(robot.intake.intake())
 
 
-                .waitSeconds(.4)//WAIT
+                .waitSeconds(.6)//WAIT
                 .stopAndAdd(robot.intake.stop())
                 .waitSeconds(.5)
                 .stopAndAdd(robot.intake.intake())
-                .waitSeconds(1)
+                .waitSeconds(.3)
 
+                .stopAndAdd(robot.intake.stop())
+                .waitSeconds(1.3)
+                .stopAndAdd(robot.intake.intake())
+                .waitSeconds(1)
                 .stopAndAdd(robot.intake.stop())
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 //.stopAndAdd(robot.shooter.stop())
@@ -199,7 +204,7 @@ public class RF12ND extends NextFTCOpMode {
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
 
                 //.waitSeconds(3)
 
@@ -207,15 +212,19 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.intake())
 
 
-                .waitSeconds(SHOOTING_DELAY-2)//WAIT
+                .waitSeconds(.6)//WAIT
                 .stopAndAdd(robot.intake.stop())
                 .waitSeconds(.5)
                 .stopAndAdd(robot.intake.intake())
-                .waitSeconds(1)
+                .waitSeconds(.3)
 
                 .stopAndAdd(robot.intake.stop())
+                .waitSeconds(1.3)
+                .stopAndAdd(robot.intake.intake())
+                .waitSeconds(1)
+                .stopAndAdd(robot.intake.stop())
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                .stopAndAdd(robot.shooter.stop())
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
                 //FIRST PILE --------------------------------------
                 .strafeToSplineHeading(new Vector2d(35.8, 29), Math.toRadians(90))//go to motif 1

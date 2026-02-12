@@ -39,7 +39,7 @@ public class TurretSubsystem implements Subsystem {
 
 
     //constants 1/15/26 working decent
-    public static double kP = 0.03;
+    public static double kP = 0.026;//was .03 before 2/11
     public static double kI = 0.001;
     public static double kD = 0.001;
 

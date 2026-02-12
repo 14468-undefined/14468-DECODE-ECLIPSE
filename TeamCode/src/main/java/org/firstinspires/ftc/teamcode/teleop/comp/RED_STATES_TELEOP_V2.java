@@ -252,7 +252,8 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
     public void onUpdate() {
 
         robot.shooter.TARGET_RPM = CURRENT_RPM;
-        telemetry.addData("Current RPM: ", CURRENT_RPM);
+        telemetry.addData("Actual RPM", robot.shooter.getRPM());
+        telemetry.addData("Target RPM: ", CURRENT_RPM);
 
         if (!limelightStarted) {
             limelight.setPollRateHz(100);
