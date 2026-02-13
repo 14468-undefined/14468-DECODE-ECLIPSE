@@ -258,6 +258,11 @@ public class RN9Normal extends NextFTCOpMode {
     }
 
     @Override
+    public void onUpdate(){
+        //TODO: maybe add the voltage stuff here
+
+    }
+    @Override
     public void onStop(){
         robot.shooter.stop();
         robot.intake.stop();
