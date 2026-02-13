@@ -175,114 +175,75 @@ public class RN9Normal extends NextFTCOpMode {
 
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
+
+                //SHOOT FIRST 3-------------------------------------------
                 .stopAndAdd(robot.intake.setIntakePower(1))
-
-
                 //.stopAndAdd(robot.hood.setHoodPose(.269))
                 .stopAndAdd(robot.shooter.setTargetRPM(2800))//2400 NO //2950 works //3030
-                //.stopAndAdd(robot.hood.setHoodPose(1))
                 .stopAndAdd(robot.shooter.spin())
-
-
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
-
                 .stopAndAdd(robot.gate.openGate)
-
                 .stopAndAdd(autoAimWithPID())
                 .waitSeconds(.3)
-
                 .stopAndAdd(robot.intake.intake())
-
-
                 .waitSeconds(SHOOTING_DELAY)//WAIT
-
                 .stopAndAdd(robot.intake.stop())
-
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
                 .stopAndAdd(robot.shooter.setTargetRPM(2420))//2540
+                //SHOOT FIRST 3-------------------------------------------
 
 
-
-
-
+                //INTAKE FIRST PILE-------------------------------------------
                 .stopAndAdd(robot.intake.setIntakePower(1))
-
-
-
-
-                //FIRST PILE----------------------------------------------
                 .strafeToConstantHeading(new Vector2d(-13, 18))
-
-
                 .stopAndAdd(robot.intake.intake())
-
                 .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
-
                 .stopAndAdd(robot.intake.stop())
+                //INTAKE FIRST PILE-------------------------------------------
 
-
-
+                //SHOOT SEQUENCE - balls 4-6----------------------------
                 .stopAndAdd(robot.gate.openGate)
-
-
-
                 .stopAndAdd(robot.intake.setIntakePower(1))//.58
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
-
                 .stopAndAdd(robot.intake.intake())
                 .stopAndAdd(autoAimWithPID())
-
-
-
-
                 .waitSeconds(SHOOTING_DELAY)
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
-
-
                 .stopAndAdd(robot.gate.closeGate)
-
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                //SECOND PILE --------------------------------------
+                //SHOOT SEQUENCE - balls 4-6----------------------------
+
+
+                //SECOND PILE - intake balls 7-9 --------------------------------------
                 .strafeToConstantHeading(new Vector2d(11, 24), new TranslationalVelConstraint(100))//line up intake
-
-
-
                 .stopAndAdd(robot.intake.intake())//start intaking
                 .strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
                 .strafeToConstantHeading(new Vector2d(11, 48), new TranslationalVelConstraint(100))//back up
-
                 .stopAndAdd(robot.intake.stop())
+                //SECOND PILE - intake balls 7-9 --------------------------------------
 
 
-
-
+                //SHOOT SEQUENCE - balls 7-9----------------------------
                 .stopAndAdd(robot.gate.openGate)
-
-
                 .stopAndAdd(robot.shooter.spin())
-
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
                 .stopAndAdd(robot.intake.setIntakePower(1))
-
                 .stopAndAdd(robot.intake.intake())
                 .stopAndAdd(autoAimWithPID())
-
-
                 .waitSeconds(SHOOTING_DELAY)
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
-
-
                 .stopAndAdd(robot.gate.closeGate)//close gate
+                //SHOOT SEQUENCE - balls 7-9----------------------------
 
+
+                //PARK---------------------------------------------
                 .strafeToLinearHeading(new Vector2d(6.4, 46.9), Math.toRadians(99.13))//before
-
-
-
+                //PARK---------------------------------------------
 
                 .build();
 
