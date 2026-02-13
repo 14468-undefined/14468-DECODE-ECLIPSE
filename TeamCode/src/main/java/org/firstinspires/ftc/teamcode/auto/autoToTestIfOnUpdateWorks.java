@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
@@ -22,21 +23,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 import java.util.function.DoubleSupplier;
 
 
-/**
- * auto naming scheme explained:
- *
- * First: B/R - Blue/Red alliances
- * Second: N/F - Near/Far side from goal
- * Third: # Of Artifacts - (i.e. 12)
- * Fourth: indicates whether or not there is a
- * gate dump, and if so, where it is located.
- * ND: No Dump
- * DA3: Dump after 3 shot (preloads)
- * DA6: Dump after 6 shot (preloads + 1 pile)
- *
- * Example:*
- * BN12DA3 - Blue Near 12 Artifacts with a gate dump after preloads shot
- */
+
 
 //WAI = With auto aim
 @Autonomous(name = "autototestifonupdateworks")
@@ -68,15 +55,15 @@ public class autoToTestIfOnUpdateWorks extends NextFTCOpMode {
         double voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
 
+        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+
 
 
 
     }
     @Override
     public void onStartButtonPressed() {
-        while(!isStopRequested()){
-            //wait
-        }
+
 
     }
 

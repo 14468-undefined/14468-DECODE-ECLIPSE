@@ -3,9 +3,14 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
@@ -13,6 +18,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
+
+import java.util.function.DoubleSupplier;
 
 
 /**
@@ -36,8 +43,10 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
-    private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
+    //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
+    private final Pose2d shotPoseOnLine = new Pose2d(-2.55,8.5, Math.toRadians(90));//go shoot
 
+    //-2.55, 7.10
 
     //HardwareMap hwMap;
     MecanumDrive drive;
@@ -47,8 +56,18 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
     Shoot3Command shoot3Command;
 
+    private Limelight3A limelight;
+    private boolean limelightStarted = false;
+
+    private double voltage;
+
     double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
     double RPM_CLOSE_ESTIMATE = 0;
+
+
+    private final ElapsedTime autoTimer = new ElapsedTime();
+    private static final double AUTO_AIM_DELAY = 3.5; // seconds
+
 
     double SHOOTING_DELAY = 3;//seconds
     private final BaseRobot robot = BaseRobot.INSTANCE;
@@ -143,17 +162,25 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
     @Override
     public void onInit(){
 
+        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+
+        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+
+
 
         robot.limelight.setPipeline(1);
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
         drive = new MecanumDrive(hardwareMap, startPose);
 
+        autoTimer.reset();
+
+
         autoAimCommand = new AutoAimCommand(robot);
         autoCommand = drive.commandBuilder(startPose)
                 .stopAndAdd(robot.intake.setIntakePower(1))
 
-                .stopAndAdd(robot.shooter.setTargetRPM(2900))
+                .stopAndAdd(robot.shooter.setTargetRPM(3180))
                 .stopAndAdd(robot.hood.setHoodPose(1))
                 .stopAndAdd(robot.shooter.spin())
 
@@ -174,6 +201,8 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
 
+                .stopAndAdd(robot.shooter.setTargetRPM(3140))
+
 
 
 
@@ -185,6 +214,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
 
                 .stopAndAdd(robot.intake.intake())
+                .strafeToConstantHeading(new Vector2d(-13, 30), new TranslationalVelConstraint(100))//intake
 
                 .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.shooter.spin())
@@ -287,6 +317,69 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
     }
 
+    @Override
+    public void onUpdate(){
+        //TODO: maybe add the voltage stuff here
+        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        robot.shooter.voltageCompensate(voltage);
+        robot.shooter.maybeUpdatePIDF();
+        telemetry.addData("VOLTAGE", voltage);
+
+
+
+        if (!limelightStarted) {
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
+            limelight.start();
+            limelightStarted = true;
+        }
+
+
+
+        telemetry.addData("LL Running", limelight.isRunning());
+
+        if (autoTimer.seconds() > 3){
+            LLResult result = limelight.getLatestResult();
+
+            DoubleSupplier txSupplier = () -> {
+                LLResult r = limelight.getLatestResult();
+                return (r != null && r.isValid()) ? r.getTx() : 0.0;
+            };
+            LLStatus status = limelight.getStatus();
+            if (result != null && result.isValid()) {
+                double tx = result.getTx();
+                double ty = result.getTy(); // How far up or down the target is (degrees)
+                double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+
+                //telemetry.addData("Ty", ty);
+                //telemetry.addData("Ta", ta);
+                //telemetry.addData("Tx", tx);
+
+                // only schedule once
+                if (!robot.turret.isAiming()) {
+                    robot.turret.aimWithVision(txSupplier).schedule();
+                }
+            } else {
+
+                if(gamepad1.right_stick_button){
+                    robot.turret.runToTicks(0).schedule();
+
+                }
+            /*telemetry.addData("Limelight", "No Targets");
+            telemetry.addData("CPU", status.getCpu());
+            telemetry.addData("Temp", status.getTemp());
+            telemetry.addData("RAM", status.getRam());
+            telemetry.addData("Pipeline Type", status.getPipelineType());
+
+             */
+
+                // stop turret if no target
+                //robot.turret.stopTurret(); /TODO
+            }
+        }
+
+        telemetry.update();
+    }
     @Override
     public void onStop(){
         robot.shooter.stop();

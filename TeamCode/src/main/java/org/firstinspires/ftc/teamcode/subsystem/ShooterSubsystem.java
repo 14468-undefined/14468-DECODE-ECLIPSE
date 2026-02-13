@@ -39,6 +39,7 @@ public class ShooterSubsystem implements Subsystem {
 
 
 
+    private boolean shooterEnabled = false;
     //2500-2450 rpm close
     //3520 rpm far
 
@@ -98,7 +99,10 @@ public class ShooterSubsystem implements Subsystem {
                     .basicFF(compensatedKV)
                     .build();
 
-            controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
+            if (shooterEnabled) {
+                controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
+            }
+            //controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
 
             lastKP = kP;
             lastKI = kI;
@@ -168,6 +172,7 @@ public class ShooterSubsystem implements Subsystem {
 
 
     public void spinPls(){
+        shooterEnabled = true;
         controller.setGoal(
                 new KineticState(0, RPMtoTPS(TARGET_RPM))
         );
@@ -190,6 +195,7 @@ public class ShooterSubsystem implements Subsystem {
         return new LambdaCommand()
                 .setStart(() -> {
 
+                    shooterEnabled = true;
                     controller.setGoal(
                             new KineticState(0, RPMtoTPS(TARGET_RPM))
                     );
@@ -202,6 +208,7 @@ public class ShooterSubsystem implements Subsystem {
     public Command spinReverse() {
         return new LambdaCommand()
                 .setStart(() -> {
+                    shooterEnabled = true;
                     controller.setGoal(
                             new KineticState(0, RPMtoTPS(-TARGET_REVERSE_RPM))
                     );
@@ -214,6 +221,7 @@ public class ShooterSubsystem implements Subsystem {
     public Command stop() {
         return new LambdaCommand()
                 .setStart(() -> {
+                    shooterEnabled = false;
                     controller.setGoal(
                             new KineticState(0, RPMtoTPS(0))
                     );
