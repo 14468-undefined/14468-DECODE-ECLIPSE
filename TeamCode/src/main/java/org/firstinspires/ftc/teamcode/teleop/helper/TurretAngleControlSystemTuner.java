@@ -45,7 +45,8 @@ public class TurretAngleControlSystemTuner extends LinearOpMode {
                 .reversed()
                 .brakeMode();
 
-        turretMotor.zero();
+        //turretMotor.zero();
+        turretMotor.setCurrentPosition(0);
 
         rebuildController();
 

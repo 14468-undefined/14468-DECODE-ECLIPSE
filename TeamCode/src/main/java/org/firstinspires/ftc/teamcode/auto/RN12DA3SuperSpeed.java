@@ -208,11 +208,11 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
                 .strafeToConstantHeading(new Vector2d(-13,  30), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(-13, 54.5), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(-13, 47), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.shooter.spin())
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.intake.stop())
-                .strafeToLinearHeading(new Vector2d(-1, 54.5), 180)//intake
+                .strafeToLinearHeading(new Vector2d(-1, 56), 180)//intake
 
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
 
@@ -235,8 +235,8 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .strafeToConstantHeading(new Vector2d(11, 24.5), new TranslationalVelConstraint(100))//line up intake
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(11, 48), new TranslationalVelConstraint(100))//back up
+                //.strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(11, 49), new TranslationalVelConstraint(100))//back up
                 .stopAndAdd(robot.intake.stop())
                 //INTAKE FIRST PILE--------------------------
 
@@ -257,8 +257,8 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 //INTAKE THIRD PILE--------------------------
                 .stopAndAdd(robot.intake.intake())//start intaking
                 .strafeToConstantHeading(new Vector2d(33, 24),new TranslationalVelConstraint(100))//go to motif
-                .strafeToConstantHeading(new Vector2d(33, 61), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(33, 57), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(33, 49), new TranslationalVelConstraint(100))//intake
+                //.strafeToConstantHeading(new Vector2d(33, 57), new TranslationalVelConstraint(100))//intake
                 //.strafeToConstantHeading((new Vector2d(33, 10)), new TranslationalVelConstraint(100))//go to motif
                 //.splineToConstantHeading(new Vector2d(38, 59), Math.PI / 2, new TranslationalVelConstraint(100))
                 //.splineToConstantHeading(new Vector2d(35, 55), -Math.PI / 2, new TranslationalVelConstraint(100))
