@@ -18,7 +18,6 @@ import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
-import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
 import java.util.function.DoubleSupplier;
@@ -41,8 +40,8 @@ import java.util.function.DoubleSupplier;
  */
 
 //WAI = With auto aim
-@Autonomous(name = "RN12DA3SuperSpeed")
-public class RN12DA3SuperSpeed extends NextFTCOpMode {
+@Autonomous(name = "RN12DA3 AUTO Turret")
+public class RN12DA3AutoTurret extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
     //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
@@ -66,19 +65,13 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
     private Limelight3A limelight;
     private boolean limelightStarted = false;
 
-    private double voltage;
-
-    double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
-    double RPM_CLOSE_ESTIMATE = 0;
-
 
     private final ElapsedTime autoTimer = new ElapsedTime();
-    private static final double AUTO_AIM_DELAY = 3.5; // seconds
 
 
     double SHOOTING_DELAY = 3;//seconds
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public RN12DA3SuperSpeed() {
+    public RN12DA3AutoTurret() {
 
 
         addComponents(
@@ -106,7 +99,6 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
         robot.turret.bypassPeriodic = true;
         limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
 
-        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
         robot.turret.turretMotor.setCurrentPosition(0);
 
@@ -239,27 +231,26 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
     @Override
     public void onUpdate(){
 
+        if (!limelightStarted) {
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
+            limelight.start();
+            limelightStarted = true;
+        }
 
+        if (autoTimer.seconds() > 3){
 
-        controller.setGoal(new KineticState(-90));
+            LLResult result = limelight.getLatestResult();
 
-        double power = controller.calculate(robot.turret.turretMotor.getState());
+            if (result != null && result.isValid()) {
+                double tx = result.getTx();
+                double ty = result.getTy(); // How far up or down the target is (degrees)
+                double ta = result.getTa(); // How big the target looks (0%-100% of the image)
 
+                robot.turret.turretMotor.setPower(robot.turret.visionPID(tx));
 
-        robot.turret.turretMotor.setPower(power);
-
-
-
-        //-------------------------------
-        //TODO: maybe add the voltage stuff here
-        voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
-        //robot.shooter.voltageCompensate(voltage);
-        //robot.shooter.maybeUpdatePIDF();
-        telemetry.addData("VOLTAGE", voltage);
-
-        //robot.turret.runToTicks(-56).schedule();
-
-
+            }
+        }
 
 
         telemetry.update();
