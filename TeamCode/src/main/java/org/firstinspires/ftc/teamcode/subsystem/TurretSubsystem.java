@@ -42,6 +42,8 @@ public class TurretSubsystem implements Subsystem {
     public static double kP = 0.026;//was .03 before 2/11
     public static double kI = 0.001;
     public static double kD = 0.001;
+    public static double kS = 0.0;
+
 
     public double integralSum = 0.0;
     public double lastError = 0.0;
@@ -175,6 +177,7 @@ public class TurretSubsystem implements Subsystem {
         double dt = currentTime - lastTime;
         if (dt <= 0) dt = 0.02;
 
+        // PID terms
         double P = kP * error;
 
         integralSum += error * dt;
@@ -183,27 +186,29 @@ public class TurretSubsystem implements Subsystem {
         double derivative = (error - lastError) / dt;
         double D = kD * derivative;
 
-        lastError = error;
-        lastTime = currentTime;
-
-        double output = P + I + D;
-
-        output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
-
-        // Minimum power uses ERROR sign
-        if (Math.abs(error) > TX_TOLERANCE &&
-                Math.abs(output) < MIN_POWER) {
-            output = Math.copySign(MIN_POWER, error);
+        // Static friction feedforward (kS)
+        double kS_term = 0.0;
+        if (Math.abs(error) > TX_TOLERANCE) {
+            kS_term = Math.copySign(kS, error);
         }
 
-        // Deadband
+        double output = P + I + D + kS_term;
+
+        // Clamp output
+        output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
+
+        // Deadband & integral reset
         if (Math.abs(error) <= TX_TOLERANCE) {
             output = 0.0;
             integralSum = 0.0;
         }
 
+        lastError = error;
+        lastTime = currentTime;
+
         return output;
     }
+
 
 
     /* ---------------- Periodic ---------------- */
