@@ -39,6 +39,11 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
         );
     }
 
+    private enum Zone{
+        CLOSE,
+        MID,
+        FAR
+    }
 
 
 
@@ -55,12 +60,12 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-
     ColorfulTelemetry t;
 
     String llWorking = "Limelight Working";
     String llNotWorking = "Limelight Not Working";
     private double voltage = 14;
+
 
 
     @Override
@@ -258,7 +263,18 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         DoubleSupplier txSupplier = () -> {
             LLResult r = limelight.getLatestResult();
-            return (r != null && r.isValid()) ? r.getTx() : 0.0;
+            if (r != null && r.isValid()) {
+                double tx = r.getTx();
+
+
+                double offset = 0.0;
+                if (CURRENT_RPM >= FAR_RPM - 200) { // allow some tolerance
+                    offset = -3;
+                }
+
+                return tx + offset;
+            }
+            return 0.0;
         };
         LLStatus status = limelight.getStatus();
         if (result != null && result.isValid()) {
