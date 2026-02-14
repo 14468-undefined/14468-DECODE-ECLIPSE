@@ -73,7 +73,7 @@ public class autoToTestIfOnUpdateWorks extends NextFTCOpMode {
 
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
         robot.shooter.voltageCompensate(voltage);
-        robot.shooter.maybeUpdatePIDF();
+        //robot.shooter.maybeUpdatePIDF();
         telemetry.addData("VOLTAGE", voltage);
 
 

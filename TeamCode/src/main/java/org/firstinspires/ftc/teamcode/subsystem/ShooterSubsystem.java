@@ -3,75 +3,44 @@ package org.firstinspires.ftc.teamcode.subsystem;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import dev.nextftc.control.ControlSystem;
-import dev.nextftc.control.KineticState;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.impl.VoltageCompensatingMotor;
 
 @Config
 public class ShooterSubsystem implements Subsystem {
 
     public static final ShooterSubsystem INSTANCE = new ShooterSubsystem();
 
-
-
-
-    //RPM close - 2550
-
-
-    /**
-     *
-     * 1. tune kS
-     * 2. get to target vel with kV
-     * 3. add a lot of kP (at least .001 maybe .01) - specifically,
-     * increase it until it isnt overshooting muych in the recovery phase
-     *
-     */
-
-
-    //2/11/26 - both encoders
-    //
-
-    public static double TARGET_RPM = 3500.0;//3150 = far - new 2/5, 2550 = close
+    // ===== Tunables =====
+    public static double TARGET_RPM = 0;
     public static double TARGET_REVERSE_RPM = 2500;
+
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
+
+    public static double kP = 0.001;//.001
+    public static double kI = 0.0;
+    public static double kD = 0.0;
+    public static double kV = 0.000179;//.000194
+    public static double kS = 0.09;//.09
 
     private static final double IDEAL_VOLTAGE = 13.8;
     private static final double MAX_VOLTAGE_COMP = 1.20;
 
-    private double batteryVoltage = 13.8;
-    private double compensatedKV = kV;
-
-
-
-    private boolean shooterEnabled = false;
-    //2500-2450 rpm close
-    //3520 rpm far
-
-    //values as of 2/4
-    public static double kP = 0.000058;//0.00014
-    public static double kI = 0.0;
-    public static double kD = 0.0;
-    public static double kV = 0.00040;//0.00041
-    public static double kS = 0.0;//.09
-
-
-    private double lastKP, lastKI, lastKD, lastKV, lastKS;
-
-    private double lastCompensatedKV;
-
-    private ControlSystem controller;
-
+    // ===== Hardware =====
     private MotorEx shooterLeft;
     private MotorEx shooterRight;
 
-    private double manualLeft = 0.0;
-    private double manualRight = 0.0;
+    // ===== State =====
+    private double targetRPM = 0.0;
+    private double batteryVoltage = 13.8;
 
+    // PID state
+    private double integralSum = 0.0;
+    private double lastError = 0.0;
+    private double lastTime = 0.0;
 
     private ShooterSubsystem() {}
 
@@ -80,94 +49,67 @@ public class ShooterSubsystem implements Subsystem {
         shooterLeft = new MotorEx("shooterLeft").reversed();
         shooterRight = new MotorEx("shooterRight");
 
-        //VoltageCompensatingMotor shooterLeft = new VoltageCompensatingMotor("shooterLeft").
-
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        controller = ControlSystem.builder()
-                .velPid(kP, kI, kD)
-                .basicFF(kV, 0, kS)
-                .build();
-
-        controller.setGoal(new KineticState(0, 0));
-
-        lastKP = kP;
-        lastKI = kI;
-        lastKD = kD;
-        lastKV = kV;
-        lastKS = kS;
     }
 
-    // ONLY rebuilds if values changed
-    public void maybeUpdatePIDF() {
-        if (kP != lastKP || kI != lastKI || kD != lastKD || kV != lastKV || kS != lastKS) {
-            double comp = IDEAL_VOLTAGE / batteryVoltage;
-            comp = Math.min(comp, MAX_VOLTAGE_COMP);
-            compensatedKV = kV * comp;
+    /* ================= PIDF ================= */
 
-            controller = ControlSystem.builder()
-                    .velPid(kP, kI, kD)
-                    .basicFF(kV, 0, kS)
-                    .build();
+    private double pidfRPM(double targetRPM, double currentRPM) {
+        double now = System.nanoTime() / 1e9;
+        double dt = now - lastTime;
+        if (dt <= 0) dt = 0.02;
 
-            if (shooterEnabled) {
-                controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
-            }
+        double error = targetRPM - currentRPM;
 
+        integralSum += error * dt;
+        double derivative = (error - lastError) / dt;
 
-            lastKP = kP;
-            lastKI = kI;
-            lastKD = kD;
-            lastKV = kV;
-            lastKS = kS;
-        }
+        double pid =
+                (kP * error) +
+                        (kI * integralSum) +
+                        (kD * derivative);
+
+        double voltageComp = IDEAL_VOLTAGE / batteryVoltage;
+        voltageComp = Math.min(voltageComp, MAX_VOLTAGE_COMP);
+
+        double ff =
+                (kV * voltageComp * targetRPM) +
+                        (Math.signum(targetRPM) * kS);
+
+        lastError = error;
+        lastTime = now;
+
+        return clamp(pid + ff);
     }
 
+    private double clamp(double val) {
+        return Math.max(-1.0, Math.min(1.0, val));
+    }
 
+    /* ================= Commands (unchanged API) ================= */
 
     public Command setTargetRPM(double rpm) {
         return new LambdaCommand()
-                .setStart(() -> {
-                    TARGET_RPM = rpm;   // store only
-                })
+                .setStart(() -> TARGET_RPM = rpm)
                 .setIsDone(() -> true)
                 .requires(this)
                 .named("Set Shooter Target RPM");
     }
 
     public void voltageCompensate(double voltage) {
-        if (voltage <= 0) return;
-
-        batteryVoltage = voltage;
-
-        double comp = IDEAL_VOLTAGE / batteryVoltage;
-        comp = Math.min(comp, MAX_VOLTAGE_COMP);
-
-        compensatedKV = kV * comp;
-
-        // Rebuild controller if FF changed
-        if (Math.abs(compensatedKV - lastKV) > 1e-6) {
-            controller = ControlSystem.builder()
-                    .velPid(kP, kI, kD)
-                    .basicFF(compensatedKV)
-                    .build();
-
-            controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
-
-            lastKV = compensatedKV;
+        if (voltage > 0) {
+            batteryVoltage = voltage;
         }
     }
-
-    /* ===== existing Commands (unchanged) ===== */
 
     public Command setShooterPIDF(double kv, double kp, double kd, double ki, double ks) {
         return new LambdaCommand()
                 .setStart(() -> {
                     kV = kv;
                     kP = kp;
-                    kI = ki;
                     kD = kd;
+                    kI = ki;
                     kS = ks;
                 })
                 .setIsDone(() -> true)
@@ -177,43 +119,23 @@ public class ShooterSubsystem implements Subsystem {
 
     public void setTargetRPMDirect(double rpm) {
         TARGET_RPM = rpm;
-
-            controller.setGoal(
-                    new KineticState(0, RPMtoTPS(TARGET_RPM))
-            );
-
+        targetRPM = rpm;
     }
 
-
-    public void spinPls(){
-        shooterEnabled = true;
-        controller.setGoal(
-                new KineticState(0, RPMtoTPS(TARGET_RPM))
-        );
+    public void spinPls() {
+        targetRPM = TARGET_RPM;
     }
-
 
     public Command spinAndHold() {
         return new LambdaCommand()
-                .setStart(() -> {
-
-                    controller.setGoal(
-                            new KineticState(0, RPMtoTPS(TARGET_RPM))
-                    );
-                })
+                .setStart(() -> targetRPM = TARGET_RPM)
                 .setIsDone(() -> true)
                 .requires(this);
     }
 
     public Command spin() {
         return new LambdaCommand()
-                .setStart(() -> {
-
-                    shooterEnabled = true;
-                    controller.setGoal(
-                            new KineticState(0, RPMtoTPS(TARGET_RPM))
-                    );
-                })
+                .setStart(() -> targetRPM = TARGET_RPM)
                 .setIsDone(() -> true)
                 .requires(this)
                 .named("Spin Shooter");
@@ -221,12 +143,7 @@ public class ShooterSubsystem implements Subsystem {
 
     public Command spinReverse() {
         return new LambdaCommand()
-                .setStart(() -> {
-                    shooterEnabled = true;
-                    controller.setGoal(
-                            new KineticState(0, RPMtoTPS(-TARGET_REVERSE_RPM))
-                    );
-                })
+                .setStart(() -> targetRPM = -TARGET_REVERSE_RPM)
                 .setIsDone(() -> true)
                 .requires(this)
                 .named("Spin Shooter Reverse");
@@ -235,41 +152,36 @@ public class ShooterSubsystem implements Subsystem {
     public Command stop() {
         return new LambdaCommand()
                 .setStart(() -> {
-                    shooterEnabled = false;
-                    controller.setGoal(
-                            new KineticState(0, RPMtoTPS(0))
-                    );
+                    targetRPM = 0.0;
+                    integralSum = 0.0;
                 })
                 .setIsDone(() -> true)
                 .requires(this)
                 .named("Stop Shooter");
     }
 
-
-
-
+    /* ================= Telemetry ================= */
 
     public double RPMtoTPS(double rpm) {
         return ((rpm / GEAR_RATIO) * TICKS_PER_REV) / 60.0;
     }
 
     public double getRPM() {
-        double avgTPS = ((-shooterLeft.getVelocity()) + (shooterRight.getVelocity())) / 2.0;
+        double avgTPS = ((-shooterLeft.getVelocity()) + shooterRight.getVelocity()) / 2.0;
         return (avgTPS * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 
-    public double getLeftRPM(){
+    public double getLeftRPM() {
         return ((-shooterLeft.getVelocity()) * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 
-    public double getRightRPM(){
+    public double getRightRPM() {
         return ((shooterRight.getVelocity()) * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 
-
     public boolean isAtTargetSpeed() {
-        double vel = getRPM();
-        return vel > (TARGET_RPM - 10) && vel < (TARGET_RPM + 350) && vel != 0;
+        double rpm = getRPM();
+        return rpm > (TARGET_RPM - 10) && rpm < (TARGET_RPM + 350) && rpm != 0;
     }
 
     public double getTargetRPM() {
@@ -284,11 +196,21 @@ public class ShooterSubsystem implements Subsystem {
         return shooterRight.getPower();
     }
 
+    /* ================= Loop ================= */
+
     @Override
     public void periodic() {
+        // If target is zero, do NOT run PID — let flywheel coast
+        if (Math.abs(targetRPM) < 1e-6) {
+            shooterLeft.setPower(0.0);
+            shooterRight.setPower(0.0);
+            return;
+        }
 
-        shooterLeft.setPower(controller.calculate(shooterLeft.getState()));
-        shooterRight.setPower(controller.calculate(shooterRight.getState()));
+        double currentRPM = getRPM();
+        double power = pidfRPM(targetRPM, currentRPM);
 
+        shooterLeft.setPower(power);
+        shooterRight.setPower(power);
     }
 }

@@ -225,7 +225,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
         robot.shooter.voltageCompensate(voltage);
-        robot.shooter.maybeUpdatePIDF();
+        //robot.shooter.maybeUpdatePIDF();
         telemetry.addData("VOLTAGE", voltage);
 
 

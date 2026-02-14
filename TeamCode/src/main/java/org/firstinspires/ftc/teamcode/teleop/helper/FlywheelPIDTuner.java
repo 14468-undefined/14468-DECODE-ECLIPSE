@@ -54,7 +54,7 @@ public class FlywheelPIDTuner extends NextFTCOpMode {
     public void onUpdate() {
 
         // only updates PID if values changed
-        shooter.maybeUpdatePIDF();
+        //shooter.maybeUpdatePIDF();
 
         shooter.spin().schedule();
         // directly set target (not a Command)
