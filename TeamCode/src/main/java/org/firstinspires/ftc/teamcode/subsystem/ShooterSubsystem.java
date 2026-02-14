@@ -26,7 +26,8 @@ public class ShooterSubsystem implements Subsystem {
      *
      * 1. tune kS
      * 2. get to target vel with kV
-     * 3. add a lot of kP (at least .001 maybe .01)
+     * 3. add a lot of kP (at least .001 maybe .01) - specifically,
+     * increase it until it isnt overshooting muych in the recovery phase
      *
      */
 
