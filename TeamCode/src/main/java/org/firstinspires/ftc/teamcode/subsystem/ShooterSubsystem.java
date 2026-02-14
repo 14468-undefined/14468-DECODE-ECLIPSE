@@ -22,6 +22,14 @@ public class ShooterSubsystem implements Subsystem {
     //RPM close - 2550
 
 
+    /**
+     *
+     * 1. tune kS
+     * 2. get to target vel with kV
+     * 3. add a lot of kP (at least .001 maybe .01)
+     *
+     */
+
 
     //2/11/26 - both encoders
     //
@@ -48,8 +56,10 @@ public class ShooterSubsystem implements Subsystem {
     public static double kI = 0.0;
     public static double kD = 0.0;
     public static double kV = 0.00040;//0.00041
+    public static double kS = 0.0;
 
-    private double lastKP, lastKI, lastKD, lastKV;
+
+    private double lastKP, lastKI, lastKD, lastKV, lastKS;
 
     private double lastCompensatedKV;
 
@@ -76,7 +86,7 @@ public class ShooterSubsystem implements Subsystem {
 
         controller = ControlSystem.builder()
                 .velPid(kP, kI, kD)
-                .basicFF(kV)
+                .basicFF(kV, 0, kS)
                 .build();
 
         controller.setGoal(new KineticState(0, 0));
@@ -85,29 +95,31 @@ public class ShooterSubsystem implements Subsystem {
         lastKI = kI;
         lastKD = kD;
         lastKV = kV;
+        lastKS = kS;
     }
 
     // ONLY rebuilds if values changed
     public void maybeUpdatePIDF() {
-        if (kP != lastKP || kI != lastKI || kD != lastKD || kV != lastKV) {
+        if (kP != lastKP || kI != lastKI || kD != lastKD || kV != lastKV || kS != lastKS) {
             double comp = IDEAL_VOLTAGE / batteryVoltage;
             comp = Math.min(comp, MAX_VOLTAGE_COMP);
             compensatedKV = kV * comp;
 
             controller = ControlSystem.builder()
                     .velPid(kP, kI, kD)
-                    .basicFF(compensatedKV)
+                    .basicFF(kV, 0, kS)
                     .build();
 
             if (shooterEnabled) {
                 controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
             }
-            //controller.setGoal(new KineticState(0, RPMtoTPS(TARGET_RPM)));
+
 
             lastKP = kP;
             lastKI = kI;
             lastKD = kD;
             lastKV = kV;
+            lastKS = kS;
         }
     }
 
@@ -148,13 +160,14 @@ public class ShooterSubsystem implements Subsystem {
 
     /* ===== existing Commands (unchanged) ===== */
 
-    public Command setShooterPIDF(double kv, double kp, double kd, double ki) {
+    public Command setShooterPIDF(double kv, double kp, double kd, double ki, double ks) {
         return new LambdaCommand()
                 .setStart(() -> {
                     kV = kv;
                     kP = kp;
                     kI = ki;
                     kD = kd;
+                    kS = ks;
                 })
                 .setIsDone(() -> true)
                 .requires(this)
@@ -231,73 +244,7 @@ public class ShooterSubsystem implements Subsystem {
                 .named("Stop Shooter");
     }
 
-    /*public Command setLeft1() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    mode = ShooterMode.MANUAL;
-                    manualLeft = 1.0;
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Shooter Left +1");
-    }
 
-    public Command setRight1() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    mode = ShooterMode.MANUAL;
-                    manualRight = 1.0;
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Shooter Right +1");
-    }
-
-    public Command setLeftNeg1() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    mode = ShooterMode.MANUAL;
-                    manualLeft = -1.0;
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Shooter Left -1");
-    }
-
-    public Command setRightNeg1() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    mode = ShooterMode.MANUAL;
-                    manualRight = -1.0;
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Shooter Right -1");
-    }
-
-    public Command setLeft0() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    mode = ShooterMode.MANUAL;
-                    manualLeft = 0.0;
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Shooter Left 0");
-    }
-
-    public Command setRight0() {
-        return new LambdaCommand()
-                .setStart(() -> {
-                    mode = ShooterMode.MANUAL;
-                    manualRight = 0.0;
-                })
-                .setIsDone(() -> true)
-                .requires(this)
-                .named("Shooter Right 0");
-    }
-
-     */
 
 
 
