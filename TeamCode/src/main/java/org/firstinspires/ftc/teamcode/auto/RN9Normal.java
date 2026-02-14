@@ -3,11 +3,15 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
@@ -15,6 +19,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
 import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
+
+import java.util.function.DoubleSupplier;
 
 
 /**
@@ -42,10 +48,12 @@ public class RN9Normal extends NextFTCOpMode {
     //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
     //private final Pose2d shotPoseOnLine = new Pose2d(-32.5,29.5, Math.toRadians(90));//go shoot
     //private final Pose2d shotPoseOnLine = new Pose2d(-30,27, Math.toRadians(90));//go shoot
-    private final Pose2d shotPoseOnLine = new Pose2d(-30.8,36, Math.toRadians(90));//go shoot
+    //private final Pose2d shotPoseOnLine = new Pose2d(-30.8,36, Math.toRadians(90));//go shoot
+    private final Pose2d shotPoseOnLine = new Pose2d(-30,32, Math.toRadians(90));//go shoot
 
 
-
+    private Limelight3A limelight;
+    private boolean limelightStarted = false;
 
 
 
@@ -97,6 +105,7 @@ public class RN9Normal extends NextFTCOpMode {
             {
                 requires(BaseRobot.INSTANCE.turret, BaseRobot.INSTANCE.limelight);
             }
+
 
             @Override
             public void start() {
@@ -162,7 +171,7 @@ public class RN9Normal extends NextFTCOpMode {
     public void onInit(){
 
         double voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
-
+        limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
 
 
 
@@ -179,18 +188,18 @@ public class RN9Normal extends NextFTCOpMode {
                 //SHOOT FIRST 3-------------------------------------------
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 //.stopAndAdd(robot.hood.setHoodPose(.269))
-                .stopAndAdd(robot.shooter.setTargetRPM(2800))//2400 NO //2950 works //3030
+                .stopAndAdd(robot.shooter.setTargetRPM(2850))//2400 NO //2950 works //3030
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
                 .stopAndAdd(robot.gate.openGate)
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
                 .waitSeconds(.3)
                 .stopAndAdd(robot.intake.intake())
                 .waitSeconds(SHOOTING_DELAY)//WAIT
                 .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
-                .stopAndAdd(robot.shooter.setTargetRPM(2420))//2540
+                .stopAndAdd(robot.shooter.setTargetRPM(2880))//2540
                 //SHOOT FIRST 3-------------------------------------------
 
 
@@ -209,7 +218,7 @@ public class RN9Normal extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))//.58
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
                 .stopAndAdd(robot.intake.intake())
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
                 .waitSeconds(SHOOTING_DELAY)
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
@@ -233,7 +242,7 @@ public class RN9Normal extends NextFTCOpMode {
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
                 .waitSeconds(SHOOTING_DELAY)
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
@@ -260,6 +269,67 @@ public class RN9Normal extends NextFTCOpMode {
     @Override
     public void onUpdate(){
         //TODO: maybe add the voltage stuff here
+
+        //TODO: maybe add the voltage stuff here
+        //voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        //robot.shooter.voltageCompensate(voltage);
+        //robot.shooter.maybeUpdatePIDF();
+        //telemetry.addData("VOLTAGE", voltage);
+
+
+
+        if (!limelightStarted) {
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE);
+            limelight.start();
+            limelightStarted = true;
+        }
+
+
+
+        telemetry.addData("LL Running", limelight.isRunning());
+
+
+            LLResult result = limelight.getLatestResult();
+
+            DoubleSupplier txSupplier = () -> {
+                LLResult r = limelight.getLatestResult();
+                return (r != null && r.isValid()) ? r.getTx() : 0.0;
+            };
+            LLStatus status = limelight.getStatus();
+            if (result != null && result.isValid()) {
+                double tx = result.getTx();
+                double ty = result.getTy(); // How far up or down the target is (degrees)
+                double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+
+                //telemetry.addData("Ty", ty);
+                //telemetry.addData("Ta", ta);
+                //telemetry.addData("Tx", tx);
+
+                // only schedule once
+                if (!robot.turret.isAiming()) {
+                    robot.turret.aimWithVision(txSupplier).schedule();
+                }
+            } else {
+
+                if(gamepad1.right_stick_button){
+                    robot.turret.runToTicks(0).schedule();
+
+                }
+            /*telemetry.addData("Limelight", "No Targets");
+            telemetry.addData("CPU", status.getCpu());
+            telemetry.addData("Temp", status.getTemp());
+            telemetry.addData("RAM", status.getRam());
+            telemetry.addData("Pipeline Type", status.getPipelineType());
+
+             */
+
+                // stop turret if no target
+                //robot.turret.stopTurret(); /TODO
+            }
+
+
+        telemetry.update();
 
     }
     @Override

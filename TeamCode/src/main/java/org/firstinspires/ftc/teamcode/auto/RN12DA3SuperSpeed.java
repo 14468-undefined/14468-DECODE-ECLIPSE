@@ -44,8 +44,10 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
     //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
-    private final Pose2d shotPoseOnLine = new Pose2d(-2.55,8.5, Math.toRadians(90));//go shoot
+    //private final Pose2d shotPoseOnLine = new Pose2d(-2.55,8.5, Math.toRadians(90));//go shoot
+    private final Pose2d shotPoseOnLine = new Pose2d(-29,23, Math.toRadians(90));//go shoot
 
+    //-29, 23
     //-2.55, 7.10
 
     //HardwareMap hwMap;
@@ -180,8 +182,8 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
         autoCommand = drive.commandBuilder(startPose)
                 .stopAndAdd(robot.intake.setIntakePower(1))
 
-                .stopAndAdd(robot.shooter.setTargetRPM(3180))
-                .stopAndAdd(robot.hood.setHoodPose(1))
+                .stopAndAdd(robot.shooter.setTargetRPM(3120))
+                .stopAndAdd(robot.hood.setHoodPose(.6))
                 .stopAndAdd(robot.shooter.spin())
 
 
@@ -189,7 +191,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
                 .waitSeconds(.3)
 
                 .stopAndAdd(robot.intake.intake())
@@ -198,10 +200,10 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .waitSeconds(SHOOTING_DELAY-1.2)//WAIT
 
                 .stopAndAdd(robot.intake.stop())
-                .stopAndAdd(robot.shooter.stop())
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
 
-                .stopAndAdd(robot.shooter.setTargetRPM(3140))
+                .stopAndAdd(robot.shooter.setTargetRPM(2825))
 
 
 
@@ -231,14 +233,16 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
 
+                //.stopAndAdd(robot.shooter.setTargetRPM(3350))
+
                 .stopAndAdd(robot.intake.intake())
-                .stopAndAdd(autoAimWithPID())
+                //.stopAndAdd(autoAimWithPID())
 
 
 
 
-                .waitSeconds(SHOOTING_DELAY-1)
-                .stopAndAdd(robot.shooter.stop())
+                .waitSeconds(SHOOTING_DELAY-1.3)
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
 
 
@@ -247,7 +251,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 //SECOND PILE --------------------------------------
-                .strafeToConstantHeading(new Vector2d(11, 29), new TranslationalVelConstraint(100))//line up intake
+                .strafeToConstantHeading(new Vector2d(11, 24.5), new TranslationalVelConstraint(100))//line up intake
 
 
 
@@ -273,7 +277,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
 
                 .waitSeconds(SHOOTING_DELAY-1.5)
-                .stopAndAdd(robot.shooter.stop())
+                //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.intake.stop())
 
 
@@ -282,7 +286,7 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
 
                 //PILE 3
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(33, 29),new TranslationalVelConstraint(100))//go to motif
+                .strafeToConstantHeading(new Vector2d(33, 24),new TranslationalVelConstraint(100))//go to motif
                 .strafeToConstantHeading(new Vector2d(33, 61), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.intake.stop())
 
@@ -321,8 +325,8 @@ public class RN12DA3SuperSpeed extends NextFTCOpMode {
     public void onUpdate(){
         //TODO: maybe add the voltage stuff here
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
-        robot.shooter.voltageCompensate(voltage);
-        robot.shooter.maybeUpdatePIDF();
+        //robot.shooter.voltageCompensate(voltage);
+        //robot.shooter.maybeUpdatePIDF();
         telemetry.addData("VOLTAGE", voltage);
 
 
