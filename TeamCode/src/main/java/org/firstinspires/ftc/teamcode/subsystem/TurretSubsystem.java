@@ -29,11 +29,14 @@ public class TurretSubsystem implements Subsystem {
         IDLE
     }
 
+
+    public boolean bypassPeriodic = false;
+
     public TurretMode mode = TurretMode.IDLE;
 
     /* ---------------- Angle Control ---------------- */
 
-    private ControlSystem angleController;
+    public ControlSystem angleController;
 
     /* ---------------- Vision PID ---------------- */
 
@@ -78,7 +81,7 @@ public class TurretSubsystem implements Subsystem {
         turretMotor.zero();
         angleController = ControlSystem.builder()
                 .posPid(0.1, 0.0, 0.0)
-                .basicFF(0)
+                //.basicFF(0)
                 .build();
     }
 
@@ -169,6 +172,8 @@ public class TurretSubsystem implements Subsystem {
 
 
 
+
+
     /* ---------------- Vision PID ---------------- */
 
     public double visionPID(double error) {
@@ -216,6 +221,9 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public void periodic() {
 
+        if (bypassPeriodic) {
+            return; //NOTHING can overwrite motor power
+        }
         switch (mode) {
 
             case ANGLE:
@@ -238,6 +246,9 @@ public class TurretSubsystem implements Subsystem {
             default:
                 desiredPower = 0.0;
                 break;
+
+
+
         }
 
         turretMotor.setPower(desiredPower);

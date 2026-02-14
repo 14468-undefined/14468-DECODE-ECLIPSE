@@ -66,6 +66,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override
     public void onInit() {
 
+        robot.turret.bypassPeriodic = false;
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
 
