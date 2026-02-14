@@ -39,7 +39,7 @@ import java.util.function.DoubleSupplier;
  */
 
 //WAI = With auto aim
-@Autonomous(name = "RN12DA3SuperSpeed")
+@Autonomous(name = "RN12DA3SuperDUPERSpeed")
 public class RN12DA3SuperDUPERSpeed extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
