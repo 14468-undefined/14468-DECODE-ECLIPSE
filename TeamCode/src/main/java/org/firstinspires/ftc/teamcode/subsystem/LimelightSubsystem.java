@@ -15,6 +15,9 @@ public class LimelightSubsystem implements Subsystem {
 
     private LimelightSubsystem() { }
 
+
+    private int pendingPipeline = -1;
+
     private Limelight3A limelight;
 
     // constants
@@ -34,14 +37,13 @@ public class LimelightSubsystem implements Subsystem {
                 .named("Initialize Limelight");
     }
 
+
+
     public Command setPipeline(int pipeline) {
         return new LambdaCommand()
-                .setStart(() -> {
-                    if (limelight != null) limelight.pipelineSwitch(pipeline);
-                })
+                .setStart(() -> pendingPipeline = pipeline)
                 .setIsDone(() -> true)
-                .requires(this)
-                .named("Set Pipeline");
+                .requires(this);
     }
 
     public Command stopLimelight() {
@@ -60,14 +62,14 @@ public class LimelightSubsystem implements Subsystem {
 
     public double getDistance() {
         if (limelight == null) return Double.NaN;
-        if (!limelight.isRunning()) limelight.start();
+        //if (!limelight.isRunning()) limelight.start();
         LLResult llResult = limelight.getLatestResult();
         return (llResult != null && llResult.isValid()) ? llResult.getTy() : Double.NaN;
     }
 
     public double getTx() {
         if (limelight == null) return Double.NaN;
-        if (!limelight.isRunning()) limelight.start();
+        //if (!limelight.isRunning()) limelight.start();
         LLResult llResult = limelight.getLatestResult();
         return (llResult != null && llResult.isValid()) ? llResult.getTx() : Double.NaN;
     }
@@ -101,6 +103,17 @@ public class LimelightSubsystem implements Subsystem {
 
     @Override
     public void periodic() {
-        // no periodic needed right now
+        if (limelight == null) return;
+
+        if (!limelight.isRunning()) {
+            limelight.start();
+            return;
+        }
+
+        if (pendingPipeline != -1) {
+            limelight.pipelineSwitch(pendingPipeline);
+            pendingPipeline = -1;
+        }
     }
+
 }

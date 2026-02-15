@@ -49,6 +49,9 @@ public class ShooterSubsystem implements Subsystem {
         shooterLeft = new MotorEx("shooterLeft").reversed();
         shooterRight = new MotorEx("shooterRight");
 
+        shooterRight.setPower(0);
+        shooterLeft.setPower(0);
+
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }

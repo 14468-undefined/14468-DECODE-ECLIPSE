@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
+import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
 
@@ -36,7 +37,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  */
 
 //WAI = With auto aim
-@Autonomous(name = "RN12DA3 Manual Turret")
+@Autonomous(name = "RN12DA3 AUTO Turret")
 public class RN12DA3ManualTurret extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
@@ -82,6 +83,76 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
     }
 
 
+    private Command autoAimWithPID() {
+        return new Command() {
+
+            private static final double TX_TOLERANCE = 8;
+
+            // Auto-specific PID constants
+            private final double AUTO_kP = 0.02;
+            private final double AUTO_kI = 0;//.002
+            private final double AUTO_kD = 0;//.002
+
+            // Store original PID constants to restore after auto
+            private double original_kP;
+            private double original_kI;
+            private double original_kD;
+
+            {
+                requires(BaseRobot.INSTANCE.turret, BaseRobot.INSTANCE.limelight);
+            }
+
+            @Override
+            public void start() {
+                // Save current PID constants
+                original_kP = BaseRobot.INSTANCE.turret.kP;
+                original_kI = BaseRobot.INSTANCE.turret.kI;
+                original_kD = BaseRobot.INSTANCE.turret.kD;
+
+                // Override with auto PID constants
+                BaseRobot.INSTANCE.turret.kP = AUTO_kP;
+                BaseRobot.INSTANCE.turret.kI = AUTO_kI;
+                BaseRobot.INSTANCE.turret.kD = AUTO_kD;
+
+                // Reset PID state
+                BaseRobot.INSTANCE.turret.integralSum = 0.0;
+                BaseRobot.INSTANCE.turret.lastError = 0.0;
+                BaseRobot.INSTANCE.turret.lastTime = System.nanoTime() / 1e9;
+
+                // Set turret mode
+                BaseRobot.INSTANCE.turret.mode = TurretSubsystem.TurretMode.VISION;
+            }
+
+            @Override
+            public void update() {
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
+                    BaseRobot.INSTANCE.turret.stopTurret();
+                    return;
+                }
+
+                // Fetch TX in real time
+                double tx = BaseRobot.INSTANCE.limelight.getTx();
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx); // PID calculation
+                BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
+            }
+
+            @Override
+            public boolean isDone() {
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) return false;
+                return Math.abs(BaseRobot.INSTANCE.limelight.getTx()) < TX_TOLERANCE;
+            }
+
+            @Override
+            public void stop(boolean interrupted) {
+                BaseRobot.INSTANCE.turret.stopTurret();
+
+                // Restore original PID constants
+                BaseRobot.INSTANCE.turret.kP = original_kP;
+                BaseRobot.INSTANCE.turret.kI = original_kI;
+                BaseRobot.INSTANCE.turret.kD = original_kD;
+            }
+        };
+    }
 
 
 
@@ -93,12 +164,13 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
     @Override
     public void onInit(){
 
+        robot.shooter.stop();
         controller = ControlSystem.builder()
                 .posPid(.01, 0, 0)
                 .build();
 
 
-        robot.turret.bypassPeriodic = true;
+        //robot.turret.bypassPeriodic = true;
         limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
 
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
@@ -129,11 +201,12 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
                 //DRIVE TO SHOT POSE-----------------------
 
+                .stopAndAdd(autoAimWithPID())
 
                 //SHOT SEQUENCE------------------------------
                 .waitSeconds(.3)
                 .stopAndAdd(robot.intake.intake())
-                .waitSeconds(SHOOTING_DELAY-1.8)//WAIT
+                .waitSeconds(SHOOTING_DELAY-1.3)//WAIT
                 .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
@@ -149,7 +222,9 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin())
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.intake.stop())
-                .strafeToLinearHeading(new Vector2d(0, 59), 180)//intake
+                //.strafeToLinearHeading(new Vector2d(0, 59), 180)//intake
+                .strafeToConstantHeading(new Vector2d(0, 48), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(0, 59), new TranslationalVelConstraint(100))//intake
 
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
 
@@ -160,6 +235,7 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
+                .stopAndAdd(autoAimWithPID())
                 .stopAndAdd(robot.intake.intake())
                 .waitSeconds(SHOOTING_DELAY-1.9)
                 .stopAndAdd(robot.intake.stop())
@@ -174,6 +250,8 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.intake())//start intaking
                 //.strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
                 .strafeToConstantHeading(new Vector2d(11, 56), new TranslationalVelConstraint(100))//back up
+                .strafeToConstantHeading(new Vector2d(11, 50), new TranslationalVelConstraint(100))//back up
+
                 .stopAndAdd(robot.intake.stop())
                 //INTAKE FIRST PILE--------------------------
 
@@ -183,6 +261,8 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
+                .stopAndAdd(autoAimWithPID())
+
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
                 .waitSeconds(SHOOTING_DELAY-1.5)
@@ -207,6 +287,8 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 //SHOT SEQUENCE------------------------------
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
+                .stopAndAdd(autoAimWithPID())
+
                 .stopAndAdd(robot.gate.openGate)
                 .waitSeconds(.5)
                 .stopAndAdd(robot.intake.setIntakePower(.84))
@@ -236,12 +318,11 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
 
 
 
-        controller.setGoal(new KineticState(-90));
+        //controller.setGoal(new KineticState(-90));
 
-        double power = controller.calculate(robot.turret.turretMotor.getState());
+        //double power = controller.calculate(robot.turret.turretMotor.getState());
 
-
-        robot.turret.turretMotor.setPower(power);
+        //robot.turret.turretMotor.setPower(power);
 
 
 
