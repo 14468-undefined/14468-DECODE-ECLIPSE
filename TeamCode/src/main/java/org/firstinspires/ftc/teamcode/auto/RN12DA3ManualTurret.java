@@ -178,7 +178,7 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
         robot.turret.turretMotor.setCurrentPosition(0);
 
 
-        robot.limelight.setPipeline(1);
+        robot.limelight.setPipeline(1).schedule();
         //robot.limelight.initHardware(hwMap, "RED");
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.CLOSE_SHOT, 3);
         drive = new MecanumDrive(hardwareMap, startPose);
@@ -307,7 +307,7 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
     }
     @Override
     public void onStartButtonPressed() {
-        robot.limelight.setPipeline(1);
+        robot.limelight.setPipeline(1).schedule();
         autoCommand.schedule();
 
 

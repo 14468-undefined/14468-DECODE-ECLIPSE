@@ -169,7 +169,7 @@ public class BN12DA3ManualTurret extends NextFTCOpMode {
         //limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
         //limelight.start();
 
-        robot.limelight.setPipeline(2).schedule();
+        //robot.limelight.setPipeline(2).schedule();
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
         robot.turret.turretMotor.setCurrentPosition(0);
@@ -186,7 +186,7 @@ public class BN12DA3ManualTurret extends NextFTCOpMode {
         autoCommand = drive.commandBuilder(startPose)
                 //BEFORE START----------------------------
 
-                .stopAndAdd(robot.limelight.setPipeline(2))
+                .stopAndAdd(robot.limelight.setPipeline(0))
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.shooter.setTargetRPM(2400))
                 //.stopAndAdd(robot.hood.setHoodPose(.6))
@@ -305,7 +305,7 @@ public class BN12DA3ManualTurret extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
 
-        robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE);
+        robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE).schedule();
         autoCommand.schedule();
 
 
@@ -315,12 +315,7 @@ public class BN12DA3ManualTurret extends NextFTCOpMode {
     public void onUpdate(){
 
 
-        if (!limelightStarted) {
-            limelight.setPollRateHz(100);
-            limelight.pipelineSwitch(0);
-            limelight.start();
-            limelightStarted = true;
-        }
+
 
         //controller.setGoal(new KineticState(-90));
 
