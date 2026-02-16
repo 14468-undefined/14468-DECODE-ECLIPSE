@@ -55,11 +55,11 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
 
 
-    private double CLOSE_RPM = 2550;//close
+    private double CLOSE_RPM = 2350;//close
     private double MID_RPM = 2650;//farthest spot in close zone
-    private double FAR_RPM = 3150;//farthest spot
+    private double FAR_RPM = 3250;//farthest spot
 
-    private double CURRENT_RPM = 2560;
+    private double CURRENT_RPM = 2650;
 
 
     HardwareMap hwMap;
@@ -77,7 +77,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
     public void onInit() {
 
 
-
+        robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE).schedule();
         robot.shooter.stop();
         robot.turret.bypassPeriodic = false;
 

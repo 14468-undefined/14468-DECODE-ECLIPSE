@@ -51,6 +51,7 @@ public class ShooterSubsystem implements Subsystem {
 
         shooterRight.setPower(0);
         shooterLeft.setPower(0);
+        TARGET_RPM = 0;
 
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
