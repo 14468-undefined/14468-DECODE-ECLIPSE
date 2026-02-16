@@ -48,6 +48,12 @@ public class RF12ND extends NextFTCOpMode {
 
     Shoot3Command shoot3Command;
 
+
+    //1,3,5  //40.5, 13.7, heading: -47.5
+    //2 //45, 9.5, heading: -45
+    //4 //46.3, 6.5, heading: -43.6
+    //6 //46, 2.6, heading:-25.6
+
     double HOOD_ANGLE_CLOSE_ESTIMATE = 0;
     double RPM_CLOSE_ESTIMATE = 0;
 
@@ -157,7 +163,7 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.hood.setHoodPose(.84))
-                .stopAndAdd(robot.shooter.setTargetRPM(3120))
+                .stopAndAdd(robot.shooter.setTargetRPM(3150))
 
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToConstantHeading(new Vector2d(60, 15))
@@ -168,10 +174,13 @@ public class RF12ND extends NextFTCOpMode {
 
                 .waitSeconds(3.5)//was 3.5
 
-                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .stopAndAdd(robot.intake.setIntakePower(.8))
                 .stopAndAdd(robot.intake.intake())
 
+                .waitSeconds(3)
 
+
+                /*OLD DELAYED SHOOTING SEQUENCE---------
                 .waitSeconds(.6)//WAIT
                 .stopAndAdd(robot.intake.stop())
                 .waitSeconds(.5)
@@ -186,10 +195,25 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
+                //OLD DELAYED SHOOTING SEQUENCE---------
+                 */
 
 
+                //NEW CORNER-----------------------------
+                .stopAndAdd(robot.gate.closeGate)
+                .stopAndAdd(robot.intake.setIntakePower(1))
+                .stopAndAdd(robot.intake.intake())
+
+                .strafeToLinearHeading(new Vector2d(49, 56), Math.toRadians(42.5))//1
+                .strafeToLinearHeading(new Vector2d(55.5, 60), Math.toRadians(45))
+                .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
+                .strafeToLinearHeading(new Vector2d(58.5, 61.3), Math.toRadians(46.4))
+                .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
+                .strafeToLinearHeading(new Vector2d(62.4, 61), Math.toRadians(64.4))
+                .stopAndAdd(robot.intake.stop())
+                .stopAndAdd(robot.gate.openGate)
                 //CORNER----------------------------------------------
-                .strafeToSplineHeading(new Vector2d(53, 57), Math.toRadians(70))//line up for HP zone balls
+                /*.strafeToSplineHeading(new Vector2d(53, 57), Math.toRadians(70))//line up for HP zone balls
                 .stopAndAdd(robot.intake.intake())
 
                 .strafeToSplineHeading(new Vector2d(61, 60), Math.toRadians(60), new TranslationalVelConstraint(5))//line up for HP zone balls
@@ -197,6 +221,8 @@ public class RF12ND extends NextFTCOpMode {
 
                 .stopAndAdd(robot.intake.stop())
                 .stopAndAdd(robot.intake.setIntakePower(.6))
+
+                 */
 
 
 
@@ -208,7 +234,8 @@ public class RF12ND extends NextFTCOpMode {
 
                 //.waitSeconds(3)
 
-                .stopAndAdd(robot.intake.setIntakePower(.6))
+                .waitSeconds(2)
+                .stopAndAdd(robot.intake.setIntakePower(.8))
                 .stopAndAdd(robot.intake.intake())
 
 

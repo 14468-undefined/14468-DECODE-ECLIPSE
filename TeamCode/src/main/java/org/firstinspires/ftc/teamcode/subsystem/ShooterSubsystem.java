@@ -171,7 +171,18 @@ public class ShooterSubsystem implements Subsystem {
     }
 
     public double getRPM() {
-        double avgTPS = ((-shooterLeft.getVelocity()) + shooterRight.getVelocity()) / 2.0;
+
+        double leftVel = -shooterLeft.getVelocity();
+        double rightVel = shooterRight.getVelocity();
+        double avgTPS;
+        if (leftVel < 1 && rightVel > 100) {
+             avgTPS = rightVel;
+        } else if (rightVel < 1 && leftVel > 100) {
+            avgTPS = leftVel;
+        } else {
+            // Normal case: average both
+            avgTPS = (leftVel + rightVel) / 2.0;
+        }
         return (avgTPS * 60.0 / TICKS_PER_REV) * GEAR_RATIO;
     }
 

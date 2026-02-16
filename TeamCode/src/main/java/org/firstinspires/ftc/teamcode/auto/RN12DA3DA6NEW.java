@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.nextftc.control.ControlSystem;
-import dev.nextftc.control.KineticState;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.ActiveOpMode;
@@ -37,14 +37,15 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  */
 
 //WAI = With auto aim
-@Autonomous(name = "RN12DA3 AUTO Turret")
-public class RN12DA3ManualTurret extends NextFTCOpMode {
+@Autonomous(name = "RN12DA3DA6New")
+public class RN12DA3DA6NEW extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, 40, Math.toRadians(180));
     //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
     //private final Pose2d shotPoseOnLine = new Pose2d(-2.55,8.5, Math.toRadians(90));//go shoot
     private final Pose2d shotPoseOnLine = new Pose2d(-29,23, Math.toRadians(90));//go shoot
 
+    private final Pose2d shotPoseOffLine = new Pose2d(-40, 16, Math.toRadians(76));
     //-29, 23
     //-2.55, 7.10
 
@@ -74,7 +75,7 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
 
     double SHOOTING_DELAY = 3;//seconds
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public RN12DA3ManualTurret() {
+    public RN12DA3DA6NEW() {
 
 
         addComponents(
@@ -217,14 +218,14 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 //INTAKE FIRST PILE--------------------------
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
-                .strafeToConstantHeading(new Vector2d(-13,  30), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(-13, 47), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(-13,  20), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(-13, 47), new TranslationalVelConstraint(100),  new ProfileAccelConstraint(-100,100))//intake
                 .stopAndAdd(robot.shooter.spin())
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
-                .stopAndAdd(robot.intake.stop())
-                //.strafeToLinearHeading(new Vector2d(0, 59), 180)//intake
+                //.strafeToLinearHeading(new Vector2d(0, 59), n 180)//intake
                 .strafeToConstantHeading(new Vector2d(0, 48), new TranslationalVelConstraint(100))//intake
                 .strafeToConstantHeading(new Vector2d(0, 59), new TranslationalVelConstraint(100))//intake
+                .stopAndAdd(robot.intake.stop())
 
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
 
@@ -234,7 +235,7 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 //SHOT SEQUENCE------------------------------
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100),  new ProfileAccelConstraint(-100,100))//go to shoot pose
                 .stopAndAdd(autoAimWithPID())
                 .stopAndAdd(robot.intake.intake())
                 .waitSeconds(SHOOTING_DELAY-1.9)
@@ -246,13 +247,18 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 //INTAKE SECOND PILE--------------------------
                 .stopAndAdd(robot.gate.closeGate)//close gate
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                .strafeToConstantHeading(new Vector2d(11, 24.5), new TranslationalVelConstraint(100))//line up intake
+                .strafeToConstantHeading(new Vector2d(11, 20), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100, 100))//line up intake
                 .stopAndAdd(robot.intake.intake())//start intaking
                 //.strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(11, 56), new TranslationalVelConstraint(100))//back up
+                .strafeToConstantHeading(new Vector2d(11, 56), new TranslationalVelConstraint(100),  new ProfileAccelConstraint(-40, 40))//back up
                 .strafeToConstantHeading(new Vector2d(11, 50), new TranslationalVelConstraint(100))//back up
 
+
                 .stopAndAdd(robot.intake.stop())
+
+                .strafeToConstantHeading(new Vector2d(0, 48), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(0, 59), new TranslationalVelConstraint(100))//intake
+
                 //INTAKE FIRST PILE--------------------------
 
 
@@ -260,7 +266,9 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 //SHOT SEQUENCE------------------------------
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.shooter.spin())
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading)//go to shoot pose
+                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading,new TranslationalVelConstraint(100),new ProfileAccelConstraint(-100,100))//go to shoot pose
+
+
                 .stopAndAdd(autoAimWithPID())
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
@@ -273,9 +281,9 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
 
                 //INTAKE THIRD PILE--------------------------
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(33, 24),new TranslationalVelConstraint(100))//go to motif
-                .strafeToConstantHeading(new Vector2d(33, 54), new TranslationalVelConstraint(100))//intake
-                //.strafeToConstantHeading(new Vector2d(33, 57), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(33, 16), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100,100))//go to motif
+                .strafeToConstantHeading(new Vector2d(33, 54), new TranslationalVelConstraint(60), new ProfileAccelConstraint(-40, 40))//back up
+                .strafeToConstantHeading(new Vector2d(33, 45), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100, 100))//intake
                 //.strafeToConstantHeading((new Vector2d(33, 10)), new TranslationalVelConstraint(100))//go to motif
                 //.splineToConstantHeading(new Vector2d(38, 59), Math.PI / 2, new TranslationalVelConstraint(100))
                 //.splineToConstantHeading(new Vector2d(35, 55), -Math.PI / 2, new TranslationalVelConstraint(100))
@@ -286,7 +294,9 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
 
                 //SHOT SEQUENCE------------------------------
                 .stopAndAdd(robot.shooter.spin())
-                .strafeToLinearHeading(shotPoseOnLine.position, shotPoseOnLine.heading, new TranslationalVelConstraint(100))//go to shoot pose
+                .strafeToLinearHeading(shotPoseOffLine.position, shotPoseOffLine.heading, new TranslationalVelConstraint(100) )//go to shoot pose
+                //.strafeToLinearHeading(new Vector2d(-36.7, 16), 90, new TranslationalVelConstraint(100))//intake
+
                 .stopAndAdd(autoAimWithPID())
 
                 .stopAndAdd(robot.gate.openGate)
@@ -299,7 +309,7 @@ public class RN12DA3ManualTurret extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.closeGate)
                 //SHOT SEQUENCE------------------------------
 
-                .strafeToConstantHeading(new Vector2d(0,  23))
+                //.strafeToConstantHeading(new Vector2d(0,  23))
 
                 .build();
 

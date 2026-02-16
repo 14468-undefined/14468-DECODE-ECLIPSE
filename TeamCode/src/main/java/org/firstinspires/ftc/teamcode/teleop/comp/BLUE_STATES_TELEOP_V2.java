@@ -71,6 +71,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override
     public void onInit() {
 
+        robot.intake.setIntakePower(1).schedule();
         robot.turret.bypassPeriodic = false;
         voltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
@@ -198,11 +199,10 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         //intake + transfer
         Gamepads.gamepad2().leftBumper()
-                .whenBecomesTrue(robot.intake.setIntakePower(.8))
+                //.whenBecomesTrue(robot.intake.setIntakePower(.8))
                 .whenBecomesTrue(robot.intake.intake())
                 .whenBecomesTrue(robot.gate.openGate)
-                .whenBecomesFalse(robot.intake.stop())
-                        .whenBecomesTrue(robot.intake.setIntakePower(1));
+                .whenBecomesFalse(robot.intake.stop());
 
         //intake reverse
         Gamepads.gamepad2().b()
@@ -270,7 +270,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
                 double offset = 0.0;
                 if (CURRENT_RPM >= FAR_RPM - 200) { // allow some tolerance
-                    offset = -3;
+                    //offset = -3;
                 }
 
                 return tx + offset;

@@ -76,6 +76,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override
     public void onInit() {
 
+        robot.intake.setIntakePower(1).schedule();
 
         robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE).schedule();
         robot.shooter.stop();
@@ -203,11 +204,11 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         //intake + transfer
         Gamepads.gamepad2().leftBumper()
-                .whenBecomesTrue(robot.intake.setIntakePower(.8))
+                //.whenBecomesTrue(robot.intake.setIntakePower(.8))
                 .whenBecomesTrue(robot.intake.intake())
                 .whenBecomesTrue(robot.gate.openGate)
-                .whenBecomesFalse(robot.intake.stop())
-                .whenBecomesTrue(robot.intake.setIntakePower(1));
+                .whenBecomesFalse(robot.intake.stop());
+                //.whenBecomesTrue(robot.intake.setIntakePower(1));
 
         //intake reverse
         Gamepads.gamepad2().b()
@@ -297,7 +298,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
                 double offset = 0.0;
                 if (CURRENT_RPM >= FAR_RPM - 200) { // allow some tolerance
-                    offset = 3;//positive here
+                    //offset = 3;//positive here
                 }
 
                 return tx + offset;
