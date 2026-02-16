@@ -45,7 +45,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
     //private final Pose2d shotPoseOnLine = new Pose2d(-2.55,8.5, Math.toRadians(90));//go shoot
     private final Pose2d shotPoseOnLine = new Pose2d(-29,-23, Math.toRadians(270));//go shoot
 
-    private final Pose2d shotPoseOffLine = new Pose2d(-40, -16, Math.toRadians(284));
+    private final Pose2d shotPoseOffLine = new Pose2d(-40, -16, Math.toRadians(288));
     //-29, 23
     //-2.55, 7.10
 
@@ -90,7 +90,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
             private static final double TX_TOLERANCE = 8;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.023;
+            private final double AUTO_kP = 0.017;//.02
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
@@ -133,7 +133,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
 
                 // Fetch TX in real time
                 double tx = BaseRobot.INSTANCE.limelight.getTx();
-                double power = BaseRobot.INSTANCE.turret.visionPID(tx); // PID calculation
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx - 4.5); // PID calculation
                 BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
             }
 
@@ -218,13 +218,13 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
                 //INTAKE FIRST PILE--------------------------
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
-                .strafeToConstantHeading(new Vector2d(-13,  -20), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(-13, -47), new TranslationalVelConstraint(100),  new ProfileAccelConstraint(-100,100))//intake
+                .strafeToConstantHeading(new Vector2d(-12,  -20), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(-10.5, -49), new TranslationalVelConstraint(100),  new ProfileAccelConstraint(-100,100))//intake
                 .stopAndAdd(robot.shooter.spin())
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
                 //.strafeToLinearHeading(new Vector2d(0, 59), n 180)//intake
-                .strafeToConstantHeading(new Vector2d(0, -48), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(0, -59), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(-4, -48), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(-4, -59), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.intake.stop())
 
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
@@ -279,11 +279,12 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
                 //SHOT SEQUENCE------------------------------
 
 
+                //was 33
                 //INTAKE THIRD PILE--------------------------
                 .stopAndAdd(robot.intake.intake())//start intaking
-                .strafeToConstantHeading(new Vector2d(33, -16), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100,100))//go to motif
-                .strafeToConstantHeading(new Vector2d(33, -54), new TranslationalVelConstraint(60), new ProfileAccelConstraint(-40, 40))//back up
-                .strafeToConstantHeading(new Vector2d(33, -45), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100, 100))//intake
+                .strafeToConstantHeading(new Vector2d(35, -16), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100,100))//go to motif
+                .strafeToConstantHeading(new Vector2d(35, -57), new TranslationalVelConstraint(60), new ProfileAccelConstraint(-40, 40))//back up
+                .strafeToConstantHeading(new Vector2d(35, -45), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-100, 100))//intake
                 //.strafeToConstantHeading((new Vector2d(33, 10)), new TranslationalVelConstraint(100))//go to motif
                 //.splineToConstantHeading(new Vector2d(38, 59), Math.PI / 2, new TranslationalVelConstraint(100))
                 //.splineToConstantHeading(new Vector2d(35, 55), -Math.PI / 2, new TranslationalVelConstraint(100))

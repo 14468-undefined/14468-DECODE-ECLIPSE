@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import dev.nextftc.core.commands.utility.InstantCommand;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -39,6 +40,8 @@ public class RF12ND extends NextFTCOpMode {
     private final Pose2d shotPose = new Pose2d(60, 15, Math.toRadians(90));//go to shoot pose
 
 
+    private Command autoAimHoldCmd;
+
 
     //HardwareMap hwMap;
     MecanumDrive drive;
@@ -68,13 +71,88 @@ public class RF12ND extends NextFTCOpMode {
     }
 
 
+    private boolean autoAimHoldEnabled = false;
+
+
+    private Command autoAimWithPIDHOLD() {
+        return new Command() {
+
+            // Auto-specific PID constants
+            private final double AUTO_kP = 0.025;
+            private final double AUTO_kI = 0;
+            private final double AUTO_kD = 0;
+
+            // Store original PID constants
+            private double original_kP;
+            private double original_kI;
+            private double original_kD;
+
+            // Separate timing state so it doesn't clash
+            private double lastTime;
+
+            {
+                requires(BaseRobot.INSTANCE.turret, BaseRobot.INSTANCE.limelight);
+            }
+
+            @Override
+            public void start() {
+                // Save current PID constants
+                original_kP = BaseRobot.INSTANCE.turret.kP;
+                original_kI = BaseRobot.INSTANCE.turret.kI;
+                original_kD = BaseRobot.INSTANCE.turret.kD;
+
+                // Override with auto PID constants
+                BaseRobot.INSTANCE.turret.kP = AUTO_kP;
+                BaseRobot.INSTANCE.turret.kI = AUTO_kI;
+                BaseRobot.INSTANCE.turret.kD = AUTO_kD;
+
+                // Reset PID state
+                BaseRobot.INSTANCE.turret.integralSum = 0.0;
+                BaseRobot.INSTANCE.turret.lastError = 0.0;
+                lastTime = System.nanoTime() / 1e9;
+                BaseRobot.INSTANCE.turret.lastTime = lastTime;
+
+                // Set turret mode
+                BaseRobot.INSTANCE.turret.mode = TurretSubsystem.TurretMode.VISION;
+            }
+
+            @Override
+            public void update() {
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
+                    BaseRobot.INSTANCE.turret.stopTurret();
+                    return;
+                }
+
+                // Continuously PID on TX
+                double tx = BaseRobot.INSTANCE.limelight.getTx();
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx);
+                BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
+            }
+
+            @Override
+            public boolean isDone() {
+                // HOLD command — never finishes unless canceled
+                return false;
+            }
+
+            @Override
+            public void stop(boolean interrupted) {
+                BaseRobot.INSTANCE.turret.stopTurret();
+
+                // Restore original PID constants
+                BaseRobot.INSTANCE.turret.kP = original_kP;
+                BaseRobot.INSTANCE.turret.kI = original_kI;
+                BaseRobot.INSTANCE.turret.kD = original_kD;
+            }
+        };
+    }
     private Command autoAimWithPID() {
         return new Command() {
 
             private static final double TX_TOLERANCE = 6;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.02;
+            private final double AUTO_kP = 0.025;
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
@@ -86,6 +164,8 @@ public class RF12ND extends NextFTCOpMode {
             {
                 requires(BaseRobot.INSTANCE.turret, BaseRobot.INSTANCE.limelight);
             }
+
+
 
             @Override
             public void start() {
@@ -110,6 +190,8 @@ public class RF12ND extends NextFTCOpMode {
 
             @Override
             public void update() {
+
+
                 if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
                     BaseRobot.INSTANCE.turret.stopTurret();
                     return;
@@ -149,8 +231,14 @@ public class RF12ND extends NextFTCOpMode {
 
 
 
+
     @Override
     public void onInit(){
+
+        autoAimHoldCmd = autoAimWithPIDHOLD();
+
+
+
         //robot.limelight.initHardware(hwMap, "RED");
 
         shoot3Command = new Shoot3Command(robot, Constants.FieldConstants.FAR_ZONE, 0);//shot time is irrelevant here bc its far zone
@@ -170,14 +258,17 @@ public class RF12ND extends NextFTCOpMode {
                 //.stopAndAdd(robot.turret.runToTicks(-152))
                 .stopAndAdd(robot.gate.openGate)
 
-                //.stopAndAdd(autoAimWithPID())
-
+                .stopAndAdd(autoAimWithPID())
+                .stopAndAdd(() -> autoAimHoldEnabled = true)
                 .waitSeconds(3.5)//was 3.5
 
-                .stopAndAdd(robot.intake.setIntakePower(.8))
+                .stopAndAdd(robot.intake.setIntakePower(.7))
                 .stopAndAdd(robot.intake.intake())
 
-                .waitSeconds(3)
+                .waitSeconds(2)
+                .stopAndAdd(robot.intake.setIntakePower(1))
+                .waitSeconds(1)
+                .stopAndAdd(() -> autoAimHoldEnabled = false)
 
 
                 /*OLD DELAYED SHOOTING SEQUENCE---------
@@ -204,12 +295,13 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
 
-                .strafeToLinearHeading(new Vector2d(49, 56), Math.toRadians(42.5))//1
-                .strafeToLinearHeading(new Vector2d(55.5, 60), Math.toRadians(45))
+                .strafeToLinearHeading(new Vector2d(47, 63), Math.toRadians(42.5))//1
+                .strafeToLinearHeading(new Vector2d(55.5, 61), Math.toRadians(45))
                 .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
                 .strafeToLinearHeading(new Vector2d(58.5, 61.3), Math.toRadians(46.4))
                 .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
-                .strafeToLinearHeading(new Vector2d(62.4, 61), Math.toRadians(64.4))
+                .strafeToLinearHeading(new Vector2d(63, 63), Math.toRadians(68.4))
+                .strafeToLinearHeading(new Vector2d(63, 64), Math.toRadians(90))
                 .stopAndAdd(robot.intake.stop())
                 .stopAndAdd(robot.gate.openGate)
                 //CORNER----------------------------------------------
@@ -230,29 +322,24 @@ public class RF12ND extends NextFTCOpMode {
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
                 .stopAndAdd(robot.gate.openGate)
 
-                //.stopAndAdd(autoAimWithPID())
+                .stopAndAdd(autoAimWithPID())
+                .stopAndAdd(() -> autoAimHoldEnabled = true)
 
                 //.waitSeconds(3)
 
                 .waitSeconds(2)
-                .stopAndAdd(robot.intake.setIntakePower(.8))
+                .stopAndAdd(robot.intake.setIntakePower(.7))
                 .stopAndAdd(robot.intake.intake())
-
-
-                .waitSeconds(.6)//WAIT
-                .stopAndAdd(robot.intake.stop())
-                .waitSeconds(.5)
-                .stopAndAdd(robot.intake.intake())
-                .waitSeconds(.3)
-
-                .stopAndAdd(robot.intake.stop())
-                .waitSeconds(1.3)
-                .stopAndAdd(robot.intake.intake())
-                .waitSeconds(1)
-                .stopAndAdd(robot.intake.stop())
+                .waitSeconds(2)
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                //.stopAndAdd(robot.shooter.stop())
+                .waitSeconds(1)
+
                 .stopAndAdd(robot.gate.closeGate)
+
+                .stopAndAdd(robot.shooter.stop())
+                .stopAndAdd(() -> autoAimHoldEnabled = false)
+
+                /*
                 //FIRST PILE --------------------------------------
                 .strafeToSplineHeading(new Vector2d(35.8, 29), Math.toRadians(90))//go to motif 1
                 .stopAndAdd(robot.intake.intake())
@@ -303,6 +390,17 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
 
+
+                 */
+                .strafeToLinearHeading(new Vector2d(55, 63), Math.toRadians(90))//1
+                .strafeToConstantHeading(new Vector2d(58, 52))//1
+                .strafeToConstantHeading(new Vector2d(58, 63))//1
+                .strafeToConstantHeading(new Vector2d(58, 52))//1
+                .strafeToConstantHeading(new Vector2d(63, 63))//1
+
+
+
+
                 .build();
 
 
@@ -314,6 +412,21 @@ public class RF12ND extends NextFTCOpMode {
 
 
     }
+
+    @Override
+    public void onUpdate() {
+
+        if (autoAimHoldEnabled) {
+            // Schedule only if not already scheduled
+            autoAimHoldCmd.schedule();
+        } else {
+            // Cancel it if running
+            autoAimHoldCmd.cancel();
+            robot.turret.stopTurret(); // make sure turret stops
+        }
+
+    }
+
 
 
 }

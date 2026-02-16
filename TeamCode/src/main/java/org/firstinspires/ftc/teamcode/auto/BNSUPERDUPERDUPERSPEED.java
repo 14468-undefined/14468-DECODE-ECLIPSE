@@ -9,6 +9,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -41,6 +42,7 @@ import java.util.function.DoubleSupplier;
  */
 
 //WAI = With auto aim
+    @Disabled
 @Autonomous(name = "BNSUPERDUPER")
 public class BNSUPERDUPERDUPERSPEED extends NextFTCOpMode {
 

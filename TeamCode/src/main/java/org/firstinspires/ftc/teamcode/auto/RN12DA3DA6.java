@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.core.commands.Command;
@@ -37,6 +38,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  */
 
 //WAI = With auto aim
+    @Disabled
 @Autonomous(name = "RN12DA3DA6")
 public class RN12DA3DA6 extends NextFTCOpMode {
 
