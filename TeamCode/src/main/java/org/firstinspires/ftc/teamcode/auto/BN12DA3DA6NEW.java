@@ -90,7 +90,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
             private static final double TX_TOLERANCE = 8;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.017;//.02
+            private final double AUTO_kP = 0.02;//.02
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
@@ -133,7 +133,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
 
                 // Fetch TX in real time
                 double tx = BaseRobot.INSTANCE.limelight.getTx();
-                double power = BaseRobot.INSTANCE.turret.visionPID(tx - 4.5); // PID calculation
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx); // PID calculation //was 4.5
                 BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
             }
 
