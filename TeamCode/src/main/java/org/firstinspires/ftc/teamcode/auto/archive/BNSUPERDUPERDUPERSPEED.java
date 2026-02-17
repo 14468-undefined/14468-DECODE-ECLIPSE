@@ -1,10 +1,9 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.archive;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -19,7 +18,6 @@ import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
-import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
 import java.util.function.DoubleSupplier;
