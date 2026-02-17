@@ -40,7 +40,7 @@ public class RF12ND extends NextFTCOpMode {
     private final Pose2d shotPose = new Pose2d(60, 15, Math.toRadians(90));//go to shoot pose
 
 
-    private Command autoAimHoldCmd;
+    //private Command autoAimHoldCmd;
 
 
     //HardwareMap hwMap;
@@ -74,7 +74,7 @@ public class RF12ND extends NextFTCOpMode {
     private boolean autoAimHoldEnabled = false;
 
 
-    private Command autoAimWithPIDHOLD() {
+    /*private Command autoAimWithPIDHOLD() {
         return new Command() {
 
             // Auto-specific PID constants
@@ -146,6 +146,8 @@ public class RF12ND extends NextFTCOpMode {
             }
         };
     }
+
+     */
     private Command autoAimWithPID() {
         return new Command() {
 
@@ -199,7 +201,7 @@ public class RF12ND extends NextFTCOpMode {
 
                 // Fetch TX in real time
                 double tx = BaseRobot.INSTANCE.limelight.getTx();
-                double power = BaseRobot.INSTANCE.turret.visionPID(tx); // PID calculation
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx + 20); // PID calculation
                 BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
             }
 
@@ -235,7 +237,7 @@ public class RF12ND extends NextFTCOpMode {
     @Override
     public void onInit(){
 
-        autoAimHoldCmd = autoAimWithPIDHOLD();
+        //autoAimHoldCmd = autoAimWithPIDHOLD();
 
 
 
@@ -251,7 +253,7 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.hood.setHoodPose(.84))
-                .stopAndAdd(robot.shooter.setTargetRPM(3150))
+                .stopAndAdd(robot.shooter.setTargetRPM(3230))//was 3150
 
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToConstantHeading(new Vector2d(60, 15))
@@ -259,16 +261,17 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.openGate)
 
                 .stopAndAdd(autoAimWithPID())
-                .stopAndAdd(() -> autoAimHoldEnabled = true)
+
                 .waitSeconds(3.5)//was 3.5
 
                 .stopAndAdd(robot.intake.setIntakePower(.7))
                 .stopAndAdd(robot.intake.intake())
 
                 .waitSeconds(2)
+                .stopAndAdd(autoAimWithPID())
+
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .waitSeconds(1)
-                .stopAndAdd(() -> autoAimHoldEnabled = false)
 
 
                 /*OLD DELAYED SHOOTING SEQUENCE---------
@@ -302,8 +305,8 @@ public class RF12ND extends NextFTCOpMode {
                 .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
                 .strafeToLinearHeading(new Vector2d(63, 63), Math.toRadians(68.4))
                 .strafeToLinearHeading(new Vector2d(63, 64), Math.toRadians(90))
-                .stopAndAdd(robot.intake.stop())
-                .stopAndAdd(robot.gate.openGate)
+               // .stopAndAdd(robot.intake.stop())
+                //.stopAndAdd(robot.gate.openGate)
                 //CORNER----------------------------------------------
                 /*.strafeToSplineHeading(new Vector2d(53, 57), Math.toRadians(70))//line up for HP zone balls
                 .stopAndAdd(robot.intake.intake())
@@ -319,25 +322,31 @@ public class RF12ND extends NextFTCOpMode {
 
 
 
+                //.endTrajectory()
                 .strafeToLinearHeading(shotPose.position, shotPose.heading)//go to shoot pose
+                //.afterTime(1.2, robot.intake.stop())
+                //.afterTime(1.2, robot.gate.openGate)
+                .stopAndAdd(robot.intake.stop())
+                .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID())
-                .stopAndAdd(() -> autoAimHoldEnabled = true)
+                .stopAndAdd(autoAimWithPID( ))
 
                 //.waitSeconds(3)
 
                 .waitSeconds(2)
                 .stopAndAdd(robot.intake.setIntakePower(.7))
                 .stopAndAdd(robot.intake.intake())
-                .waitSeconds(2)
+
+                .waitSeconds(1.5)
+                //.stopAndAdd(autoAimWithPID())
+
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                .waitSeconds(1)
+                .waitSeconds(2)
 
                 .stopAndAdd(robot.gate.closeGate)
 
                 .stopAndAdd(robot.shooter.stop())
-                .stopAndAdd(() -> autoAimHoldEnabled = false)
 
                 /*
                 //FIRST PILE --------------------------------------
@@ -416,14 +425,7 @@ public class RF12ND extends NextFTCOpMode {
     @Override
     public void onUpdate() {
 
-        if (autoAimHoldEnabled) {
-            // Schedule only if not already scheduled
-            autoAimHoldCmd.schedule();
-        } else {
-            // Cancel it if running
-            autoAimHoldCmd.cancel();
-            robot.turret.stopTurret(); // make sure turret stops
-        }
+
 
     }
 

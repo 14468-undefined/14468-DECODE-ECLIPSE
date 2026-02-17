@@ -22,6 +22,7 @@ import dev.nextftc.hardware.powerable.SetPower;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
+import org.firstinspires.ftc.teamcode.subsystem.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.util.ColorfulTelemetry;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
@@ -76,6 +77,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override
     public void onInit() {
 
+        robot.shooter.setTargetRPM(0);
         robot.intake.setIntakePower(1).schedule();
 
         robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE).schedule();

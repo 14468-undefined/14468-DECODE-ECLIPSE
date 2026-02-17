@@ -70,6 +70,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     @Override
     public void onInit() {
+        robot.shooter.setTargetRPM(0);
 
         robot.intake.setIntakePower(1).schedule();
         robot.turret.bypassPeriodic = false;
