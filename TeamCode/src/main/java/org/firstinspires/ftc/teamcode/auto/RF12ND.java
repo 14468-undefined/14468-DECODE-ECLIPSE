@@ -416,6 +416,8 @@ public class RF12ND extends NextFTCOpMode {
     }
     @Override
     public void onStartButtonPressed() {
+        robot.shooter.setTargetRPM(0);
+        robot.shooter.enabled = true;
         robot.turret.resetTicks();
         autoCommand.schedule();
 
@@ -430,5 +432,9 @@ public class RF12ND extends NextFTCOpMode {
     }
 
 
+    @Override
+    public void onStop(){
+        robot.shooter.enabled = false;
+    }
 
 }

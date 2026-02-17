@@ -77,6 +77,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
     @Override
     public void onInit() {
 
+        robot.shooter.enabled = false;
         robot.shooter.setTargetRPM(0);
         robot.intake.setIntakePower(1).schedule();
 
@@ -100,7 +101,8 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     }
     @Override public void onStartButtonPressed() {
-
+        robot.shooter.setTargetRPM(0);
+        robot.shooter.enabled = true;
 
 
 

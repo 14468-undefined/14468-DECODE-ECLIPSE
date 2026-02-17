@@ -17,6 +17,8 @@ public class ShooterSubsystem implements Subsystem {
     public static double TARGET_RPM = 0;
     public static double TARGET_REVERSE_RPM = 2500;
 
+    public boolean enabled = false;
+
     public static double GEAR_RATIO = 1.0;
     public static double TICKS_PER_REV = 28.0;
 
@@ -49,9 +51,17 @@ public class ShooterSubsystem implements Subsystem {
         shooterLeft = new MotorEx("shooterLeft").reversed();
         shooterRight = new MotorEx("shooterRight");
 
-        shooterRight.setPower(0);
         shooterLeft.setPower(0);
+        shooterRight.setPower(0);
+
+        // HARD RESET STATE
         TARGET_RPM = 0;
+        targetRPM = 0;
+
+        integralSum = 0;
+        lastError = 0;
+        lastTime = System.nanoTime() / 1e9;
+
 
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -215,6 +225,12 @@ public class ShooterSubsystem implements Subsystem {
 
     @Override
     public void periodic() {
+
+        if (!enabled) {
+            shooterLeft.setPower(0);
+            shooterRight.setPower(0);
+            return;
+        }
         // If target is zero, do NOT run PID — let flywheel coast
         if (Math.abs(targetRPM) < 1e-6) {
             shooterLeft.setPower(0.0);

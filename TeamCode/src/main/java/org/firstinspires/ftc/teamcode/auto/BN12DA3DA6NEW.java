@@ -318,6 +318,8 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
     }
     @Override
     public void onStartButtonPressed() {
+        robot.shooter.setTargetRPM(0);
+        robot.shooter.enabled = true;
         robot.limelight.setPipeline(0).schedule();
         autoCommand.schedule();
 
@@ -353,6 +355,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
     }
     @Override
     public void onStop(){
+        robot.shooter.enabled = false;
         robot.shooter.stop();
         robot.intake.stop();
     }
