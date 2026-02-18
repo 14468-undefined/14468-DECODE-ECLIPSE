@@ -58,7 +58,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
     private double CLOSE_RPM = 2350;//close
     private double MID_RPM = 2650;//farthest spot in close zone
-    private double FAR_RPM = 3250;//farthest spot
+    private double FAR_RPM = 3350;//farthest spot
 
     private double CURRENT_RPM = 2650;
 
@@ -161,6 +161,7 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
         Gamepads.gamepad1().dpadRight().or(Gamepads.gamepad1().dpadLeft())
                 .whenBecomesTrue(robot.hood.setHoodPose(.311));
 
+        Gamepads.gamepad1().y().whenBecomesTrue(() -> CURRENT_RPM = FAR_RPM);
 
 
 
