@@ -59,7 +59,6 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
     private ControlSystem controller;
 
 
-
     private Limelight3A limelight;
     private boolean limelightStarted = false;
 
@@ -90,7 +89,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
             private static final double TX_TOLERANCE = 8;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.02;//.02
+            private final double AUTO_kP = 0.022;//.02
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
