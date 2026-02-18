@@ -149,7 +149,7 @@ public class BF6 extends NextFTCOpMode {
             private static final double TX_TOLERANCE = 6;
 
             // Auto-specific PID constants
-            private final double AUTO_kP = 0.025;
+            private final double AUTO_kP = 0.022;
             private final double AUTO_kI = 0;//.002
             private final double AUTO_kD = 0;//.002
 
@@ -247,8 +247,57 @@ public class BF6 extends NextFTCOpMode {
 
                 .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
-                .stopAndAdd(robot.hood.setHoodPose(.84))
-                .stopAndAdd(robot.shooter.setTargetRPM(3230))//was 3150
+                .stopAndAdd(robot.hood.setHoodPose(.84))//was .84
+                .stopAndAdd(robot.shooter.setTargetRPM(3200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ))//was 3230
 
                 .stopAndAdd(robot.shooter.spin())
                 .strafeToConstantHeading(new Vector2d(60, -15))
