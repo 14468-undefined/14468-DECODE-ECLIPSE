@@ -295,6 +295,7 @@ public class RF12ND extends NextFTCOpMode {
 
                 //NEW CORNER-----------------------------
                 .stopAndAdd(robot.gate.closeGate)
+                .waitSeconds(1)
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
 
@@ -345,6 +346,9 @@ public class RF12ND extends NextFTCOpMode {
                 .waitSeconds(2)
 
                 .stopAndAdd(robot.gate.closeGate)
+                .waitSeconds(1)
+
+
 
                 .stopAndAdd(robot.shooter.stop())
 

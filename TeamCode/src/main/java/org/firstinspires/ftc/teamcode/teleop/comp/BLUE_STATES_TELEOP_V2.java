@@ -224,6 +224,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         Gamepads.gamepad2().leftTrigger().atLeast(.1)
                 .whenBecomesTrue(robot.shooter.spinReverse())
+                .whenBecomesTrue(robot.gate.openGate)
                 .whenBecomesFalse(robot.shooter.stop());
 
 
