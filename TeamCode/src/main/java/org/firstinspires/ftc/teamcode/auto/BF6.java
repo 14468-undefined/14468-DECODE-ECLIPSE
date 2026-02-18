@@ -1,20 +1,15 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import dev.nextftc.core.commands.utility.InstantCommand;
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.command.AutoAimCommand;
 import org.firstinspires.ftc.teamcode.command.Shoot3Command;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.BaseRobot;
-
-import dev.nextftc.core.commands.Command;
-import dev.nextftc.core.components.SubsystemComponent;
-import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.subsystem.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
@@ -33,11 +28,11 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  * Example:*
  * BN12DA3 - Blue Near 12 Artifacts with a gate dump after preloads shot
  */
-@Autonomous(name = "RF12ND")
-public class RF12ND extends NextFTCOpMode {
+@Autonomous(name = "BF6")
+public class BF6 extends NextFTCOpMode {
 //hunter is my goat
-    private final Pose2d startPose = new Pose2d(65, 15, Math.toRadians(90.0));
-    private final Pose2d shotPose = new Pose2d(60, 15, Math.toRadians(90));//go to shoot pose
+    private final Pose2d startPose = new Pose2d(65, -15, Math.toRadians(270));
+    private final Pose2d shotPose = new Pose2d(60, -15, Math.toRadians(270));//go to shoot pose
 
 
     //private Command autoAimHoldCmd;
@@ -62,7 +57,7 @@ public class RF12ND extends NextFTCOpMode {
 
     double SHOOTING_DELAY = 3;//seconds
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public RF12ND() {
+    public BF6() {
 
 
         addComponents(
@@ -201,7 +196,7 @@ public class RF12ND extends NextFTCOpMode {
 
                 // Fetch TX in real time
                 double tx = BaseRobot.INSTANCE.limelight.getTx();
-                double power = BaseRobot.INSTANCE.turret.visionPID(tx + 20); // PID calculation
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx - 20); // PID calculation
                 BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
             }
 
@@ -250,13 +245,13 @@ public class RF12ND extends NextFTCOpMode {
 
         autoCommand = drive.commandBuilder(startPose)
 
-                .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE))
+                .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
                 .stopAndAdd(robot.hood.setHoodPose(.84))
                 .stopAndAdd(robot.shooter.setTargetRPM(3230))//was 3150
 
                 .stopAndAdd(robot.shooter.spin())
-                .strafeToConstantHeading(new Vector2d(60, 15))
+                .strafeToConstantHeading(new Vector2d(60, -15))
                 //.stopAndAdd(robot.turret.runToTicks(-152))
                 .stopAndAdd(robot.gate.openGate)
 
@@ -299,14 +294,15 @@ public class RF12ND extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .stopAndAdd(robot.intake.intake())
 
-                .strafeToLinearHeading(new Vector2d(47, 63), Math.toRadians(42.5))//1
-                .strafeToLinearHeading(new Vector2d(55.5, 61), Math.toRadians(45))
-                .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
-                .strafeToLinearHeading(new Vector2d(58.5, 61.3), Math.toRadians(46.4))
-                .strafeToLinearHeading(new Vector2d(51.3, 55.5), Math.toRadians(42.5))//1
-                .strafeToLinearHeading(new Vector2d(63, 63), Math.toRadians(68.4))
-                .strafeToLinearHeading(new Vector2d(63, 64), Math.toRadians(90))
-               // .stopAndAdd(robot.intake.stop())
+                .strafeToLinearHeading(new Vector2d(47, -63), Math.toRadians(317.5))//1
+                .strafeToLinearHeading(new Vector2d(55.5, -61), Math.toRadians(315))
+                .strafeToLinearHeading(new Vector2d(51.3, -55.5), Math.toRadians(317.5))//1
+                .strafeToLinearHeading(new Vector2d(58.5, -61.3), Math.toRadians(313.6))
+                .strafeToLinearHeading(new Vector2d(51.3, -55.5), Math.toRadians(317.5))//1
+                .strafeToLinearHeading(new Vector2d(63, -63), Math.toRadians(291.6))
+                .strafeToLinearHeading(new Vector2d(63, -64), Math.toRadians(270))
+
+                // .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(robot.gate.openGate)
                 //CORNER----------------------------------------------
                 /*.strafeToSplineHeading(new Vector2d(53, 57), Math.toRadians(70))//line up for HP zone balls
@@ -405,11 +401,11 @@ public class RF12ND extends NextFTCOpMode {
 
 
                  */
-                .strafeToLinearHeading(new Vector2d(55, 63), Math.toRadians(90))//1
-                .strafeToConstantHeading(new Vector2d(58, 52))//1
-                .strafeToConstantHeading(new Vector2d(58, 63))//1
-                .strafeToConstantHeading(new Vector2d(58, 52))//1
-                .strafeToConstantHeading(new Vector2d(63, 63))//1
+                .strafeToLinearHeading(new Vector2d(55, -63), Math.toRadians(270))//1
+                .strafeToConstantHeading(new Vector2d(58, -52))//1
+                .strafeToConstantHeading(new Vector2d(58, -63))//1
+                .strafeToConstantHeading(new Vector2d(58, -52))//1
+                .strafeToConstantHeading(new Vector2d(63, -63))//1
 
 
 

@@ -251,7 +251,7 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.intake())//start intaking
                 //.strafeToConstantHeading(new Vector2d(11, 61), new TranslationalVelConstraint(100))//intake
                 .strafeToConstantHeading(new Vector2d(11, 56), new TranslationalVelConstraint(100),  new ProfileAccelConstraint(-40, 40))//back up
-                .strafeToConstantHeading(new Vector2d(11, 50), new TranslationalVelConstraint(100))//back up
+                .strafeToConstantHeading(new Vector2d(11, 45), new TranslationalVelConstraint(100))//back up
 
 
                 .stopAndAdd(robot.intake.stop())
