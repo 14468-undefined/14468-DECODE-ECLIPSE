@@ -143,7 +143,7 @@ public class BF6 extends NextFTCOpMode {
     }
 
      */
-    private Command autoAimWithPID() {
+    private Command autoAimWithPIDFirst() {
         return new Command() {
 
             private static final double TX_TOLERANCE = 6;
@@ -218,6 +218,81 @@ public class BF6 extends NextFTCOpMode {
         };
     }
 
+    private Command autoAimWithPIDSecond() {
+        return new Command() {
+
+            private static final double TX_TOLERANCE = 6;
+
+            // Auto-specific PID constants
+            private final double AUTO_kP = 0.022;
+            private final double AUTO_kI = 0;//.002
+            private final double AUTO_kD = 0;//.002
+
+            // Store original PID constants to restore after auto
+            private double original_kP;
+            private double original_kI;
+            private double original_kD;
+
+            {
+                requires(BaseRobot.INSTANCE.turret, BaseRobot.INSTANCE.limelight);
+            }
+
+
+
+            @Override
+            public void start() {
+                // Save current PID constants
+                original_kP = BaseRobot.INSTANCE.turret.kP;
+                original_kI = BaseRobot.INSTANCE.turret.kI;
+                original_kD = BaseRobot.INSTANCE.turret.kD;
+
+                // Override with auto PID constants
+                BaseRobot.INSTANCE.turret.kP = AUTO_kP;
+                BaseRobot.INSTANCE.turret.kI = AUTO_kI;
+                BaseRobot.INSTANCE.turret.kD = AUTO_kD;
+
+                // Reset PID state
+                BaseRobot.INSTANCE.turret.integralSum = 0.0;
+                BaseRobot.INSTANCE.turret.lastError = 0.0;
+                BaseRobot.INSTANCE.turret.lastTime = System.nanoTime() / 1e9;
+
+                // Set turret mode
+                BaseRobot.INSTANCE.turret.mode = TurretSubsystem.TurretMode.VISION;
+            }
+
+            @Override
+            public void update() {
+
+
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) {
+                    BaseRobot.INSTANCE.turret.stopTurret();
+                    return;
+                }
+
+                // Fetch TX in real time
+                double tx = BaseRobot.INSTANCE.limelight.getTx();
+                double power = BaseRobot.INSTANCE.turret.visionPID(tx - 30); // PID calculation
+                BaseRobot.INSTANCE.turret.turretMotor.setPower(power);
+            }
+
+            @Override
+            public boolean isDone() {
+                if (!BaseRobot.INSTANCE.limelight.hasTarget()) return false;
+                return Math.abs(BaseRobot.INSTANCE.limelight.getTx()) < TX_TOLERANCE;
+            }
+
+            @Override
+            public void stop(boolean interrupted) {
+                BaseRobot.INSTANCE.turret.stopTurret();
+
+                // Restore original PID constants
+                BaseRobot.INSTANCE.turret.kP = original_kP;
+                BaseRobot.INSTANCE.turret.kI = original_kI;
+                BaseRobot.INSTANCE.turret.kD = original_kD;
+            }
+        };
+    }
+
 
 
 
@@ -247,40 +322,8 @@ public class BF6 extends NextFTCOpMode {
 
                 .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.BLUE_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
-                .stopAndAdd(robot.hood.setHoodPose(.84))//was .84
+                //.stopAndAdd(robot.hood.setHoodPose(.84))//was .84
                 .stopAndAdd(robot.shooter.setTargetRPM(3200
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -304,7 +347,7 @@ public class BF6 extends NextFTCOpMode {
                 //.stopAndAdd(robot.turret.runToTicks(-152))
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID())
+                .stopAndAdd(autoAimWithPIDFirst())
 
                 .waitSeconds(3.5)//was 3.5
 
@@ -312,7 +355,7 @@ public class BF6 extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.intake())
 
                 .waitSeconds(2)
-                .stopAndAdd(autoAimWithPID())
+                .stopAndAdd(autoAimWithPIDFirst())
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
                 .waitSeconds(1)
@@ -348,8 +391,8 @@ public class BF6 extends NextFTCOpMode {
                 .strafeToLinearHeading(new Vector2d(51.3, -55.5), Math.toRadians(317.5))//1
                 .strafeToLinearHeading(new Vector2d(58.5, -61.3), Math.toRadians(313.6))
                 .strafeToLinearHeading(new Vector2d(51.3, -55.5), Math.toRadians(317.5))//1
-                .strafeToLinearHeading(new Vector2d(63, -63), Math.toRadians(291.6))
-                .strafeToLinearHeading(new Vector2d(63, -64), Math.toRadians(270))
+                .strafeToLinearHeading(new Vector2d(66, -63), Math.toRadians(291.6))
+                .strafeToLinearHeading(new Vector2d(66, -64), Math.toRadians(270))
 
                 // .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(robot.gate.openGate)
@@ -376,7 +419,7 @@ public class BF6 extends NextFTCOpMode {
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.gate.openGate)
 
-                .stopAndAdd(autoAimWithPID( ))
+                .stopAndAdd(autoAimWithPIDSecond())
 
                 //.waitSeconds(3)
 

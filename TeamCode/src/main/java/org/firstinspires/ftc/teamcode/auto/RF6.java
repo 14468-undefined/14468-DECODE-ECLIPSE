@@ -324,7 +324,7 @@ public class RF6 extends NextFTCOpMode {
 
                 .stopAndAdd(robot.limelight.setPipeline(Constants.LimelightConstants.RED_GOAL_TAG_PIPELINE))
                 .stopAndAdd(robot.turret.resetTicks())
-                .stopAndAdd(robot.hood.setHoodPose(.84))
+                //.stopAndAdd(robot.hood.setHoodPose(.84))
                 .stopAndAdd(robot.shooter.setTargetRPM(3200))//was 3150
 
                 .stopAndAdd(robot.shooter.spin())
