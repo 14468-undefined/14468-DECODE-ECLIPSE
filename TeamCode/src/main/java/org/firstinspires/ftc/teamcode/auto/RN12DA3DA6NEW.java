@@ -45,7 +45,7 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
     //private final Pose2d shotPoseOnLine = new Pose2d(-2.55,8.5, Math.toRadians(90));//go shoot
     private final Pose2d shotPoseOnLine = new Pose2d(-29,23, Math.toRadians(90));//go shoot
 
-    private final Pose2d shotPoseOffLine = new Pose2d(-40, 16, Math.toRadians(76));
+    private final Pose2d shotPoseOffLine = new Pose2d(-40, 16, Math.toRadians(72));
     //-29, 23
     //-2.55, 7.10
 
@@ -192,7 +192,7 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
                 //BEFORE START----------------------------
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                .stopAndAdd(robot.shooter.setTargetRPM(2400))
+                .stopAndAdd(robot.shooter.setTargetRPM(2350))
                 //.stopAndAdd(robot.hood.setHoodPose(.6))
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.shooter.spin())
@@ -211,7 +211,7 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
-                .stopAndAdd(robot.shooter.setTargetRPM(2390))
+                .stopAndAdd(robot.shooter.setTargetRPM(2320))
                 //SHOT SEQUENCE------------------------------
 
 
@@ -223,8 +223,8 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
                 .stopAndAdd(robot.shooter.spin())
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
                 //.strafeToLinearHeading(new Vector2d(0, 59), n 180)//intake
-                .strafeToConstantHeading(new Vector2d(0, 48), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(0, 59), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(0, 44), new TranslationalVelConstraint(100))//intake
+                .strafeToConstantHeading(new Vector2d(0, 57), new TranslationalVelConstraint(100))//intake
                 .stopAndAdd(robot.intake.stop())
 
                 //.strafeToConstantHeading(new Vector2d(-13, 48), new TranslationalVelConstraint(100))//intake
