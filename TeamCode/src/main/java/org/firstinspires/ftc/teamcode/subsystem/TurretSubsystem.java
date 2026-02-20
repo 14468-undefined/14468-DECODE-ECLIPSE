@@ -41,11 +41,16 @@ public class TurretSubsystem implements Subsystem {
     /* ---------------- Vision PID ---------------- */
 
 
-    //constants 1/15/26 working decent
-    //new from 2/15 for less oscillations
-    public static double kP = 0.017;//was .03 before 2/11
+    //before deadband
+    /*
+    p = .017
+    i = .002
+    d = .0017
+     */
+    //constants 2/20 added deadband = more P and D
+    public static double kP = 0.025;//was .03 before 2/11
     public static double kI = 0.002;
-    public static double kD = 0.0017;
+    public static double kD = 0.002;//.0017
     public static double kS = 0.0;
 
 
