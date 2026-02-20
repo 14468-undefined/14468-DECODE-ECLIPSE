@@ -64,7 +64,7 @@ public class TurretSubsystem implements Subsystem {
 
     private static final double MAX_POWER = 0.5;
     private static final double MIN_POWER = 0.05;
-    private static final double TX_TOLERANCE = 0.5;
+    private static final double TX_TOLERANCE = 5;
 
     private double desiredPower = 0.0;
 
@@ -174,6 +174,44 @@ public class TurretSubsystem implements Subsystem {
 
 
 
+    public double visionPIDTeleop(double error) {
+
+        double currentTime = System.nanoTime() / 1e9;
+        double dt = currentTime - lastTime;
+        if (dt <= 0) dt = 0.02;
+
+        double output = 0.0;
+
+        // Only calculate PID + feedforward if error is greater than tolerance
+        if (Math.abs(error) > TX_TOLERANCE) {
+
+            // PID terms
+            double P = kP * error;
+            integralSum += error * dt;
+            double I = kI * integralSum;
+            double derivative = (error - lastError) / dt;
+            double D = kD * derivative;
+
+            // Static friction feedforward (kS)
+            double kS_term = Math.copySign(kS, error);
+
+            // Compute output
+            output = P + I + D + kS_term;
+
+            // Clamp output
+            output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
+
+        } else {
+            // Deadband & integral reset
+            output = 0.0;
+            integralSum = 0.0;
+        }
+
+        lastError = error;
+        lastTime = currentTime;
+
+        return output;
+    }
 
     /* ---------------- Vision PID ---------------- */
 
@@ -238,7 +276,7 @@ public class TurretSubsystem implements Subsystem {
             case VISION:
                 //latest update 1/14/26 1:50pm - made error + tx not negative tx
                 double tx = txSupplier.getAsDouble();
-                desiredPower = visionPID(tx);
+                desiredPower = visionPIDTeleop(tx);
                 break;
 
 
