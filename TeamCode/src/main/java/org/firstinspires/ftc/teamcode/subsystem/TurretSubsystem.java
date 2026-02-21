@@ -8,6 +8,7 @@ import dev.nextftc.control.KineticState;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.hardware.controllable.RunToPosition;
 import dev.nextftc.hardware.impl.MotorEx;
 
 @Config
@@ -132,6 +133,7 @@ public class TurretSubsystem implements Subsystem {
                                 angleController.getGoal().getPosition()
                                         - turretMotor.getCurrentPosition()
                         ) < TICKS_TOLERANCE
+
                 )
                 .setStop(interrupted -> mode = TurretMode.IDLE)
                 .requires(this)

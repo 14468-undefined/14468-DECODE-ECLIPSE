@@ -37,8 +37,8 @@ import org.firstinspires.ftc.teamcode.util.Constants;
  */
 
 //WAI = With auto aim
-@Autonomous(name = "BN12DA3DA6New")
-public class BN12DA3DA6NEW extends NextFTCOpMode {
+@Autonomous(name = "BN12DA3")
+public class BN12DA3 extends NextFTCOpMode {
 
     private final Pose2d startPose = new Pose2d(-61, -40, Math.toRadians(180));
     //private final Pose2d shotPoseOnLine = new Pose2d(-14,14, Math.toRadians(90));//go shoot
@@ -74,7 +74,7 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
 
     double SHOOTING_DELAY = 3;//seconds
     private final BaseRobot robot = BaseRobot.INSTANCE;
-    public BN12DA3DA6NEW() {
+    public BN12DA3() {
 
 
         addComponents(
@@ -257,8 +257,8 @@ public class BN12DA3DA6NEW extends NextFTCOpMode {
 
                 .stopAndAdd(robot.intake.stop())
 
-                .strafeToConstantHeading(new Vector2d(0, -44), new TranslationalVelConstraint(100))//intake
-                .strafeToConstantHeading(new Vector2d(0, -53), new TranslationalVelConstraint(100))//intake
+                //.strafeToConstantHeading(new Vector2d(0, -44), new TranslationalVelConstraint(100))//intake
+                //.strafeToConstantHeading(new Vector2d(0, -53), new TranslationalVelConstraint(100))//intake
 
                 //INTAKE FIRST PILE--------------------------
 
