@@ -120,6 +120,7 @@ public class BLUE_STATES_TELEOP_V2 extends NextFTCOpMode {
         //GAMEPAD 1 ---------------- zone + drive
 
 
+        Gamepads.gamepad1().x().whenBecomesTrue(() -> CURRENT_RPM = 2700);
         //DRIVE
         Command robotCentricDrive = drive.driverControlledCommand(
                 Gamepads.gamepad1().leftStickY().negate(),

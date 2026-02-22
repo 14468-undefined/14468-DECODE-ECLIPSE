@@ -192,7 +192,7 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
                 //BEFORE START----------------------------
 
                 .stopAndAdd(robot.intake.setIntakePower(1))
-                .stopAndAdd(robot.shooter.setTargetRPM(2350))
+                .stopAndAdd(robot.shooter.setTargetRPM(2350))//2350
                 //.stopAndAdd(robot.hood.setHoodPose(.6))
                 .stopAndAdd(robot.gate.openGate)
                 .stopAndAdd(robot.shooter.spin())
@@ -211,7 +211,7 @@ public class RN12DA3DA6NEW extends NextFTCOpMode {
                 .stopAndAdd(robot.intake.stop())
                 //.stopAndAdd(robot.shooter.stop())
                 .stopAndAdd(robot.gate.closeGate)
-                .stopAndAdd(robot.shooter.setTargetRPM(2320))
+                .stopAndAdd(robot.shooter.setTargetRPM(2320))//2320
                 //SHOT SEQUENCE------------------------------
 
 

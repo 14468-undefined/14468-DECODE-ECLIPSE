@@ -140,6 +140,9 @@ public class RED_STATES_TELEOP_V2 extends NextFTCOpMode {
 
         //new zones
 
+        Gamepads.gamepad1().x().whenBecomesTrue(() -> CURRENT_RPM = 2700);
+
+
         Gamepads.gamepad1().rightTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM += 100);
         Gamepads.gamepad1().leftTrigger().atLeast(.1).whenBecomesTrue(() -> CURRENT_RPM -= 100);
         Gamepads.gamepad1().rightBumper().whenBecomesTrue(() -> CURRENT_RPM += 50);
